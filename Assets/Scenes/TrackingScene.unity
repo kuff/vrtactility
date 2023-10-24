@@ -544,7 +544,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pressureThreshold: 0.5
-  handInitializer: {fileID: 1639653292}
+  ovrInitializer: {fileID: 1639653292}
   touchingBoneIds: 
   touchingBonePressures: []
   isGrabbed: 0
@@ -605,10 +605,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df1b9b708640c1444bac496e2cc9b544, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  recSkeleton: {fileID: 0}
-  rightHandSkeleton: {fileID: 38500067}
+  onInitialized:
+    m_PersistentCalls:
+      m_Calls: []
+  headTransform: {fileID: 0}
   leftHandSkeleton: {fileID: 458759416}
-  debugMode: 0
+  rightHandSkeleton: {fileID: 38500067}
   isInitialized: 0
 --- !u!4 &1639653293
 Transform:

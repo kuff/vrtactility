@@ -11,7 +11,7 @@ public class UniformGrabbable : MonoBehaviour
 
     [Tooltip("The amount of pressure which must be applied for the ball to be grabbed.")]
     [Range(0.1f, 1.0f)] public float pressureThreshold;
-    [SerializeField] private HandInitializer handInitializer;
+    [SerializeField] private OVRInitializer ovrInitializer;
 
     private SphereCollider _sphereCollider;
 
@@ -41,19 +41,19 @@ public class UniformGrabbable : MonoBehaviour
     private void Update()
     {
         // Wait for OVR to initialize bones
-        if (_boneCapsules is null && handInitializer.isInitialized)
+        if (_boneCapsules is null && ovrInitializer.isInitialized)
         {
             // ...Save bone capsules
-            _boneCapsules = handInitializer.fingerCapsulesLeftH
-                .Concat(handInitializer.fingerCapsulesRightH)
+            _boneCapsules = ovrInitializer.leftHandBoneCapsules
+                .Concat(ovrInitializer.rightHandBoneCapsules)
                 .ToList();
             SetIsKinematic(false);
         }
-        if (_bones is null && handInitializer.isInitialized)
+        if (_bones is null && ovrInitializer.isInitialized)
         {
             // ...Save bones
-            _bones = handInitializer.fingerBonesLeftH
-                .Concat(handInitializer.fingerBonesRightH)
+            _bones = ovrInitializer.leftHandBones
+                .Concat(ovrInitializer.rightHandBones)
                 .ToList();
         }
         
@@ -101,7 +101,7 @@ public class UniformGrabbable : MonoBehaviour
         _touchingPointVectors[boneId] = collision.contacts[0].point;
     }
 
-    private void SetIsKinematic(bool state)
+    private void SetIsKinematic(in bool state)
     {
         // Loop through all Rigidbodies on all OVRBoneCapsules and update their state
         foreach (var boneCapsule in _boneCapsules)
@@ -153,7 +153,7 @@ public class UniformGrabbable : MonoBehaviour
         if (!IsBoneOnValidHand(in closestBoneCapsule))
         {
             // Clear state and return if the colliding hand is not the hand currently touching
-            Clear();
+            ClearTrackedBones();
 
             SetIsKinematic(in closestBoneCapsule, true);
             SetIsKinematic(in closestBoneCapsule, false);
@@ -163,6 +163,19 @@ public class UniformGrabbable : MonoBehaviour
 
         // Add bone and calculate applied pressure
         var boneId = GetBoneId(in closestBoneCapsule);
+        
+        // switch (boneId)
+        // {
+        //     case OVRSkeleton.BoneId.Hand_Thumb3:
+        //     case OVRSkeleton.BoneId.Hand_Index3:
+        //     case OVRSkeleton.BoneId.Hand_Middle3:
+        //     case OVRSkeleton.BoneId.Hand_Ring3:
+        //     case OVRSkeleton.BoneId.Hand_Pinky3:
+        //         break;
+        //     default:
+        //         return;
+        // }
+        
         try
         {
             _touchingPointVectors.Add(boneId, collision.contacts[0].point);
@@ -176,7 +189,7 @@ public class UniformGrabbable : MonoBehaviour
         touchingBonePressures.Add(GetAppliedPressure(in closestBoneCapsule));
     }
     
-    private void Clear()
+    private void ClearTrackedBones()
     {
         _touchingPointVectors.Clear();
         _touchingBoneCapsules.Clear();
@@ -250,7 +263,7 @@ public class UniformGrabbable : MonoBehaviour
             SetIsKinematic(in closestBoneCapsule, false);
             return;
         }
-        Clear();
+        ClearTrackedBones();
 
         // If no bones are touching anymore we do the same for all bones in the hand, even those that haven't directly touched the object
         SetIsKinematic(true);
@@ -273,20 +286,20 @@ public class UniformGrabbable : MonoBehaviour
         // A more efficient way of removing elements from lists
 
         // For touchingBoneIds, _touchingBoneCapsules, touchingBonePressures
-        touchingBoneIds[index] = touchingBoneIds[^1];
-        _touchingBoneCapsules[index] = _touchingBoneCapsules[^1];
-        touchingBonePressures[index] = touchingBonePressures[^1];
-        touchingBoneIds.RemoveAt(touchingBoneIds.Count - 1);
-        _touchingBoneCapsules.RemoveAt(_touchingBoneCapsules.Count - 1);
-        touchingBonePressures.RemoveAt(touchingBonePressures.Count - 1);
+        touchingBoneIds         [index] = touchingBoneIds[^1];
+        _touchingBoneCapsules   [index] = _touchingBoneCapsules[^1];
+        touchingBonePressures   [index] = touchingBonePressures[^1];
+        touchingBoneIds         .RemoveAt(touchingBoneIds.Count - 1);
+        _touchingBoneCapsules   .RemoveAt(_touchingBoneCapsules.Count - 1);
+        touchingBonePressures   .RemoveAt(touchingBonePressures.Count - 1);
 
         // For _touchingPointVectors
         var pairAtIndex = _touchingPointVectors.ElementAt(index);
         var lastPair = _touchingPointVectors.ElementAt(_touchingPointVectors.Count - 1);
+        
         _touchingPointVectors.Remove(lastPair.Key);
+        
         if (!EqualityComparer<OVRSkeleton.BoneId>.Default.Equals(pairAtIndex.Key, lastPair.Key))
-        {
             _touchingPointVectors[pairAtIndex.Key] = lastPair.Value;
-        }
     }
 }

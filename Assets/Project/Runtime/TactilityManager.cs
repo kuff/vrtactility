@@ -7,7 +7,7 @@ using UnityEngine;
 public class TactilityManager : MonoBehaviour
 {
     [Tooltip("Log outbound command strings to the console before they are transmitted.")] [SerializeField] 
-    public bool logOutboundCommands = false;
+    public bool logOutboundCommands;
     
     [SerializeField] private CalibrationScriptableObject calibrationData;
     private List<PadScript.Pad> _pads;
@@ -147,7 +147,7 @@ public class TactilityManager : MonoBehaviour
         
         IEnumerator WriteTimeout()
         {
-            Debug.Log("Outbound command: " + command);
+            // Debug.Log("Outbound command: " + command);
             _glovePort.SendSerialMessage(command + "\r");                      // Write command to glove box
             yield return new WaitForSeconds(seconds: (float)timeout / 1_000);  // Wait for specified amount of seconds
             _portWriteInProgress = false;                                      // Start listening for new commands again
