@@ -4,7 +4,9 @@ using UnityEngine;
 [RequireComponent(typeof(UniformGrabbable))]
 public class FreeFloatable : MonoBehaviour
 {
-    [Tooltip("Occasionally moves floatable in front of player head if enabled.")]
+    private const float DotMoveThreshold = 0.4f;
+    
+    [Tooltip("Moves floatable in front of player head if enabled.")]
     public bool moveWithPlayerHead;
 
     [SerializeField] private float _baseForce;
@@ -52,17 +54,23 @@ public class FreeFloatable : MonoBehaviour
 
         if (moveWithPlayerHead)
         {
-            // Calculate the the ball position in the player's field of view
+            // Calculate the direction from the player's head to the object
+            var delta = transform.position - _playerHeadTransform.position;
+            delta.y = 0f;  // Make sure the movement is only in the XZ plane
+
+            // Calculate the dot product to check the relative position
             var forward = _playerHeadTransform.TransformDirection(Vector3.forward);
             forward.y = 0f;
-            var delta = Vector3.Normalize(transform.position - _playerHeadTransform.position);
-            delta.y = 0f;
-            var dot = Vector3.Dot(forward, delta);
-
-            if (dot < 0.4f)
+            var dot = Vector3.Dot(forward, delta.normalized);
+            
+            // If the object is within a certain angle in front of the player
+            if (dot < DotMoveThreshold)
             {
-                // Move the ball in front of the player
-                var newPosition = Vector3.Normalize(forward) * _originDistanceFromCenter;
+                // Rotate the delta direction around the Y axis by 90 degrees to get a perpendicular direction
+                var rotatedDirection = Quaternion.Euler(0, 90, 0) * delta.normalized;
+
+                // Move the object in this new direction by the desired distance
+                var newPosition = _playerHeadTransform.position + rotatedDirection * _originDistanceFromCenter;
                 newPosition.y = _originPoint.y;
                 _originPoint = newPosition;
             }

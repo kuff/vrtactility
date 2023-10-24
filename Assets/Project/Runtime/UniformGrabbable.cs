@@ -7,7 +7,7 @@ using UnityEngine;
 [RequireComponent(typeof(SphereCollider))]
 public class UniformGrabbable : MonoBehaviour
 {
-    private const float MATCHING_THRESHOLD = 0.001f;
+    private const float MatchingThreshold = 0.001f;
 
     [Tooltip("The amount of pressure which must be applied for the ball to be grabbed.")]
     [Range(0.1f, 1.0f)] public float pressureThreshold;
@@ -223,7 +223,7 @@ public class UniformGrabbable : MonoBehaviour
         foreach (var bone in _boneCapsules)
         {
             var distance = Vector3.Distance(bone.CapsuleCollider.transform.position, collision.transform.position);
-            if (distance > MATCHING_THRESHOLD || distance > smallestDistance) continue;  // NOTE: MATCHING_THRESHOLD check may be redundant
+            if (distance > MatchingThreshold || distance > smallestDistance) continue;  // NOTE: MATCHING_THRESHOLD check may be redundant
         
             closestBone = bone;
             smallestDistance = distance;
