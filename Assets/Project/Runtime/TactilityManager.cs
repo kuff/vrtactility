@@ -4,11 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[RequireComponent(typeof(IPadProvider))]
+[RequireComponent(typeof(ICommandStringProvider))]
 public class TactilityManager : MonoBehaviour
 {
-    [Tooltip("Log outbound command strings to the console before they are transmitted.")] [SerializeField] 
-    public bool logOutboundCommands;
-    
     [SerializeField] private CalibrationScriptableObject calibrationData;
     private List<PadScript.Pad> _pads;
     
@@ -26,6 +25,8 @@ public class TactilityManager : MonoBehaviour
 
     private void Start()
     {
+        _pads = GetComponent<IPadProvider>()!.GetPadRemap();
+        
         if (_pads.Count == 0) 
             Debug.LogWarning("No calibration data found, tactility will be disabled");
         
