@@ -12,7 +12,7 @@ public class TactilityManager : MonoBehaviour
     private List<PadScript.Pad> _pads;
     
     private UniformGrabbable _ug;
-    private SerialController _glovePort;
+    private SerialManager _sm;
     
     private bool _portWriteInProgress;
     private float[] _prevValueBatch;
@@ -34,7 +34,7 @@ public class TactilityManager : MonoBehaviour
         _portWriteInProgress = false;
         
         var serialControllerGameObject = GameObject.Find("SerialController");
-        _glovePort = serialControllerGameObject.GetComponent<SerialController>();
+        _sm = serialControllerGameObject.GetComponent<SerialManager>();
     }
 
     private void Update()
@@ -93,7 +93,7 @@ public class TactilityManager : MonoBehaviour
         const string invariablePart1 = "velec 11 *special_anodes 1 *name test *elec 1 *pads ";
         const string invariablePart2 = " *amp ";
         const string invariablePart3 = " *width ";
-        const string finalPart = " *selected 1 *sync 0\r";
+        const string finalPart = " *selected 1 *sync 0";
 
         var variablePart1 = "";
         var variablePart2 = "";
@@ -149,7 +149,7 @@ public class TactilityManager : MonoBehaviour
         IEnumerator WriteTimeout()
         {
             // Debug.Log("Outbound command: " + command);
-            _glovePort.SendSerialMessage(command + "\r");                      // Write command to glove box
+            _sm.Send(command);                                                 // Write command to glove box
             yield return new WaitForSeconds(seconds: (float)timeout / 1_000);  // Wait for specified amount of seconds
             _portWriteInProgress = false;                                      // Start listening for new commands again
             callback?.Invoke();                                                // Invoke the provided callback if any

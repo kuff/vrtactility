@@ -17,7 +17,7 @@ public class ConnectDevice : MonoBehaviour
 
     [SerializeField] private CalibrationScriptableObject cd;
 
-    public static SerialController gloveSerialController;
+    public static SerialManager serialManager;
 
     private void Awake()
     {
@@ -55,22 +55,7 @@ public class ConnectDevice : MonoBehaviour
             print("COM" + ComPortBox.text);
             print("Hi");
             
-            // Define SerialController and make sure it persist between scene loads
-            var serialControllerGameObject = GameObject.Find("SerialController");
-            gloveSerialController = serialControllerGameObject.GetComponent<SerialController>();
-            gloveSerialController.portName = "COM" + ComPortBox.text;
-            gloveSerialController.SetTearDownFunction(() => gloveSerialController.SendSerialMessage("stim off\r"));
-            gloveSerialController.enabled = true;
-            DontDestroyOnLoad(this);
-            DontDestroyOnLoad(serialControllerGameObject);
-            
-            // SerialController messages are buffered and thus we can spam it without issues
-            print("Hello");
-            Thread.Sleep(200);
-            gloveSerialController.SendSerialMessage("iam TACTILITY\r");
-            gloveSerialController.SendSerialMessage("elec 1 *pads_qty 32\r");
-            gloveSerialController.SendSerialMessage("battery ?\r");
-            gloveSerialController.SendSerialMessage("freq 50\r");
+            serialManager.Connect(ComPortBox.text);
             
             // === The results are printed in a separate GameObject ===
             
