@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Newtonsoft.Json;
 using UnityEngine;
 
 /*
@@ -168,11 +167,15 @@ public class HandLogger : MonoBehaviour
                 }
                 else
                 {
-                    // Compare other objects by turning them to json and comparing the strings
                     // TODO: Come up with a more performant approach to this
-                    var obj1 = JsonConvert.SerializeObject(data);
-                    var obj2 = JsonConvert.SerializeObject(_previousLogs[(int)type]);
-                    if (obj1 == obj2) return;
+                    // Compare other objects by turning them to json and comparing the strings
+                    // Assuming 'data' and '_previousLogs[(int)type]' can be serialized by JsonUtility
+                    // NOTE: Make sure that the classes for 'data' and the elements of '_previousLogs' are marked with [System.Serializable] attribute.
+
+                    var obj1 = JsonUtility.ToJson(data);
+                    var obj2 = JsonUtility.ToJson(_previousLogs[(int)type]);
+
+                    if (obj1 == obj2) return; // If the serialized JSON strings are equal, return without doing anything.
                 }
             }
             catch
