@@ -271,18 +271,23 @@ namespace Internal
             SetIsKinematic(true);
             SetIsKinematic(false);
         }
+        
+        public bool IsLeftHandTouching()
+        {
+            // Although GetBoneIndex returns _bones index and not _boneCapsules, we're still free to pipe it in to the left hand check
+            return _touchingBoneCapsules.Count != 0 && IsIndexOnLeftHand(GetBoneIndex(_touchingBoneCapsules[0]));
+        }
 
         [CanBeNull]
         public Rigidbody GetTouchingHandRoot()
         {
             if (_touchingBoneCapsules.Count == 0) return null;
-        
-            // Although GetBoneIndex returns _bones index and not _boneCapsules, we're still free to pipe it in to the left hand check
-            return IsIndexOnLeftHand(GetBoneIndex(_touchingBoneCapsules[0]))
+            
+            return IsLeftHandTouching()
                 ? _boneCapsules[0].CapsuleRigidbody
                 : _boneCapsules[19].CapsuleRigidbody;
         }
-    
+
         private void SwapRemove(in int index)
         {
             // A more efficient way of removing elements from lists

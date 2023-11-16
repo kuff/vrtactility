@@ -4,12 +4,12 @@ using UnityEngine;
 
 namespace Editor
 {
-    [CustomEditor(typeof(BasicGrabAndMoveScenario))]
+    [CustomEditor(typeof(GrabAndMoveScenario))]
     public class GrabAndMoveScenarioVisualizer : UnityEditor.Editor
     {
         private void OnSceneGUI()
         {
-            var scenario = (BasicGrabAndMoveScenario)target;
+            var scenario = (GrabAndMoveScenario)target;
 
             // Draw a line at target height
             Handles.color = Color.green;
