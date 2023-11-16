@@ -10,10 +10,13 @@ namespace Internal
     public class UniformGrabbable : MonoBehaviour
     {
         private const float MatchingThreshold = 0.001f;
-
-        [Tooltip("The amount of pressure which must be applied for the ball to be grabbed.")]
-        [Range(0.1f, 1.0f)] public float pressureThreshold;
-        [SerializeField] private OVRInitializer ovrInitializer;
+        
+        [Tooltip("Defines the minimum pressure required for a bone to be considered as grabbing the object. This threshold helps distinguish between a light touch and an actual grip.")]
+        [Range(0.1f, 1.0f)]
+        public float pressureThreshold;
+        [Tooltip("Reference to the OVRInitializer component. This component is used for initializing and managing Oculus VR hand tracking data.")]
+        [SerializeField]
+        private OVRInitializer ovrInitializer;
 
         private SphereCollider _sphereCollider;
 

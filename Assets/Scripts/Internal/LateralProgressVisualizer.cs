@@ -5,11 +5,16 @@ namespace Internal
     [RequireComponent(typeof(GrabAndMoveScenario))]
     public class LateralProgressVisualizer : MonoBehaviour
     {
-        [SerializeField] private float visualSize = .01f;           // Size of the visual indicator
-        [SerializeField] private float offsetDistance = .1f;        // Distance from the original object
+        [Tooltip("Initial size of the visual sphere indicator. This determines the starting size of the sphere before any animation or scaling takes place.")]
+        [SerializeField] private float visualSize = .01f;
+        [Tooltip("Distance from the 'UniformGrabbable' object at which the visual sphere indicator is placed. This determines how far to the side (left or right) the sphere appears from the object.")]
+        [SerializeField] private float offsetDistance = .1f;
+        [Tooltip("Material used for the visual sphere indicator. This material will be applied to the sphere to provide the desired visual effect.")]
         [SerializeField] private Material transparentMaterial;
-        [SerializeField] private float animationDuration = 1.0f;    // Duration of the animation
-        [SerializeField] private float waitBetweenLoops = 1.5f;     // Wait time between animation loops
+        [Tooltip("Duration of the animation cycle where the sphere moves towards the target height. This is the time it takes for one complete animation from start to finish.")]
+        [SerializeField] private float animationDuration = 1.0f;
+        [Tooltip("Wait time between the end of one animation loop and the start of the next. This determines the pause duration before the animation restarts.")]
+        [SerializeField] private float waitBetweenLoops = 1.5f;
 
         private GrabAndMoveScenario _scenario;
         private UniformGrabbable _ug;
@@ -66,6 +71,7 @@ namespace Internal
         {
             // Calculate the vector from the head to the _ug object
             var headToUGDirection = (_ug.transform.position - _headTransform.position).normalized;
+            
             // Calculate the perpendicular vector to the left or right
             var perpendicularDirection = _ug.IsLeftHandTouching() ? Vector3.Cross(Vector3.up, headToUGDirection) : Vector3.Cross(headToUGDirection, Vector3.up);
 

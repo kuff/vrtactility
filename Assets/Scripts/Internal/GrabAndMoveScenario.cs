@@ -4,7 +4,7 @@ namespace Internal
 {
     public class GrabAndMoveScenario : MonoBehaviour, IScenario
     {
-        [Tooltip("The y-level to which the ball must be moved to complete the task.")]
+        [Tooltip("The target height that the grabbed object needs to reach. This height is used as a goal for the progress calculation and visual indicators.")]
         public float targetHeight;
         
         public float Progress { get; private set; }
