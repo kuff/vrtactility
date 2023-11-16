@@ -77,12 +77,6 @@ namespace Internal
 
         private void UpdateSphereScale()
         {
-            if (!_isAnimating)
-            {
-                _visualProgressInstance.transform.localScale = Vector3.one * visualSize;  // Reset scale when not animating
-                return;
-            }
-
             var distanceToTarget = Vector3.Distance(_visualProgressInstance.transform.position, _targetProgressInstance.transform.position);
             var scaleMultiplier = Mathf.Clamp01(1 - (distanceToTarget / offsetDistance));
             _visualProgressInstance.transform.localScale = Vector3.one * visualSize * (1 + scaleMultiplier);
