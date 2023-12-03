@@ -1,12 +1,11 @@
-using Internal.Calibration;
 using UnityEngine;
 
 namespace Internal
 {
     public class SerialControllerMessageListener : MonoBehaviour
     {
-        [SerializeField] private ConnectDevice cd;
-        [SerializeField] private UiManager uim;
+        // [SerializeField] private ConnectDevice cd;
+        // [SerializeField] private UiManager uim;
 
         private bool _isSuccessfullyConnected = false;
         private bool _receivedValidGreeting = false;
@@ -34,7 +33,7 @@ namespace Internal
             if (response.Length < checkString.Length || response[..checkString.Length] != checkString) 
                 return;
         
-            uim.SetBatteryLevel(response);
+            // uim.SetBatteryLevel(response);
         }
 
         // Invoked when a connect/disconnect event occurs. The parameter 'success'
@@ -51,8 +50,8 @@ namespace Internal
         private void SetConnectionStatus(bool success)
         {
             // Manage ConnectDevice state
-            if (success) cd.ConnectDevicePanel.SetActive(false);
-            else cd.ConnectingText.alpha = 0;
+            // if (success) cd.ConnectDevicePanel.SetActive(false);
+            // else cd.ConnectingText.alpha = 0;
 
             // Log connection status
             Debug.Log(success ? "Connection established" : "Connection attempt failed or disconnection detected");
