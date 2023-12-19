@@ -1,4 +1,3 @@
-using Newtonsoft.Json.Serialization;
 using UnityEngine;
 
 public class SerialControllerMessageListener : MonoBehaviour
