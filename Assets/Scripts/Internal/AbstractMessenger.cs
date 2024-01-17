@@ -2,28 +2,30 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace Internal
 {
     [RequireComponent(typeof(SerialController))]
     public abstract class AbstractMessenger : MonoBehaviour
     {
+        [Tooltip("Controls the logging of serial messages. Outbound: Logs messages sent from the device. Inbound: Logs messages received by the device. All: Logs all messages, both inbound and outbound. Use this to debug and monitor serial communication. Only logs when running through the Editor.")]
         public SerialLogModes logMode;
 
-        public string Port { get; private set; }
-        public string Battery { get; private set; }
-        public bool IsConnected { get; private set; }
+        public string Port { get; protected set; }
+        public string Battery { get; protected set; }
+        public bool IsConnected { get; protected set; }
         
-        public abstract void Connect();
+        public abstract void Connect(string port);
         public abstract void EnableStimulation();
         public abstract void DisableStimulation();
         
-        private SerialController _sc;
+        protected SerialController Sc;
 
         protected virtual void Start()
         {
-            _sc = GetComponent<SerialController>();
-            _sc.SetTearDownFunction(() => Send("stim off"));
+            Sc = GetComponent<SerialController>();
+            // _sc.SetTearDownFunction(() => Send("stim off"));
         
             DontDestroyOnLoad(this);
         }
@@ -31,10 +33,10 @@ namespace Internal
         public IEnumerator Send(string message, Action callback = null, float invokeWait = 0f)
         {
 #if UNITY_EDITOR
-            if (logMode is SerialLogModes.Outbound or SerialLogModes.Both)
-                Debug.Log($"Outbound message queued: {message}");
+            if (logMode is SerialLogModes.Outbound or SerialLogModes.All)
+                Debug.Log($"{this}: Outbound message queued: {message}");
 #endif
-            _sc.SendSerialMessage($"{message}\r");
+            Sc.SendSerialMessage($"{message}\r");
             yield return new WaitForSeconds(invokeWait / 1_000f);
             callback?.Invoke();
         }
@@ -58,8 +60,8 @@ namespace Internal
         protected virtual void OnMessageArrived(string message)
         {
 #if UNITY_EDITOR
-            if (logMode is SerialLogModes.Inbound or SerialLogModes.Both)
-                Debug.Log($"Inbound message received: {message}");
+            if (logMode is SerialLogModes.Inbound or SerialLogModes.All)
+                Debug.Log($"{this}: Inbound message received: {message}");
 #endif
         }
 
@@ -67,7 +69,7 @@ namespace Internal
         protected virtual void OnConnectionEvent(bool value)
         {
 #if UNITY_EDITOR
-            Debug.Log(value ? "Connection established" : "Connection attempt failed or disconnection detected");
+            Debug.Log(this + (value ? ": Connection established" : ": Connection attempt failed or disconnection detected"));
 #endif
         }
     }
