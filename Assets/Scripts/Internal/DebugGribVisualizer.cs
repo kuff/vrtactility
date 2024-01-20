@@ -10,7 +10,7 @@ namespace Internal
         private UniformGrabbable _ug;
         private Renderer _renderer;
         private static readonly int Color1 = Shader.PropertyToID("_Color");
-        private int _lastCount = 0;  // The number of touching bones in the previous frame update
+        private int _lastCount;  // The number of touching bones in the previous frame update
 
         private void Start()
         {

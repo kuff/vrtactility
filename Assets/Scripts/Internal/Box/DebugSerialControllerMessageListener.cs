@@ -1,14 +1,14 @@
 using UnityEngine;
 
-namespace Internal
+namespace Internal.Box
 {
-    public class SerialControllerMessageListener : MonoBehaviour
+    public class DebugSerialControllerMessageListener : MonoBehaviour
     {
         // [SerializeField] private ConnectDevice cd;
         // [SerializeField] private UiManager uim;
 
-        private bool _isSuccessfullyConnected = false;
-        private bool _receivedValidGreeting = false;
+        private bool _isSuccessfullyConnected;
+        private bool _receivedValidGreeting;
 
         // Invoked when a line of data is received from the serial device.
         // ReSharper disable once UnusedMember.Local
@@ -26,7 +26,7 @@ namespace Internal
             Debug.Log("Inbound response: " + msg);
         }
 
-        private void SetBattery(string response)
+        private static void SetBattery(string response)
         {
             // Check if response string contains the known battery response sequence and ignore it if it does not
             const string checkString = "Re:[] battery *capacity=";
@@ -47,7 +47,7 @@ namespace Internal
             else _isSuccessfullyConnected = true;
         }
 
-        private void SetConnectionStatus(bool success)
+        private static void SetConnectionStatus(bool success)
         {
             // Manage ConnectDevice state
             // if (success) cd.ConnectDevicePanel.SetActive(false);

@@ -12,7 +12,7 @@ namespace Internal
         [Tooltip("Log outbound command strings to the console before they are transmitted.")] [SerializeField] 
         public bool logOutboundCommands;
     
-        [SerializeField] private CalibrationScriptableObject calibrationData;
+        [SerializeField] private CalibrationData calibrationData;
         private List<PadScript.Pad> _pads;
     
         private UniformGrabbable _ug;

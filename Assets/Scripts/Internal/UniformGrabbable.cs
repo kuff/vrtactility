@@ -293,7 +293,7 @@ namespace Internal
 
         private void SwapRemove(in int index)
         {
-            // A more efficient way of removing elements from lists
+            // A more efficient way of removing elements from lists when the order of elements doesn't matter
 
             // For touchingBoneIds, _touchingBoneCapsules, touchingBonePressures
             touchingBoneIds         [index] = touchingBoneIds[^1];

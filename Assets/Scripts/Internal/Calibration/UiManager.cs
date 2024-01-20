@@ -31,7 +31,7 @@ namespace Internal.Calibration
         private string stringStart = "Re:[] battery *capacity=";
         private string SaveDocumentPath = Application.streamingAssetsPath + "/Calibration_Saved_Data/" + "CalibrationSave" + ".txt";
         private string separation = "/";
-        [SerializeField] private CalibrationScriptableObject cd;
+        [SerializeField] private CalibrationData cd;
 
         private void Awake()
         {

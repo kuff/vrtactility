@@ -18,7 +18,7 @@ namespace Internal.Calibration
         public static string connectedMessage;
         private int[] Remap;
 
-        [SerializeField] private CalibrationScriptableObject cd;
+        [SerializeField] private CalibrationData cd;
 
         public static SerialController gloveSerialController;
 

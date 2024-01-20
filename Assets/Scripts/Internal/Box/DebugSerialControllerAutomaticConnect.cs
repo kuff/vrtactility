@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace Internal
+namespace Internal.Box
 {
     [RequireComponent(typeof(SerialController))]
-    public class SerialControllerAutomaticConnect : MonoBehaviour
+    public class DebugSerialControllerAutomaticConnect : MonoBehaviour
     {
         private void Start()
         {
