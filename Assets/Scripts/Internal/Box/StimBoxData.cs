@@ -40,9 +40,7 @@ namespace Internal.Box
                 // Only if it doesn't exist, create a new instance and save it
                 _instance = CreateInstance<StimBoxData>();
                 _instance.LastUpdated = DateTime.Now;
-#if UNITY_EDITOR
                 SaveAsset(_instance, "StimBoxData");
-#endif
                 return _instance;
             }
         }

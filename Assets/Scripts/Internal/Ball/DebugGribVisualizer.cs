@@ -1,7 +1,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace Internal
+namespace Internal.Ball
 {
     [RequireComponent(typeof(UniformGrabbable))]
     [RequireComponent(typeof(Renderer))]

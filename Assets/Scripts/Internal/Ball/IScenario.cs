@@ -1,4 +1,4 @@
-namespace Internal
+namespace Internal.Ball
 {
     public delegate void ScenarioOnSuccess();
     public delegate void ScenarioOnFailure();

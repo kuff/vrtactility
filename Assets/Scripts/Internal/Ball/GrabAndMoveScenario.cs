@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Internal
+namespace Internal.Ball
 {
     public class GrabAndMoveScenario : MonoBehaviour, IScenario
     {

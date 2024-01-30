@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace Internal
+namespace Internal.Ball
 {
     [RequireComponent(typeof(SphereCollider))]
     public class UniformGrabbable : MonoBehaviour
@@ -91,7 +92,7 @@ namespace Internal
             else if (gripVector.magnitude > 0.014)
                 isGrabbed = false;
         }
-
+        
         private void OnCollisionStay(Collision collision)
         {
             // Find matching bone
@@ -106,6 +107,7 @@ namespace Internal
             _touchingPointVectors[boneId] = collision.contacts[0].point;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SetIsKinematic(in bool state)
         {
             // Loop through all Rigidbodies on all OVRBoneCapsules and update their state
@@ -113,11 +115,13 @@ namespace Internal
                 SetIsKinematic(in boneCapsule, in state);
         }
     
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void SetIsKinematic(in OVRBoneCapsule boneCapsule, in bool state)
         {
             boneCapsule.CapsuleRigidbody.isKinematic = state;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private float GetAppliedPressure(in OVRBoneCapsule boneCapsule)
         {
             var r = _sphereCollider.transform.localScale.x;
@@ -134,6 +138,7 @@ namespace Internal
             return pressure;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetBoneIndex(in OVRBoneCapsule boneCapsule)
         {
             // Find out what hand boneCapsule belongs to in order to index properly
@@ -143,6 +148,7 @@ namespace Internal
             return indexOffset + boneCapsule.BoneIndex;
         }
     
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsIndexOnLeftHand(in int index)
         {
             return index < _bones.Count / 2;
@@ -194,6 +200,7 @@ namespace Internal
             touchingBonePressures.Add(GetAppliedPressure(in closestBoneCapsule));
         }
     
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ClearTrackedBones()
         {
             _touchingPointVectors.Clear();
@@ -204,6 +211,7 @@ namespace Internal
             isGrabbed = false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsBoneOnValidHand(in OVRBoneCapsule boneCapsule)
         {
             if (_touchingBoneCapsules.Count == 0) return true;
@@ -214,12 +222,14 @@ namespace Internal
             return IsIndexOnLeftHand(in collidingBoneIndex) == IsIndexOnLeftHand(in firstTouchingBoneIndex);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private OVRSkeleton.BoneId GetBoneId(in OVRBoneCapsule boneCapsule)
         {
             return _bones[boneCapsule.BoneIndex].Id;
         }
 
         [CanBeNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private OVRBoneCapsule FindMatchingBone(in Collision collision)
         {
             // Find the OVRBone that best matches the colliding object
@@ -237,6 +247,7 @@ namespace Internal
             return closestBone;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsTouching(in OVRBoneCapsule bone)
         {
             foreach (var b in _touchingBoneCapsules)
@@ -275,6 +286,7 @@ namespace Internal
             SetIsKinematic(false);
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsLeftHandTouching()
         {
             // Although GetBoneIndex returns _bones index and not _boneCapsules, we're still free to pipe it in to the left hand check
@@ -282,6 +294,7 @@ namespace Internal
         }
 
         [CanBeNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Rigidbody GetTouchingHandRoot()
         {
             if (_touchingBoneCapsules.Count == 0) return null;
@@ -291,6 +304,7 @@ namespace Internal
                 : _boneCapsules[19].CapsuleRigidbody;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SwapRemove(in int index)
         {
             // A more efficient way of removing elements from lists when the order of elements doesn't matter

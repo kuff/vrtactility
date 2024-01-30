@@ -2,11 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Internal.Ball;
+using Internal.Box;
 using Internal.Calibration;
 using UnityEngine;
 
-namespace Internal
+namespace Internal.Modulation
 {
+    [RequireComponent(typeof(AbstractBoxController))]
     public class TactilityManager : MonoBehaviour
     {
         [Tooltip("Log outbound command strings to the console before they are transmitted.")] [SerializeField] 
@@ -15,6 +18,7 @@ namespace Internal
         [SerializeField] private CalibrationData calibrationData;
         private List<PadScript.Pad> _pads;
     
+        //private AbstractBoxController _bc;
         private UniformGrabbable _ug;
         private SerialController _glovePort;
     
@@ -29,6 +33,8 @@ namespace Internal
 
         private void Start()
         {
+            //_bc = GetComponent<AbstractBoxController>();
+            
             if (_pads.Count == 0) 
                 Debug.LogWarning("No calibration data found, tactility will be disabled");
         
@@ -152,6 +158,7 @@ namespace Internal
             {
                 // Debug.Log("Outbound command: " + command);
                 _glovePort.SendSerialMessage(command + "\r");                      // Write command to glove box
+                //_bc.Send(command[..2]);
                 yield return new WaitForSeconds(seconds: (float)timeout / 1_000);  // Wait for specified amount of seconds
                 _portWriteInProgress = false;                                      // Start listening for new commands again
                 callback?.Invoke();                                                // Invoke the provided callback if any

@@ -9,11 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e5adc748e50dcb4496f3c75fad7368e, type: 3}
-  m_Name: StimBoxData
+  m_Script: {fileID: 11500000, guid: 5b9610cbf0f779d46af958761c8a410e, type: 3}
+  m_Name: EmulatorSettings
   m_EditorClassIdentifier: 
-  capacity: 21
-  voltage: 3.63
-  current: -91.59
-  temperature: 
-  lastUpdatedUnix: 1706624599
+  comPort: COM2
+  baudRate: 115200

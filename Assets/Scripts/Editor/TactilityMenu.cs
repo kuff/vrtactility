@@ -71,6 +71,12 @@ namespace Editor
             }
         }
 
+        [MenuItem("Tactility/Documentation", false, 50)]
+        private static void OpenDocumentation()
+        {
+            Application.OpenURL("https://github.com/kuff/vrtactility/wiki");
+        }
+
         // Custom Editor Window to display the info
         public class BatteryInfoWindow : EditorWindow
         {

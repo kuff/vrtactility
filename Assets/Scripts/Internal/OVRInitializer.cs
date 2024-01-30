@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Internal
 {
+    // ReSharper disable once InconsistentNaming
     public class OVRInitializer : MonoBehaviour
     {
         public OVRInitializeEvent onInitialized = new();

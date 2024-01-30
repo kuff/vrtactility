@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Internal
+namespace Internal.Ball
 {
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(UniformGrabbable))]
