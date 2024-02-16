@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Ports;
+using System.Text.RegularExpressions;
 using System.Threading;
 using UnityEditor;
 using UnityEngine;
@@ -19,6 +22,22 @@ namespace Editor
         private const double HeartbeatInterval = 3.0;  // seconds
         
         public static bool IsConnected => _serialPort is { IsOpen: true };
+        public static readonly List<PadInfo> PadValues = new List<PadInfo>();
+        public static bool StimulationEnabled { get; private set; }
+        
+        public struct PadInfo
+        {
+            public readonly bool IsAnode;
+            public readonly float Amplitude;
+            public readonly float Width;
+
+            public PadInfo(bool isAnode, float amplitude = 0, float width = 0)
+            {
+                IsAnode = isAnode;
+                Amplitude = amplitude;
+                Width = width;
+            }
+        }
 
         public static void InitializePort(string portName, int baudRate)
         {
@@ -57,6 +76,11 @@ namespace Editor
 
             _readThread = new Thread(ReadPort);
             _readThread.Start();
+            
+            for (var i = 0; i < 32; i++)
+            {
+                PadValues.Add(new PadInfo(true));  // Assume all pads are anodes initially
+            }
         }
 
         private static void ReadPort()
@@ -80,14 +104,34 @@ namespace Editor
             }
         }
 
+        [SuppressMessage("ReSharper", "StringLiteralTypo")]
         private static void HandleIncomingMessage(string message)
         {
-            if (EmulatorSettings.Instance.enableLogging) 
+            if (EmulatorSettings.Instance.enableLogging)
                 Debug.Log($"[SerialPortEmulator] Received: {message}");
+
+            // Update stimulation state based on received messages
+            switch (message.Trim())
+            {
+                case "stim on\r":
+                    StimulationEnabled = true;
+                    SendResponse("Re:[] ok");
+                    break;
+                case "stim off\r":
+                    StimulationEnabled = false;
+                    SendResponse("Re:[] ok");
+                    break;
+            }
             
             // Check if the received message is "iam TACTILITY" and set the flag
             if (message == "iam TACTILITY\r") 
                 _receivedIamTactility = true;
+            
+            // Parse pad values
+            if (message.StartsWith("velec"))
+            {
+                ParsePadValues(message);
+            }
             
             var response = message switch
             {
@@ -102,6 +146,39 @@ namespace Editor
                 SendResponse(response);
             else
                 SendResponse(response + $": \"{message}\"", showWarning:true);
+        }
+        
+        private static void ParsePadValues(string message)
+        {
+            try
+            {
+                var padsMatch = Regex.Matches(message, @"\*amp (\d+)=([0-9.]+)|\*width (\d+)=([0-9.]+)");
+
+                foreach (Match match in padsMatch)
+                {
+                    if (match.Groups[1].Success)  // Amplitude value
+                    {
+                        var padIndex = int.Parse(match.Groups[1].Value) - 1;  // Adjust index to be 0-based
+                        var amplitudeValue = float.Parse(match.Groups[2].Value);
+                        var currentPadInfo = PadValues[padIndex];
+                        PadValues[padIndex] = new PadInfo(false, amplitudeValue, currentPadInfo.Width);
+                    }
+                    else if (match.Groups[3].Success)  // Width value
+                    {
+                        var padIndex = int.Parse(match.Groups[3].Value) - 1;  // Adjust index to be 0-based
+                        var widthValue = float.Parse(match.Groups[4].Value);
+                        var currentPadInfo = PadValues[padIndex];
+                        PadValues[padIndex] = new PadInfo(false, currentPadInfo.Amplitude, widthValue);
+                    }
+                }
+                SendResponse("Re:[] ok");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Error parsing pad values: " + ex.Message);
+                SendResponse($"(Emulator) error during pad value parsing: message: \"{message}\", error: {ex.Message}", 
+                    showWarning:true);
+            }
         }
 
         private static void SendResponse(string response, bool showWarning = false)

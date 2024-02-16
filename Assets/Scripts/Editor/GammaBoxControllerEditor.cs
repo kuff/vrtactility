@@ -7,7 +7,7 @@ namespace Editor
     [CustomEditor(typeof(GammaBoxController))]
     public class GammaBoxControllerEditor : UnityEditor.Editor
     {
-        private bool _showReadOnlyValues = true; // You can set the default state of the foldout here
+        private bool _showReadOnlyValues = true;  // You can set the default state of the foldout here
 
         public override void OnInspectorGUI()
         {

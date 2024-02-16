@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Editor
 {
-    public class TactilityMenu
+    public abstract class TactilityMenu
     {
         [MenuItem("Tactility/Show Battery Info", false, 1)]
         private static void ShowBatteryInfo()
@@ -86,7 +86,7 @@ namespace Editor
             
                 if (stimBoxData != null)
                 {
-                    EditorGUI.BeginDisabledGroup(true); // Disable the GUI elements (make them grey and unclickable)
+                    //EditorGUI.BeginDisabledGroup(true);  // Disable the GUI elements (make them grey and unclickable)
 
                     EditorGUILayout.LabelField("Capacity (%):", stimBoxData.capacity);
                     EditorGUILayout.LabelField("Voltage (V):", stimBoxData.voltage);
@@ -94,7 +94,7 @@ namespace Editor
                     EditorGUILayout.LabelField("Temperature (\u00b0C):", stimBoxData.temperature);
                     EditorGUILayout.LabelField("Last Updated:", stimBoxData.GetTimeSinceLastUpdate());
 
-                    EditorGUI.EndDisabledGroup();
+                    //EditorGUI.EndDisabledGroup();
                 }
                 else
                 {
