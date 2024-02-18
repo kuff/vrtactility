@@ -1,6 +1,6 @@
 namespace Internal.Box
 {
-    public enum SerialLogModes {
+    public enum SerialLogMode {
         Inbound,
         Outbound,
         All,
