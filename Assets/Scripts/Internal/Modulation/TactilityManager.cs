@@ -8,7 +8,7 @@ namespace Internal.Modulation
     [RequireComponent(typeof(IDeviceStringEncoder))]
     public class TactilityManager : MonoBehaviour
     {
-        [Tooltip("Time interval in milliseconds after which the modulation data is sent if there is any.")]
+        [Tooltip("Millisecond interval in which modulation data is sent to the device if there is any data.")]
         public float updateInterval = 100f;
         
         private AbstractBoxController _boxController;
@@ -18,19 +18,20 @@ namespace Internal.Modulation
         private float[] _amps;
         private float[] _widths;
         
-        private bool _hasUpdatedModulation = false;
+        private bool _hasBeenUpdated;
         private float _lastSendTime;
 
         protected void Start()
         {
             _boxController = GetComponent<AbstractBoxController>();
             _deviceStringEncoder = GetComponent<IDeviceStringEncoder>();
+            
             _lastSendTime = Time.time * 1000;  // Convert to milliseconds
         }
 
         protected void Update()
         {
-            if (Time.time * 1000 - _lastSendTime >= updateInterval && _hasUpdatedModulation)
+            if (Time.time * 1000 - _lastSendTime >= updateInterval && _hasBeenUpdated)
             {
                 var encodedString = _deviceStringEncoder.EncodeCommandString(_pads, _amps, _widths);
                 _boxController.Send(encodedString);
@@ -48,12 +49,12 @@ namespace Internal.Modulation
             _widths = null;
             
             // Reset the flag
-            _hasUpdatedModulation = false;
+            _hasBeenUpdated = false;
         }
 
         public void UpdateModulation(ModulationData modulationData)
         {
-            _hasUpdatedModulation = true; // Set the flag to indicate that modulation data has been updated
+            _hasBeenUpdated = true;  // Set the flag to indicate that modulation data has been updated
             
             switch (modulationData.Type)
             {

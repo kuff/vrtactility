@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace Internal.Box
             if (connectOnAwake) Connect(Sc.portName);
         }
 
+        [SuppressMessage("ReSharper", "StringLiteralTypo")]
         public override void Connect(string port)
         {
             Sc.portName = port;

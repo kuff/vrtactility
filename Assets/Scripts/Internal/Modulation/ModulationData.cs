@@ -1,5 +1,4 @@
-﻿// ReSharper disable UnassignedField.Global
-namespace Internal.Modulation
+﻿namespace Internal.Modulation
 {
     public enum ModulationType
     {

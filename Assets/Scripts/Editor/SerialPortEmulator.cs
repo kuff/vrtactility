@@ -137,7 +137,7 @@ namespace Editor
             {
                 "iam TACTILITY\r" => "Re:[] re-connection",
                 "elec 1 *pads_qty 32\r" => "Re:[] ok",
-                "battery ?\r" => "Re:[] battery *capacity=21% *voltage=3.63V *current=-91.59mA",
+                "battery ?\r" => "Re:[] battery *capacity=21% *voltage=3.63V *current=-91.59mA",  // TODO: missing temperature
                 "freq 50\r" => "Re:[] ok",
                 _ => "(Emulator) unrecognized command"
             };

@@ -1,6 +1,5 @@
 using Internal.Calibration;
 using UnityEngine;
-// ReSharper disable MemberCanBePrivate.Global
 
 namespace Internal.Modulation
 {
@@ -8,18 +7,18 @@ namespace Internal.Modulation
     [RequireComponent(typeof(ICalibrationDataProvider))]
     public abstract class AbstractModulator : MonoBehaviour
     {
-        protected TactilityManager TactilityManager;
+        private TactilityManager _tactilityManager;
         protected ICalibrationDataProvider CalibrationDataProvider;
         
         protected virtual void Start()
         {
-            TactilityManager = GetComponent<TactilityManager>();
+            _tactilityManager = GetComponent<TactilityManager>();
             CalibrationDataProvider = GetComponent<ICalibrationDataProvider>();
         }
         
         protected virtual void Update()
         {
-            TactilityManager.UpdateModulation(GetModulationData());
+            _tactilityManager.UpdateModulation(GetModulationData());
         }
 
         protected abstract ModulationData GetModulationData();

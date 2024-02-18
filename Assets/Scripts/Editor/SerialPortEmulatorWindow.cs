@@ -61,7 +61,7 @@ namespace Editor
             }
             EditorGUILayout.EndScrollView();
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR  // Is this pragma necessary?
             if (GUI.changed)
             {
                 EditorUtility.SetDirty(_settings);

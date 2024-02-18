@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 // ReSharper disable UnusedMemberHierarchy.Global
 // ReSharper disable MemberCanBeProtected.Global
@@ -13,7 +12,7 @@ namespace Internal.Box
     [RequireComponent(typeof(SerialController))]
     public abstract class AbstractBoxController : MonoBehaviour
     {
-        [FormerlySerializedAs("logMode")] [Tooltip("Controls the logging of serial messages. Outbound: Logs messages sent from the device. Inbound: Logs messages received by the device. All: Logs all messages, both inbound and outbound. Use this to debug and monitor serial communication. Only logs when running through the Editor.")]
+        [Tooltip("Controls the logging of serial messages. Outbound: Logs messages sent from the device. Inbound: Logs messages received by the device. All: Logs all messages, both inbound and outbound. Use this to debug and monitor serial communication. Only logs when running through the Editor.")]
         public SerialLogMode logMode;
 
         public string Port { get; protected set; }
@@ -45,9 +44,9 @@ namespace Internal.Box
             Sc.SendSerialMessage($"{message}\r");
         }
         
-        public IEnumerator SendAsync(string message, float delayInSeconds, Action callback = null)
+        public IEnumerator SendAsync(string message, float delay, Action callback = null)
         {
-            yield return new WaitForSeconds(delayInSeconds);
+            yield return new WaitForSeconds(delay);
             Send(message);
             callback?.Invoke();
         }
@@ -58,10 +57,10 @@ namespace Internal.Box
                 Send(msg);
         }
         
-        public IEnumerator SendManyAsync(IEnumerable<string> messages, float delayBetweenMessagesInSeconds, Action callback = null)
+        public IEnumerator SendManyAsync(IEnumerable<string> messages, float delay, Action callback = null)
         {
             foreach (var message in messages)
-                yield return SendAsync(message, delayBetweenMessagesInSeconds);
+                yield return SendAsync(message, delay);
             
             callback?.Invoke();
         }
@@ -71,11 +70,11 @@ namespace Internal.Box
             SendMany(messages);
         }
         
-        public IEnumerator SendManyDelayedAsync(IEnumerable<string> messages, float initialDelayInSeconds, float delayBetweenMessagesInSeconds, Action callback = null)
+        public IEnumerator SendManyDelayedAsync(IEnumerable<string> messages, float initialDelay, float intermediateDelay, Action callback = null)
         {
-            yield return new WaitForSeconds(initialDelayInSeconds);
+            yield return new WaitForSeconds(initialDelay);
             foreach (var message in messages)
-                yield return SendAsync(message, delayBetweenMessagesInSeconds);
+                yield return SendAsync(message, intermediateDelay);
             
             callback?.Invoke();
         }
