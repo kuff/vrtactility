@@ -22,7 +22,7 @@ namespace Editor
         private const double HeartbeatInterval = 3.0;  // seconds
         
         public static bool IsConnected => _serialPort is { IsOpen: true };
-        public static readonly List<PadInfo> PadValues = new List<PadInfo>();
+        public static readonly List<PadInfo> PadValues = new();
         public static bool StimulationEnabled { get; private set; }
         
         public struct PadInfo

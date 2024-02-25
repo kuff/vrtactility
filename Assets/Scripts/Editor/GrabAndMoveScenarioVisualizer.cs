@@ -1,4 +1,4 @@
-using Internal.Ball;
+using Tactility.Ball;
 using UnityEditor;
 using UnityEngine;
 

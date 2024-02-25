@@ -1,0 +1,15 @@
+﻿namespace Tactility.Modulation
+{
+    public enum ModulationType
+    {
+        Amp,
+        Pad,
+        Width
+    }
+    
+    public struct ModulationData
+    {
+        public ModulationType Type;
+        public float[] Values;
+    }
+}

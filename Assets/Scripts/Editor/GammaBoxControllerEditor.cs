@@ -1,4 +1,4 @@
-using Internal.Box;
+using Tactility.Box;
 using UnityEditor;
 using UnityEngine;
 

@@ -1,9 +1,11 @@
 using System;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Threading;
-using Internal.Box;
+using Tactility.Box;
 using UnityEditor;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Editor
 {
@@ -75,6 +77,30 @@ namespace Editor
         private static void OpenDocumentation()
         {
             Application.OpenURL("https://github.com/kuff/vrtactility/wiki");
+        }
+        
+        [MenuItem("Tactility/Open Persistent Data Path", false, 3)]
+        private static void OpenPersistentDataPath()
+        {
+            var path = Application.persistentDataPath;
+
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+            switch (Application.platform)
+            {
+                // Open the folder in the file explorer based on the operating system
+                case RuntimePlatform.WindowsEditor:
+                    Process.Start("explorer.exe", path.Replace('/', '\\'));
+                    break;
+                case RuntimePlatform.OSXEditor:
+                    Process.Start("open", path);
+                    break;
+                case RuntimePlatform.LinuxEditor:
+                    Process.Start("xdg-open", path);
+                    break;
+                default:
+                    Debug.LogError("Unsupported platform.");
+                    break;
+            }
         }
 
         // Custom Editor Window to display the info

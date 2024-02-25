@@ -9,7 +9,7 @@ namespace Editor
         public bool enableLogging = true;
 
         private static EmulatorSettings _instance;
-        private const string AssetFolderPath = "Assets/Resources/Internal";
+        private const string AssetFolderPath = "Assets/Resources/Tactility";
         private const string AssetPath = AssetFolderPath + "/EmulatorSettings.asset";
 
         public static EmulatorSettings Instance
