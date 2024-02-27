@@ -6,21 +6,83 @@ namespace Tactility.Modulation
     [RequireComponent(typeof(ITactilityDataProvider))]
     public class StepwiseWidthModulator : AbstractModulator
     {
+        [Tooltip("The maximum width value to add to the base width value. This value is multiplied by the pressure value to determine the final width value.")]
+        public float additiveUpperLimitWidth = 400f;
+        
         private ITactilityDataProvider _dataProvider;
 
-        protected override void Start()
+        protected override void OnEnable()
         {
             _dataProvider = GetComponent<ITactilityDataProvider>();
+            
+            // If no ITactilityDataProvider is found, disable the modulator
+            if (_dataProvider != null) return;
+            Debug.LogWarning("No ITactilityDataProvider found. Disabling StepwiseWidthModulator.");
+            enabled = false;
         }
         
         public override ModulationData GetModulationData()
         {
-            throw new System.NotImplementedException();
+            ref var modulationData = ref _dataProvider.GetTactilityData();
+            var remap = new[] { 30, 27, 29, 28, 25, 31, 32, 26, 17, 18, 20, 1, 2, 22, 19, 3, 23, 21, 24, 4, 5, 8, 9, 6, 7, 10, 13, 14, 11, 12, 15, 16 };
+            
+            // Update stimuli for each touching finger bone of interest
+            var valueBatch = new float[5];
+            for (var i = 0; i < modulationData.BoneIds.Count; i++)
+            {
+                var pressure = modulationData.Values[i];
+                // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
+                switch (modulationData.BoneIds[i])
+                {
+                    case OVRSkeleton.BoneId.Hand_Thumb3:
+                        valueBatch[0] = pressure;
+                        break;
+                    case OVRSkeleton.BoneId.Hand_Index3:
+                        valueBatch[1] = pressure;
+                        break;
+                    case OVRSkeleton.BoneId.Hand_Middle3:
+                        valueBatch[2] = pressure;
+                        break;
+                    case OVRSkeleton.BoneId.Hand_Ring3:
+                        valueBatch[3] = pressure;
+                        break;
+                    case OVRSkeleton.BoneId.Hand_Pinky3:
+                        valueBatch[4] = pressure;
+                        break;
+                }
+            }
+
+            var pressureValues = new float[32];
+            for (var i = 0; i < 32; i++)
+            {
+                // Use remap value to determine which finger pressure value we use
+                var pressureValue = i switch
+                {
+                    < 8  => valueBatch[0],
+                    < 21 => valueBatch[1],
+                    < 26 => valueBatch[2],
+                    < 31 => valueBatch[3],
+                    _    => valueBatch[4]  // == 31
+                };
+                
+                // Map pressureValue (0 to 1) to pulse width (CalibrationManager.BaseWidth + upperLimitWidth * pressureValue)
+                var widthValue = CalibrationManager.BaseWidths[i] + additiveUpperLimitWidth * pressureValue;
+                
+                // Remap widthValue using the remap array and store it in the pressureValues array
+                pressureValues[remap[i] - 1] = widthValue;
+            }
+            
+            return new ModulationData()
+            {
+                Type = ModulationType.Width,
+                Values = pressureValues
+            };
         }
 
         public override bool IsCompatibleWithDevice(TactilityDeviceConfig deviceConfig)
         {
-            throw new System.NotImplementedException();
+            // This modulator only supports the "glove" device at the moment
+            return deviceConfig.deviceName == "glove";
         }
     }
 }

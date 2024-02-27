@@ -111,6 +111,20 @@ namespace Tactility.Calibration
             // If running outside the editor, attempt to load all configs from a Resources folder
             configs.AddRange(Resources.LoadAll<TactilityDeviceConfig>("Tactility"));
 #endif
+            // Check for duplicate device names
+            var deviceNames = new List<string>();
+            foreach (var config in configs)
+            {
+                if (deviceNames.Contains(config.deviceName))
+                {
+                    Debug.LogError($"Duplicate device name found: {config.deviceName}. Config will be ignored.");
+                    continue;
+                }
+                deviceNames.Add(config.deviceName);
+            }
+            
+            // Sort the list by device name
+            configs.Sort((a, b) => string.Compare(a.deviceName, b.deviceName, StringComparison.Ordinal));
             
             return configs;
         }

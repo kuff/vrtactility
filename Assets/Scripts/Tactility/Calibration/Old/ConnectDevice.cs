@@ -44,7 +44,7 @@ namespace Tactility.Calibration.Old
 
         public void MakeConnection()
         {
-            // NOTE: previous coroutine structure was removed from here
+            // NOTE: previous coroutine structure was removed from here, may result in breakage
             Connect();
         }
 

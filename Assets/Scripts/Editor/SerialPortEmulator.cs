@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Ports;
-using System.Text.RegularExpressions;
+using System.Linq;
 using System.Threading;
 using UnityEditor;
 using UnityEngine;
@@ -131,6 +131,7 @@ namespace Editor
             if (message.StartsWith("velec"))
             {
                 ParsePadValues(message);
+                return;
             }
             
             var response = message switch
@@ -152,32 +153,96 @@ namespace Editor
         {
             try
             {
-                var padsMatch = Regex.Matches(message, @"\*amp (\d+)=([0-9.]+)|\*width (\d+)=([0-9.]+)");
-
-                foreach (Match match in padsMatch)
+                // Resetting PadValues assuming all pads could be anodes initially
+                for (var i = 0; i < 32; i++)
                 {
-                    if (match.Groups[1].Success)  // Amplitude value
+                    PadValues[i] = new PadInfo(true);  // Assume all pads are anodes initially
+                }
+
+                // Splitting the message on spaces to isolate each segment
+                var segments = message.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                // Check for special anodes
+                var specialAnodes = segments.Contains("*special_anodes 1");
+
+                // Temporary storage to hold parsed values before updating PadValues
+                var tempPadValues = new Dictionary<int, PadInfo>();
+
+                for (var i = 1; i < segments.Length; i += 2)
+                {
+                    var segment = segments[i];
+                    var prevSegment = segments[i - 1];
+                    if (prevSegment.StartsWith("*pads"))
                     {
-                        var padIndex = int.Parse(match.Groups[1].Value) - 1;  // Adjust index to be 0-based
-                        var amplitudeValue = float.Parse(match.Groups[2].Value);
-                        var currentPadInfo = PadValues[padIndex];
-                        PadValues[padIndex] = new PadInfo(false, amplitudeValue, currentPadInfo.Width);
+                        var padPairs = segment.Split(',');
+                        foreach (var pair in padPairs)
+                        {
+                            var parts = pair.Split('=');
+                            if (parts.Length != 2) continue;
+
+                            var padIndex = int.Parse(parts[0]);
+                            // Assuming pads are cathodes if specified, and anodes otherwise
+                            tempPadValues[padIndex] = new PadInfo(false);  // Setting specified pads as cathodes
+                        }
                     }
-                    else if (match.Groups[3].Success)  // Width value
+                    else if (prevSegment.StartsWith("*amp") || prevSegment.StartsWith("*width"))
                     {
-                        var padIndex = int.Parse(match.Groups[3].Value) - 1;  // Adjust index to be 0-based
-                        var widthValue = float.Parse(match.Groups[4].Value);
-                        var currentPadInfo = PadValues[padIndex];
-                        PadValues[padIndex] = new PadInfo(false, currentPadInfo.Amplitude, widthValue);
+                        var isAmplitude = prevSegment.StartsWith("*amp");
+                        var valuePairs = segment.Split(',');
+                        foreach (var pair in valuePairs)
+                        {
+                            var parts = pair.Split('=');
+                            if (parts.Length != 2) continue;
+
+                            var padIndex = int.Parse(parts[0]);
+                            var value = float.Parse(parts[1]);
+
+                            if (!tempPadValues.ContainsKey(padIndex))
+                                tempPadValues[padIndex] = new PadInfo(tempPadValues.ContainsKey(padIndex) && tempPadValues[padIndex].IsAnode, 0, 0);
+
+                            if (isAmplitude)
+                                tempPadValues[padIndex] = new PadInfo(tempPadValues[padIndex].IsAnode, value, tempPadValues[padIndex].Width);
+                            else
+                                tempPadValues[padIndex] = new PadInfo(tempPadValues[padIndex].IsAnode, tempPadValues[padIndex].Amplitude, value);
+                        }
                     }
                 }
+
+                // Update PadValues based on tempPadValues
+                foreach (var (key, value) in tempPadValues)
+                {
+                    PadValues[key] = value;
+                }
+
+                // If special_anodes is set to 1, update all non-specified pads to be anodes
+                if (specialAnodes)
+                {
+                    for (var i = 0; i < PadValues.Count; i++)
+                    {
+                        if (!tempPadValues.ContainsKey(i)) // For non-specified pads, set them as anodes
+                        {
+                            PadValues[i] = new PadInfo(true);
+                        }
+                    }
+                }
+
+                // Log updated PadValues for verification
+                if (EmulatorSettings.Instance.enableLogging)
+                {
+                    Debug.Log("Updated PadValues:");
+                    for (var i = 0; i < PadValues.Count; i++)
+                    {
+                        var padInfo = PadValues[i];
+                        Debug.Log($"Pad {i}: Anode = {padInfo.IsAnode}, Amplitude = {padInfo.Amplitude}, Width = {padInfo.Width}");
+                    }
+                }
+
                 SendResponse("Re:[] ok");
             }
             catch (Exception ex)
             {
                 Debug.LogError("Error parsing pad values: " + ex.Message);
-                SendResponse($"(Emulator) error during pad value parsing: message: \"{message}\", error: {ex.Message}", 
-                    showWarning:true);
+                SendResponse($"(Emulator) error during pad value parsing: message: \"{message}\", error: {ex.Message}", showWarning: true);
             }
         }
 

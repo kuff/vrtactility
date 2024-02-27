@@ -9,6 +9,8 @@ namespace Tactility.Modulation
     [RequireComponent(typeof(AbstractBoxController))]
     public class TactilityManager : MonoBehaviour
     {
+        [Tooltip("The time interval in milliseconds at which to send modulation data to the device. This value should be " +
+                 "greater than the device's minimum update interval.")]
         public float updateInterval = 100f;
 
         private AbstractBoxController _boxController;
@@ -106,6 +108,8 @@ namespace Tactility.Modulation
 
         private void SendCombinedModulationData()
         {
+            if (_modulators.Count == 0) return;
+            
             var encodedString = _boxController.GetEncodedString(_combinedAmps, _combinedWidths);
             _boxController.Send(encodedString);
         }
@@ -118,12 +122,17 @@ namespace Tactility.Modulation
 
         public void Subscribe(AbstractModulator modulator)
         {
+            //Debug.Log($"Subscribing {modulator} to TactilityManager");
+            
             if (!modulator.IsCompatibleWithDevice(CalibrationManager.DeviceConfig))
-                throw new ArgumentException($"Modulator {modulator} has declared itself as incompatible with " +
-                                            $"the current device ({CalibrationManager.DeviceConfig.deviceName})");
+                throw new ArgumentException($"Modulator {modulator} has declared itself incompatible with the " +
+                                            $"current device ({CalibrationManager.DeviceConfig.deviceName})");
             
             if (!_modulators.Contains(modulator))
+            {
                 _modulators.Add(modulator);
+                if (_modulators.Count == 1) _boxController.EnableStimulation();
+            }
             else
                 Debug.LogWarning($"Modulator {modulator} is already subscribed to TactilityManager");
         }
@@ -132,6 +141,8 @@ namespace Tactility.Modulation
         {
             if (_modulators.Contains(modulator))
                 _modulators.Remove(modulator);
+            
+            if (_modulators.Count == 0) _boxController.DisableStimulation();
         }
     }
 }

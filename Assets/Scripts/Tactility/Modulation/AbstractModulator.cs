@@ -1,24 +1,32 @@
 using System;
+using System.Collections;
 using Tactility.Calibration;
 using UnityEngine;
+// ReSharper disable Unity.NoNullPropagation
 
 namespace Tactility.Modulation
 {
-    [RequireComponent(typeof(TactilityManager))]
     public abstract class AbstractModulator : MonoBehaviour
     {
         private TactilityManager _tactilityManager;
         // ReSharper disable once NotAccessedField.Local
         private CalibrationManager _calibrationManager;
 
-        protected virtual void Start()
+        protected virtual IEnumerator Start()
         {
-            _tactilityManager = GetComponent<TactilityManager>();
+            _tactilityManager = FindObjectOfType<TactilityManager>();
             _calibrationManager = CalibrationManager.Instance;
 
+            // Wait for 100 milliseconds for the dependencies of TactilityManager to populate
+            yield return new WaitForSeconds(0.1f);
+            _tactilityManager.Subscribe(this);
+        }
+        
+        protected virtual void OnEnable()
+        {
             try
             {
-                _tactilityManager.Subscribe(this);
+                _tactilityManager?.Subscribe(this);
             }
             catch (ArgumentException e)
             {
@@ -28,9 +36,9 @@ namespace Tactility.Modulation
             }
         }
         
-        private void OnDestroy()
+        protected virtual void OnDisable()
         {
-            _tactilityManager.Unsubscribe(this);
+            _tactilityManager?.Unsubscribe(this);
         }
 
         public abstract ModulationData GetModulationData();

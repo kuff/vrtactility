@@ -50,7 +50,6 @@ namespace Editor
             // Display Pad Information
             GUILayout.Space(10);
             GUILayout.Label("Pad Information", EditorStyles.boldLabel);
-            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.Height(200));
             for (var i = 0; i < SerialPortEmulator.PadValues.Count; i++)
             {
                 var padInfo = SerialPortEmulator.PadValues[i];
@@ -59,7 +58,6 @@ namespace Editor
                 GUILayout.Label(padInfo.IsAnode ? "Anode" : $"Amp: {padInfo.Amplitude} Width: {padInfo.Width}");
                 GUILayout.EndHorizontal();
             }
-            EditorGUILayout.EndScrollView();
 
 #if UNITY_EDITOR  // NOTE: Is this pragma even necessary?
             if (GUI.changed)
