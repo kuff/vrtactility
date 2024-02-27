@@ -7,6 +7,8 @@ namespace Editor
         public string comPort = "COM2";
         public int baudRate = 115200;
         public bool enableLogging = true;
+        public int reconnectionDelay = 1000;
+        public int maxUnreadMessages = 10;
 
         private static EmulatorSettings _instance;
         private const string AssetFolderPath = "Assets/Resources/Tactility";

@@ -1,25 +1,23 @@
+using Tactility.Calibration;
+
 namespace Tactility.Modulation
 {
     public class ConstantWidthModulator : AbstractModulator
     {
         public override ModulationData GetModulationData()
         {
-            var values = new float[32];
-            for (var i = 0; i < 32; i++)
-                values[i] = /*PadData[i].GetPulseWidth();*/ 1f;
-            
-            var data = new ModulationData
+            return new ModulationData()
             {
                 Type = ModulationType.Width,
-                Values = values
+                Values = CalibrationManager.BaseWidths
             };
-            
-            return data;
         }
 
-        public override bool IsCompatibleWithDevice(string deviceName)
+        public override bool IsCompatibleWithDevice(TactilityDeviceConfig deviceConfig)
         {
-            return false;
+            // This should always be true, as the base amps are always compatible with the device
+            // Otherwise, this is a problem elsewhere.
+            return true;
         }
     }
 }

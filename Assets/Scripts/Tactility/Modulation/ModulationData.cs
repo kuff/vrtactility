@@ -3,7 +3,6 @@
     public enum ModulationType
     {
         Amp,
-        Pad,
         Width
     }
     

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Tactility.Modulation;
 using UnityEngine;
 
 namespace Tactility.Ball
 {
     [RequireComponent(typeof(SphereCollider))]
-    public class UniformGrabbable : MonoBehaviour
+    public class UniformGrabbable : MonoBehaviour, ITactilityDataProvider
     {
         private const float MatchingThreshold = 0.001f;
         
@@ -30,8 +31,7 @@ namespace Tactility.Ball
         private Dictionary<OVRSkeleton.BoneId, Vector3> _touchingPointVectors;
 
         // Exposing touch
-        [HideInInspector] public List<OVRSkeleton.BoneId> touchingBoneIds;
-        [HideInInspector] public List<float> touchingBonePressures;
+        private TactilityData _tactilityData;
 
         // Exposing grab
         [HideInInspector] public bool isGrabbed;
@@ -68,11 +68,11 @@ namespace Tactility.Ball
             // Update applied pressure for each touching bone if any
             // TODO: Optimize this to only loop through finger tips
             for (var i = 0; i < _touchingBoneCapsules.Count; i++)
-                touchingBonePressures[i] = GetAppliedPressure(_touchingBoneCapsules[i]);
+                _tactilityData.Values[i] = GetAppliedPressure(_touchingBoneCapsules[i]);
 
             // Stop updating if the applied pressure is less than would be required to grib the object
             // TODO: New pressure calculations must be reflected here...
-            if (touchingBonePressures.Count > 0 && touchingBonePressures.Max() < pressureThreshold)
+            if (_tactilityData.Values.Count > 0 && _tactilityData.Values.Max() < pressureThreshold)
             {
                 isGrabbed = false;
                 return;
@@ -198,8 +198,8 @@ namespace Tactility.Ball
                 return;
             }
             _touchingBoneCapsules.Add(closestBoneCapsule);
-            touchingBoneIds.Add(boneId);
-            touchingBonePressures.Add(GetAppliedPressure(in closestBoneCapsule));
+            _tactilityData.BoneIds.Add(boneId);
+            _tactilityData.Values.Add(GetAppliedPressure(in closestBoneCapsule));
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -208,8 +208,8 @@ namespace Tactility.Ball
             _touchingPointVectors.Clear();
             _touchingBoneCapsules.Clear();
 
-            touchingBoneIds.Clear();
-            touchingBonePressures.Clear();
+            _tactilityData.BoneIds.Clear();
+            _tactilityData.Values.Clear();
             isGrabbed = false;
         }
 
@@ -312,12 +312,12 @@ namespace Tactility.Ball
             // A more efficient way of removing elements from lists when the order of elements doesn't matter
 
             // For touchingBoneIds, _touchingBoneCapsules, touchingBonePressures
-            touchingBoneIds         [index] = touchingBoneIds[^1];
+            _tactilityData.BoneIds  [index] = _tactilityData.BoneIds[^1];
             _touchingBoneCapsules   [index] = _touchingBoneCapsules[^1];
-            touchingBonePressures   [index] = touchingBonePressures[^1];
-            touchingBoneIds         .RemoveAt(touchingBoneIds.Count - 1);
+            _tactilityData.Values   [index] = _tactilityData.Values[^1];
+            _tactilityData.BoneIds  .RemoveAt(_tactilityData.BoneIds.Count - 1);
             _touchingBoneCapsules   .RemoveAt(_touchingBoneCapsules.Count - 1);
-            touchingBonePressures   .RemoveAt(touchingBonePressures.Count - 1);
+            _tactilityData.Values   .RemoveAt(_tactilityData.Values.Count - 1);
 
             // For _touchingPointVectors
             var pairAtIndex = _touchingPointVectors.ElementAt(index);
@@ -327,6 +327,11 @@ namespace Tactility.Ball
         
             if (!EqualityComparer<OVRSkeleton.BoneId>.Default.Equals(pairAtIndex.Key, lastPair.Key))
                 _touchingPointVectors[pairAtIndex.Key] = lastPair.Value;
+        }
+
+        public ref TactilityData GetTactilityData()
+        {
+            return ref _tactilityData;
         }
     }
 }

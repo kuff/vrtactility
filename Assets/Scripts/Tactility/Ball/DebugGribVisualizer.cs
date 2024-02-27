@@ -20,13 +20,15 @@ namespace Tactility.Ball
 
         private void Update()
         {
+            ref var tactilityData = ref _ug.GetTactilityData();
+            
             // Don't process highlight if no bones are touching, but remember to update once after the list empties
-            if (_ug.touchingBonePressures.Count + _lastCount == 0) return;
-            _lastCount = _ug.touchingBonePressures.Count;
+            if (tactilityData.Values.Count + _lastCount == 0) return;
+            _lastCount = tactilityData.Values.Count;
 
             // Calculate total pressure being applied and update sphere material color
-            var maxPressure = _ug.touchingBonePressures.Count > 0
-                ? _ug.touchingBonePressures.Max()
+            var maxPressure = tactilityData.Values.Count > 0
+                ? tactilityData.Values.Max()
                 : 0f;
             _renderer.material.SetColor(Color1, new Color(maxPressure, 0f, 0f));
         }

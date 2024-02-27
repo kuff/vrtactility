@@ -15,6 +15,11 @@ namespace Tactility.Calibration
                  "Note: This selection may be overruled at runtime by the LoadDeviceConfigByName method.")]
         [SerializeField]
         private TactilityDeviceConfig deviceConfigInstance;        // Non-static, serialized field
+        [Tooltip("The name of the calibration file to be loaded at startup. If left blank, no file will be loaded. " +
+                 "This file should be located in the persistent data path and contain a list of amplitudes and " +
+                 "widths for each pad, separated by commas. The first line should contain the device name and version.")]
+        [SerializeField]
+        private string calibrationFileName;
         
         private static TactilityDeviceConfig _deviceConfigStatic;  // Static field to hold the instance
 
@@ -54,6 +59,9 @@ namespace Tactility.Calibration
 
             // Load the default configuration if none is assigned
             if (_deviceConfigStatic == null) InitializeDeviceConfig();
+            
+            // Load the calibration data if a file name is provided
+            if (!string.IsNullOrEmpty(calibrationFileName)) LoadCalibrationDataFromFile(calibrationFileName);
         }
 
         public static void InitializeDeviceConfig(string deviceName = null)
@@ -91,7 +99,7 @@ namespace Tactility.Calibration
         {
             var configs = new List<TactilityDeviceConfig>();
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             var guids = AssetDatabase.FindAssets($"t:{nameof(TactilityDeviceConfig)}");
             foreach (var guid in guids)
             {
@@ -99,10 +107,10 @@ namespace Tactility.Calibration
                 var asset = AssetDatabase.LoadAssetAtPath<TactilityDeviceConfig>(path);
                 configs.Add(asset);
             }
-            #else
+#else
             // If running outside the editor, attempt to load all configs from a Resources folder
             configs.AddRange(Resources.LoadAll<TactilityDeviceConfig>("Tactility"));
-            #endif
+#endif
             
             return configs;
         }
@@ -120,7 +128,7 @@ namespace Tactility.Calibration
         }
 
         [CanBeNull]
-        public static string SaveToFile(string dataName = null)
+        public static string SaveCalibrationDataToFile(string dataName = null)
         {
             var prefix = string.IsNullOrEmpty(dataName) ? "" : $"{dataName}_";
             var fileName = $"{prefix}Calibration_{_deviceConfigStatic.deviceName}_{DateTime.Now:yyyyMMdd}.txt";
@@ -144,7 +152,7 @@ namespace Tactility.Calibration
             }
         }
 
-        public static void LoadFromFile(string calibrationFileName)
+        public static void LoadCalibrationDataFromFile(string calibrationFileName)
         {
             var filePath = Path.Combine(Application.persistentDataPath, calibrationFileName);
 
@@ -157,6 +165,18 @@ namespace Tactility.Calibration
             try
             {
                 var lines = File.ReadAllLines(filePath);
+                
+                // Ensure that the loaded data is for the current device
+                if (lines.Length < 1 || !lines[0].Contains(_deviceConfigStatic.deviceName))
+                {
+                    Debug.LogError($"Calibration file does not match the current device: {filePath}. The file wasn't loaded.");
+                    return;
+                }
+                
+                // Warn the user if the version of the calibration file is newer than the application
+                if (lines[0].Contains(Application.version)) 
+                    Debug.LogWarning($"The calibration file {filePath} was created with a newer version of the application.");
+                
                 // Extract device name and version from the first line
                 var deviceConfigParts = lines[0].Split(',');
                 if (deviceConfigParts.Length >= 1)

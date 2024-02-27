@@ -40,7 +40,7 @@ namespace Tactility.Box
                 "iam TACTILITY", 
                 $"elec 1 *pads_qty {_config.numPads}", 
                 "battery ?", 
-                "freq 50"
+                $"freq {_config.baseFreq}"
             });
         }
 

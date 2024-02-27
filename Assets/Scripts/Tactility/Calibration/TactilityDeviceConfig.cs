@@ -17,6 +17,8 @@ namespace Tactility.Calibration
                  "longest duration a single stimulation pulse can last. Similar to maxAmp, setting pulse widths " +
                  "beyond this limit may not increase the perceived intensity and could risk hardware integrity or user safety.")]
         public float maxWidth;
+        [Tooltip("The base frequency for the tactility device. You should most likely not need to change this.")]
+        public int baseFreq;
         [Tooltip("The non-remapped indexes of the pads which are anodes. This is used to determine which pads are " +
                  "anodes when the device has special anodes. If the device does not have implicit anodes, this " +
                  "field is ignored. If the device has implicit anodes and this field is not set, the default " +

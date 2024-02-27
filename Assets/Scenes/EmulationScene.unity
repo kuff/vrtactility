@@ -229,6 +229,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deviceConfigInstance: {fileID: 11400000, guid: 47ebc3596d249de4dac82f5735bddfd2,
     type: 2}
+  calibrationFileName: Test_Calibration_glove_20240226.txt
 --- !u!4 &260217044
 Transform:
   m_ObjectHideFlags: 0

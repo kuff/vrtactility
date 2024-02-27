@@ -1,15 +1,23 @@
+using Tactility.Calibration;
+
 namespace Tactility.Modulation
 {
     public class ConstantAmpModulator : AbstractModulator
     {
         public override ModulationData GetModulationData()
         {
-            throw new System.NotImplementedException();
+            return new ModulationData()
+            {
+                Type = ModulationType.Amp,
+                Values = CalibrationManager.BaseAmps
+            };
         }
 
-        public override bool IsCompatibleWithDevice(string deviceName)
+        public override bool IsCompatibleWithDevice(TactilityDeviceConfig deviceConfig)
         {
-            throw new System.NotImplementedException();
+            // This should always be true, as the base amps are always compatible with the device
+            // Otherwise, this is a problem elsewhere.
+            return true;
         }
     }
 }
