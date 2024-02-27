@@ -6,8 +6,8 @@ namespace Tactility.Modulation
     [RequireComponent(typeof(ITactilityDataProvider))]
     public class StepwiseWidthModulator : AbstractModulator
     {
-        [Tooltip("The maximum width value to add to the base width value. This value is multiplied by the pressure value to determine the final width value.")]
-        public float additiveUpperLimitWidth = 400f;
+        // [Tooltip("The maximum width value to add to the base width value. This value is multiplied by the pressure value to determine the final width value.")]
+        // public float additiveUpperLimitWidth = 400f;
         
         private ITactilityDataProvider _dataProvider;
 
@@ -65,8 +65,8 @@ namespace Tactility.Modulation
                     _    => valueBatch[4]  // == 31
                 };
                 
-                // Map pressureValue (0 to 1) to pulse width (CalibrationManager.BaseWidth + upperLimitWidth * pressureValue)
-                var widthValue = CalibrationManager.BaseWidths[i] + additiveUpperLimitWidth * pressureValue;
+                // Map pressureValue (0 to 1) to pulse width
+                var widthValue = CalibrationManager.BaseWidths[i] + (CalibrationManager.DeviceConfig.maxWidth - CalibrationManager.BaseWidths[i]) * pressureValue;
                 
                 // Remap widthValue using the remap array and store it in the pressureValues array
                 pressureValues[remap[i] - 1] = widthValue;

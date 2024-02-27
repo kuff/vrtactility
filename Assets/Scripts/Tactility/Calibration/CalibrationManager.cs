@@ -153,8 +153,9 @@ namespace Tactility.Calibration
                 using (var writer = new StreamWriter(filePath))
                 {
                     writer.WriteLine($"{_deviceConfigStatic.deviceName}, {Application.version}");
-                    for (var i = 0; i < BaseAmps.Length; i++) 
-                        writer.WriteLine($"{BaseAmps[i]},{BaseWidths[i]}");  // Amp, Width for each pad
+                    for (var i = 0; i < BaseAmps.Length; i++)
+                        // Ensure floats are formatted with "." and not ","
+                        writer.WriteLine($"{BaseAmps[i].ToString(System.Globalization.CultureInfo.InvariantCulture)},{BaseWidths[i].ToString(System.Globalization.CultureInfo.InvariantCulture)}");
                 }
                 Debug.Log($"Calibration data saved to {filePath}");
                 return filePath;
@@ -206,10 +207,13 @@ namespace Tactility.Calibration
                 {
                     var parts = lines[i].Split(',');
                     if (parts.Length < 2) continue;
-
-                    BaseAmps[i - 1] = float.Parse(parts[0]);
-                    BaseWidths[i - 1] = float.Parse(parts[1]);
+                    
+                    // Parse floats with "." and not ","
+                    BaseAmps[i - 1] = float.Parse(parts[0], System.Globalization.CultureInfo.InvariantCulture);
+                    BaseWidths[i - 1] = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
                 }
+                // for (var i = 0; i < BaseAmps.Length; i++)
+                //     Debug.Log($"Pad {i + 1}: Amp = {BaseAmps[i]}, Width = {BaseWidths[i]}");
                 Debug.Log($"Calibration data loaded from {filePath}");
             }
             catch (Exception e)

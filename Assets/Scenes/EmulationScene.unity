@@ -427,7 +427,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deviceConfigInstance: {fileID: 11400000, guid: 47ebc3596d249de4dac82f5735bddfd2,
     type: 2}
-  calibrationFileName: Test_Calibration_glove_20240227.txt
+  calibrationFileName: Test2_Calibration_glove_20240227.txt
 --- !u!114 &1249868593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -454,7 +454,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 008db7ff1c320684d8ff1d1517efc47a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  updateInterval: 1000
+  updateInterval: 100
 --- !u!4 &1249868595
 Transform:
   m_ObjectHideFlags: 0
@@ -481,6 +481,7 @@ GameObject:
   - component: {fileID: 1914520269}
   - component: {fileID: 1914520271}
   - component: {fileID: 1914520272}
+  - component: {fileID: 1914520273}
   m_Layer: 0
   m_Name: TestModulator1
   m_TagString: Untagged
@@ -527,4 +528,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c14e9bb7ddadc04e9590c2f243e0f88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  additiveUpperLimitWidth: 400
+--- !u!114 &1914520273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914520268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 963f8661b22b6bd40b4aa4c3018d4eee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oscillationPeriodSeconds: 3

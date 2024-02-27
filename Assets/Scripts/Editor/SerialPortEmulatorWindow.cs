@@ -8,6 +8,9 @@ namespace Editor
         private Vector2 _scrollPosition;
         private EmulatorSettings _settings;
 
+        private double _lastRepaintTime = 0;
+        private const double RepaintInterval = 0.1;  // Repaint every 0.1 seconds
+
         [MenuItem("Tactility/Serial Port Emulator")]
         public static void ShowWindow()
         {
@@ -17,6 +20,20 @@ namespace Editor
         private void OnEnable()
         {
             _settings = EmulatorSettings.Instance;
+            EditorApplication.update += RequestRepaint;  // Subscribe
+        }
+
+        private void OnDisable()
+        {
+            EditorApplication.update -= RequestRepaint;  // Unsubscribe
+        }
+
+        private void RequestRepaint()
+        {
+            if (!(EditorApplication.timeSinceStartup - _lastRepaintTime > RepaintInterval)) return;
+            
+            _lastRepaintTime = EditorApplication.timeSinceStartup;
+            Repaint(); // Force the window to repaint
         }
 
         private void OnGUI()
@@ -55,6 +72,10 @@ namespace Editor
                 var padInfo = SerialPortEmulator.PadValues[i];
                 GUILayout.BeginHorizontal();
                 GUILayout.Label($"Pad {i + 1}: ", GUILayout.Width(50));
+                // Parse floats with "." and not ","
+                // var amp = padInfo.Amplitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                // var width = padInfo.Width.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                // GUILayout.Label(padInfo.IsAnode ? "Anode" : $"Amp: {amp} Width: {width}");
                 GUILayout.Label(padInfo.IsAnode ? "Anode" : $"Amp: {padInfo.Amplitude} Width: {padInfo.Width}");
                 GUILayout.EndHorizontal();
             }

@@ -195,7 +195,8 @@ namespace Editor
                             if (parts.Length != 2) continue;
 
                             var padIndex = int.Parse(parts[0]);
-                            var value = float.Parse(parts[1]);
+                            // Parse float with "." and not ","
+                            var value = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
 
                             if (!tempPadValues.ContainsKey(padIndex))
                                 tempPadValues[padIndex] = new PadInfo(tempPadValues.ContainsKey(padIndex) && tempPadValues[padIndex].IsAnode, 0, 0);

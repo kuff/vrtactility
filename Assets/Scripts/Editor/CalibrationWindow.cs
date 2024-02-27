@@ -91,8 +91,8 @@ namespace Editor
         {
             GUILayout.Label("Calibration", EditorStyles.boldLabel);
             GUILayout.Label($"Pad {_currentPad + 1}");
-            _currentAmp = EditorGUILayout.Slider("Amplitude", _currentAmp, 4.0f, CalibrationManager.DeviceConfig.maxAmp);
-            _currentWidth = EditorGUILayout.Slider("Width", _currentWidth, 400.0f, CalibrationManager.DeviceConfig.maxWidth);
+            _currentAmp = EditorGUILayout.Slider("Amplitude", _currentAmp, 0.5f, CalibrationManager.DeviceConfig.maxAmp);
+            _currentWidth = EditorGUILayout.Slider("Width", _currentWidth, 100.0f, CalibrationManager.DeviceConfig.maxWidth);
             
             if (_prevAmp != _currentAmp || _prevWidth != _currentWidth)
             {
@@ -127,8 +127,8 @@ namespace Editor
             // Save current settings and move to next pad or finish calibration
             CalibrationManager.BaseAmps[_currentPad] = _currentAmp;
             CalibrationManager.BaseWidths[_currentPad] = _currentWidth;
-            _currentAmp = 4.0f;
-            _currentWidth = 400.0f;
+            // _currentAmp = 4.0f;
+            // _currentWidth = 400.0f;
 
             _currentPad++;
             if (_currentPad >= CalibrationManager.DeviceConfig.numPads) 

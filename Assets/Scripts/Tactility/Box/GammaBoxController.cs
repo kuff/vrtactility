@@ -80,10 +80,10 @@ namespace Tactility.Box
                 var amplitudeValue = amps[i];
                 var widthValue = widths[i];
 
-                // Building each part of the command string
+                // Building each part of the command string, parsing floats with "." and not ","
                 variablePart1 += $"{i}=C,";
-                variablePart2 += $"{i}={amplitudeValue},";
-                variablePart3 += $"{i}={widthValue},";
+                variablePart2 += $"{i}={amplitudeValue.ToString(CultureInfo.InvariantCulture)},";
+                variablePart3 += $"{i}={widthValue.ToString(CultureInfo.InvariantCulture)},";
             }
 
             // Trim the trailing commas from each part
