@@ -9,11 +9,11 @@ EditorBuildSettings:
     path: Assets/Scenes/CalibrationScene.unity
     guid: aa09e2dd3b369cd4098ceeee24678976
   - enabled: 1
+    path: Assets/Scenes/HeadlessScene.unity
+    guid: a1fd0d9bbe847ca40a41c235736ba367
+  - enabled: 0
     path: Assets/Scenes/TrackingScene.unity
     guid: d117e3247aa83f1478e770e4a613e4d7
-  - enabled: 0
-    path: Assets/Scenes/EmulationScene.unity
-    guid: 21f5d3db4b3bdc94583c377b8fb3e7a8
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: bfa1182bd221b4ca89619141f66f1260,
       type: 2}

@@ -45,7 +45,7 @@ namespace Tactility.Box
             Sc = GetComponent<SerialController>();
             Sc.SetTearDownFunction(DisableStimulation);
         
-            DontDestroyOnLoad(this);
+            // DontDestroyOnLoad(this);
         }
         
         public void Send(in string message)

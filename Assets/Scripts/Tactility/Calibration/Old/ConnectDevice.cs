@@ -64,8 +64,8 @@ namespace Tactility.Calibration.Old
                 gloveSerialController.portName = "COM" + ComPortBox.text;
                 gloveSerialController.SetTearDownFunction(() => gloveSerialController.SendSerialMessage("stim off\r"));
                 gloveSerialController.enabled = true;
-                DontDestroyOnLoad(this);
-                DontDestroyOnLoad(serialControllerGameObject);
+                // DontDestroyOnLoad(this);
+                // DontDestroyOnLoad(serialControllerGameObject);
             
                 // SerialController messages are buffered and thus we can spam it without issues
                 print("Hello");

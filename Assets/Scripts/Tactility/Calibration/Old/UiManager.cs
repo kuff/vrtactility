@@ -191,24 +191,41 @@ namespace Tactility.Calibration.Old
             ConnectDevice.gloveSerialController.SendSerialMessage("stim on\r");
             Thread.Sleep(150);
             ConnectDevice.gloveSerialController.SendSerialMessage("velec 11 *selected 0\r");
+            // DontDestroyOnLoad(StimManager.gameObject);
             SceneManager.LoadScene(1);
-            DontDestroyOnLoad(StimManager.gameObject);
         }
-
+        
         public void CreateSaveFile()
         {
-            //string txtDocumentName = Application.streamingAssetsPath + "/Calibration_Saved_Data/" + "CalibrationSave" + ".txt";
+            // Initialize the arrays with default values to ensure all pads are accounted for.
+            // Assuming there are 32 pads, but you should adjust this number based on your actual device's configuration.
+            int numPads = ConnectDevice.Remap2.Length; // Or set to a constant if you know the exact number
+            CalibrationManager.BaseAmps = new float[numPads];
+            CalibrationManager.BaseWidths = new int[numPads];
 
-            File.WriteAllText(SaveDocumentPath, "");
-
-            foreach (PadScript.Pad pad in ConnectDevice.Remap2)
+            // Iterate over the Remap2 array to place values in the correct positions based on the Remap array.
+            for (int i = 0; i < ConnectDevice.Remap2.Length; i++)
             {
-                string text = pad.GetAmplitude() + separation + pad.GetPulseWidth() + separation + pad.GetFrequency();
-                File.AppendAllText(SaveDocumentPath, text + "\n");
+                PadScript.Pad pad = ConnectDevice.Remap2[i];
+                int remappedIndex = pad.GetRemap() - 1; // Assuming Remap values are 1-based and need to be converted to 0-based indices.
+        
+                // Safety check in case of out-of-range values
+                if (remappedIndex >= 0 && remappedIndex < numPads)
+                {
+                    CalibrationManager.BaseAmps[remappedIndex] = pad.GetAmplitude();
+                    CalibrationManager.BaseWidths[remappedIndex] = pad.GetPulseWidth();
+                }
+                else
+                {
+                    Debug.LogError("Remapped index is out of range. Check the Remap array and pad configuration.");
+                }
             }
 
-            // Save data to CalibrationScriptableObject instance
-            // cd.values = ConnectDevice.Remap2.ToList();
+            // Use a placeholder name for the calibration file.
+            string placeholderName = "PlaceholderCalibrationName";
+            // Ensure that CalibrationManager has a method to save the data using the current BaseAmps and BaseWidths arrays.
+            var calibrationFile = CalibrationManager.SaveCalibrationDataToFile(placeholderName);
+            CalibrationManager.LoadCalibrationDataFromFile(calibrationFile);
         }
 
         public void ReadSaveFile()
