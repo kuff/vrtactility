@@ -172,11 +172,16 @@ namespace Tactility.Calibration
         public static void LoadCalibrationDataFromFile(string calibrationFileName)
         {
             var filePath = Path.Combine(Application.persistentDataPath, calibrationFileName);
-
+            
+            // Try opening the file, if it doesn't work, try appending ".txt" to it
             if (!File.Exists(filePath))
             {
-                Debug.LogError($"Calibration file not found: {filePath}");
-                return;
+                filePath = Path.Combine(Application.persistentDataPath, $"{calibrationFileName}.txt");
+                if (!File.Exists(filePath))
+                {
+                    Debug.LogError($"Calibration file not found: {filePath}");
+                    return;
+                }
             }
 
             try

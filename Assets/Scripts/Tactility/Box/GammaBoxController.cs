@@ -51,7 +51,15 @@ namespace Tactility.Box
 
         public override void DisableStimulation()
         {
-            Send("stim off");
+            // Enclose in try/catch block
+            try
+            {
+                Send("stim off");
+            }
+            catch (System.NullReferenceException e)
+            {
+                Debug.LogWarning("GammaBoxController.DisableStimulation errored, assuming the serial thread was already halted: " + e.Message);
+            }
         }
 
         public override void ResetAllPads()

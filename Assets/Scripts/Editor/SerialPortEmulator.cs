@@ -96,9 +96,9 @@ namespace Editor
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError("Error reading from serial port: " + ex.Message);
+                    // Debug.LogError("Error reading from serial port: " + ex.Message);
                     // Log when the connection is lost
-                    Debug.Log("Connection to the serial port lost.");
+                    Debug.LogWarning("Connection to the serial port lost. This may be due to the application closing or the port being disconnected.");
                     OnExit();
                 }
             }
