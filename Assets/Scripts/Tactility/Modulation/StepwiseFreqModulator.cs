@@ -1,15 +1,13 @@
 using System.Collections;
+using System.Linq;
 using Tactility.Calibration;
 using UnityEngine;
 
 namespace Tactility.Modulation
 {
     [RequireComponent(typeof(ITactilityDataProvider))]
-    public class StepwiseWidthModulator : AbstractModulator
+    public class StepwiseFreqModulator : AbstractModulator
     {
-        // [Tooltip("The maximum width value to add to the base width value. This value is multiplied by the pressure value to determine the final width value.")]
-        // public float additiveUpperLimitWidth = 400f;
-        
         private ITactilityDataProvider _dataProvider;
 
         protected override IEnumerator Start()
@@ -20,14 +18,13 @@ namespace Tactility.Modulation
             
             // If no ITactilityDataProvider is found, disable the modulator
             if (_dataProvider != null) yield break;
-            Debug.LogWarning("No ITactilityDataProvider found. Disabling StepwiseWidthModulator.");
+            Debug.LogWarning("No ITactilityDataProvider found. Disabling StepwiseFreqModulator.");
             enabled = false;
         }
         
         public override ModulationData GetModulationData()
         {
             ref var modulationData = ref _dataProvider.GetTactilityData();
-            var remap = new[] { 30, 27, 29, 28, 25, 31, 32, 26, 17, 18, 20, 1, 2, 22, 19, 3, 23, 21, 24, 4, 5, 8, 9, 6, 7, 10, 13, 14, 11, 12, 15, 16 };
             
             // Update stimuli for each touching finger bone of interest
             var valueBatch = new float[5];
@@ -55,7 +52,7 @@ namespace Tactility.Modulation
                 }
             }
 
-            var pressureValues = new float[32];
+            /*var pressureValues = new float[32];
             for (var i = 0; i < 32; i++)
             {
                 // Use remap value to determine which finger pressure value we use
@@ -76,23 +73,36 @@ namespace Tactility.Modulation
                     > 0.25f => 0.5f,
                     _ => 0.25f
                 };
-                var widthValue = CalibrationManager.BaseWidths[i] + 200f * pressureValue;
+                var config = CalibrationManager.DeviceConfig;
+                var freqValue = config.baseFreq + (config.maxFreq - config.baseFreq) * pressureValue;
                 
                 // Remap widthValue using the remap array and store it in the pressureValues array
-                pressureValues[remap[i] - 1] = widthValue;
-            }
+                pressureValues[remap[i] - 1] = freqValue;
+            }*/
+            
+            var pressureValue = valueBatch.Max() switch
+            {
+                > 0.75f => 1.0f,
+                > 0.5f => 0.75f,
+                > 0.25f => 0.5f,
+                _ => 0.25f
+            };
+            
+            var config = CalibrationManager.DeviceConfig;
+            var freqValue = config.baseFreq + (config.maxFreq - config.baseFreq) * pressureValue;
+            // Debug.Log($"Pressure value: {freqValue}");
             
             return new ModulationData()
             {
-                Type = ModulationType.Width,
-                Values = pressureValues
+                Type = ModulationType.Frequency,
+                Values = new[] { freqValue }
             };
         }
 
         public override bool IsCompatibleWithDevice(TactilityDeviceConfig deviceConfig)
         {
-            // This modulator only supports the "glove" device at the moment
-            return deviceConfig.deviceName == "glove";
+            // This should in theory work with every device...
+            return true;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Linq;
 using Tactility.Calibration;
 
 namespace Tactility.Modulation
@@ -9,7 +10,8 @@ namespace Tactility.Modulation
             return new ModulationData()
             {
                 Type = ModulationType.Width,
-                Values = CalibrationManager.BaseWidths
+                // Case CalibrationManager.BaseWidths to floats
+                Values = CalibrationManager.BaseWidths.Select(x => (float)x).ToArray()
             };
         }
 

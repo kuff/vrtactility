@@ -65,7 +65,7 @@ namespace Editor
 
             // Display Pad Information within a scroll view
             GUILayout.Space(10);
-            GUILayout.Label("Pad Information", EditorStyles.boldLabel);
+            GUILayout.Label($"Pad Information, Global Frequency {SerialPortEmulator.GlobalFrequency}", EditorStyles.boldLabel);
 
             // Start scroll view
             _scrollPosition = GUILayout.BeginScrollView(_scrollPosition, GUILayout.ExpandHeight(true));

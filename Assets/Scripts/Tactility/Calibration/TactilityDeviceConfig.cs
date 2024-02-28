@@ -17,8 +17,14 @@ namespace Tactility.Calibration
                  "longest duration a single stimulation pulse can last. Similar to maxAmp, setting pulse widths " +
                  "beyond this limit may not increase the perceived intensity and could risk hardware integrity or user safety.")]
         public float maxWidth;
-        [Tooltip("The base frequency for the tactility device. You should most likely not need to change this.")]
+        [Tooltip("The base frequency value for the tactile stimulation in Hz. This is used to set the default " +
+                 "frequency for the device upon connection. This value is used as the default frequency for the " +
+                 "device and can be modulated later.")]
         public int baseFreq;
+        [Tooltip("The maximum frequency value for the tactile stimulation in Hz. This value represents the highest " +
+                 "frequency that can be applied to the pads. Setting frequencies higher than this may have no " +
+                 "additional effect or could potentially cause hardware damage or user discomfort.")]
+        public int maxFreq;
         [Tooltip("The non-remapped indexes of the pads which are anodes. This is used to determine which pads are " +
                  "anodes when the device has special anodes. If the device does not have implicit anodes, this " +
                  "field is ignored. If the device has implicit anodes and this field is not set, the default " +
@@ -29,21 +35,6 @@ namespace Tactility.Calibration
                  "device has implicit anodes and this field is set, the length of the array must be equal to the " +
                  "number of pads")]
         public int[] anodes;
-        // [Tooltip("The remap for the pads, with each value corresponding to the pad number. This is used to map the " +
-        //          "modulation data to the correct pad. For example, if the device has 4 pads and the mapping is " +
-        //          "{ 0, 1, 2, 3 }, then the first value in the modulation data will be sent to pad 0, the second to " +
-        //          "pad 1, and so on. If the mapping is { 1, 0, 3, 2 }, then the first value in the modulation data " +
-        //          "will be sent to pad 1, the second to pad 0, and so on. This is useful for devices where the pads " +
-        //          "are not in a linear order. If the mapping is not set, the default mapping is used, which is a " +
-        //          "linear mapping from 0 to numPads - 1.")]
-        // public int[] mapping;
-        
-        // public int GetRemappedPadIndex(int padIndex)
-        // {
-        //     if (mapping is null || mapping.Length == 0)
-        //         return padIndex;
-        //     return mapping[padIndex];
-        // }
 
         public bool IsAnode(int padIndex)
         {

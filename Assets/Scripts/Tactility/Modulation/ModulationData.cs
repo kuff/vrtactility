@@ -3,8 +3,9 @@
     public enum ModulationType
     {
         Pad,
-        Amp,
-        Width
+        Amplitude,
+        Width,
+        Frequency
     }
     
     public struct ModulationData

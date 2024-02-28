@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Ports;
 using System.Linq;
 using System.Threading;
+using Tactility.Calibration;
 using UnityEditor;
 using UnityEngine;
 
@@ -23,6 +24,7 @@ namespace Editor
         
         public static bool IsConnected => _serialPort is { IsOpen: true };
         public static readonly List<PadInfo> PadValues = new();
+        public static int GlobalFrequency;
         public static bool StimulationEnabled { get; private set; }
         
         public struct PadInfo
@@ -134,12 +136,36 @@ namespace Editor
                 return;
             }
             
+            // Handle frequency message "freq 50\r"
+            if (message.StartsWith("freq"))
+            {
+                var parts = message.Split(' ');
+                if (parts.Length == 2)
+                {
+                    // Check that input is int and non-negative but also not larger than max value
+                    if (int.TryParse(parts[1], out var frequency) && frequency > 0 && frequency <= CalibrationManager.DeviceConfig.maxFreq)
+                    {
+                        GlobalFrequency = frequency;
+                        SendResponse("Re:[] ok");
+                    }
+                    else
+                    {
+                        SendResponse("Re:[] error: invalid frequency value", showWarning:true);
+                    }
+                }
+                else
+                {
+                    SendResponse("Re:[] error: invalid frequency message", showWarning:true);
+                }
+                return;
+            }
+            
             var response = message switch
             {
                 "iam TACTILITY\r" => "Re:[] re-connection",
                 "elec 1 *pads_qty 32\r" => "Re:[] ok",
                 "battery ?\r" => "Re:[] battery *capacity=21% *voltage=3.63V *current=-91.59mA",  // TODO: missing temperature
-                "freq 50\r" => "Re:[] ok",
+                // "freq 50\r" => "Re:[] ok",
                 _ => "(Emulator) unrecognized command"
             };
         

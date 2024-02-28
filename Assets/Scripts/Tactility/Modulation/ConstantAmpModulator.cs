@@ -8,7 +8,7 @@ namespace Tactility.Modulation
         {
             return new ModulationData()
             {
-                Type = ModulationType.Amp,
+                Type = ModulationType.Amplitude,
                 Values = CalibrationManager.BaseAmps
             };
         }

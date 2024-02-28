@@ -154,6 +154,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f622689fe9b50b043bf8bd6ed5856241, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cd: {fileID: 0}
+  uim: {fileID: 0}
 --- !u!114 &135643752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302,7 +304,7 @@ GameObject:
   m_Component:
   - component: {fileID: 356980530}
   - component: {fileID: 356980529}
-  - component: {fileID: 356980528}
+  - component: {fileID: 356980531}
   - component: {fileID: 356980527}
   - component: {fileID: 356980526}
   m_Layer: 0
@@ -337,18 +339,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd8bdc8a1eeb04e4b96cfa6a4bb616d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &356980528
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 356980525}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c14e9bb7ddadc04e9590c2f243e0f88, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &356980529
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -376,6 +366,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &356980531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 356980525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c14e9bb7ddadc04e9590c2f243e0f88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &701926599
 GameObject:
   m_ObjectHideFlags: 0
@@ -563,7 +565,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bc5f48af2cffd747a079fe8c632e2c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  portName: COM1
+  portName: COM3
   baudRate: 115200
   messageListener: {fileID: 1249868590}
   reconnectionDelay: 1000
@@ -768,11 +770,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1914520269}
+  - component: {fileID: 1914520274}
   - component: {fileID: 1914520271}
-  - component: {fileID: 1914520272}
   - component: {fileID: 1914520273}
   m_Layer: 0
-  m_Name: FrequencyModulator
+  m_Name: WidthModulator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -805,18 +807,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd8bdc8a1eeb04e4b96cfa6a4bb616d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1914520272
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1914520268}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c14e9bb7ddadc04e9590c2f243e0f88, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1914520273
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -830,3 +820,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   oscillationPeriodSeconds: 4
+--- !u!114 &1914520274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914520268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c14e9bb7ddadc04e9590c2f243e0f88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

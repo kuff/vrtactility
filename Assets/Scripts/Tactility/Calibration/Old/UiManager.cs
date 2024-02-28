@@ -31,7 +31,7 @@ namespace Tactility.Calibration.Old
         private string stringStart = "Re:[] battery *capacity=";
         private string SaveDocumentPath = Application.streamingAssetsPath + "/Calibration_Saved_Data/" + "CalibrationSave" + ".txt";
         private string separation = "/";
-        [SerializeField] private CalibrationData cd;
+        // [SerializeField] private CalibrationScriptableObject cd;
 
         private void Awake()
         {
@@ -46,7 +46,7 @@ namespace Tactility.Calibration.Old
         // Start is called before the first frame update
         void Start()
         {
-            Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+            System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
             AmplitudeBox.characterValidation = TMP_InputField.CharacterValidation.Decimal;
             PulseWidthBox.characterValidation = TMP_InputField.CharacterValidation.Integer;
             FrequencyBox.characterValidation = TMP_InputField.CharacterValidation.Integer;
@@ -208,7 +208,7 @@ namespace Tactility.Calibration.Old
             }
 
             // Save data to CalibrationScriptableObject instance
-            cd.values = ConnectDevice.Remap2.ToList();
+            // cd.values = ConnectDevice.Remap2.ToList();
         }
 
         public void ReadSaveFile()

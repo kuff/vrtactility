@@ -15,7 +15,7 @@ namespace Editor
         private int _calibrationState;
         private int _currentPad;
         private float _currentAmp;
-        private float _currentWidth;
+        private int _currentWidth;
 
         private string _customFileName = "Test";
         private string _comPort = "COM3";
@@ -92,7 +92,7 @@ namespace Editor
             GUILayout.Label("Calibration", EditorStyles.boldLabel);
             GUILayout.Label($"Pad {_currentPad + 1}");
             _currentAmp = EditorGUILayout.Slider("Amplitude", _currentAmp, 0.5f, CalibrationManager.DeviceConfig.maxAmp);
-            _currentWidth = EditorGUILayout.Slider("Width", _currentWidth, 100.0f, CalibrationManager.DeviceConfig.maxWidth);
+            _currentWidth = EditorGUILayout.IntSlider("Width", _currentWidth, 100, (int)CalibrationManager.DeviceConfig.maxWidth);
             
             if (_prevAmp != _currentAmp || _prevWidth != _currentWidth)
             {

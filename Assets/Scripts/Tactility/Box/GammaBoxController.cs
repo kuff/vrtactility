@@ -15,8 +15,8 @@ namespace Tactility.Box
                  "for scenarios where an immediate connection is desirable without requiring an explicit user action " +
                  "to initiate the connection.")]
         private bool connectOnAwake;
-        private TactilityDeviceConfig _config;
         
+        private TactilityDeviceConfig _config;
         private bool _isSuccessfullyConnected;
         private bool _receivedValidGreeting;
 
@@ -40,7 +40,7 @@ namespace Tactility.Box
                 "iam TACTILITY", 
                 $"elec 1 *pads_qty {_config.numPads}", 
                 "battery ?", 
-                $"freq {_config.baseFreq}"
+                GetFrequencyString(_config.baseFreq)
             });
         }
 
@@ -68,7 +68,7 @@ namespace Tactility.Box
             Send("velec 11 *selected 0");
         }
         
-        public override string GetEncodedString(int[] pads, float[] amps, float[] widths)
+        public override string GetStimString(int[] pads, float[] amps, int[] widths)
         {
             // Define invariable parts of the command string
             const string invariablePart1 = "velec 11 *special_anodes 1 *name test *elec 1 *pads ";
@@ -109,6 +109,11 @@ namespace Tactility.Box
                                  + finalPart;
 
             return completeString;
+        }
+
+        public override string GetFrequencyString(float frequency)
+        {
+            return $"freq {frequency}";
         }
 
         protected override void OnMessageArrived(string message)

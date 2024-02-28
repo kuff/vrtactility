@@ -25,7 +25,7 @@ namespace Tactility.Calibration
 
         // Calibrated "just noticeable differences" (JNDs) for the device
         public static float[] BaseAmps;
-        public static float[] BaseWidths;
+        public static int[] BaseWidths;
 
         // Singleton instance
         public static CalibrationManager Instance { get; private set; }
@@ -77,7 +77,7 @@ namespace Tactility.Calibration
             {
                 Debug.LogWarning($"Device configuration for {deviceName ?? "default"} set.");
                 BaseAmps = new float[_deviceConfigStatic.numPads];
-                BaseWidths = new float[_deviceConfigStatic.numPads];
+                BaseWidths = new int[_deviceConfigStatic.numPads];
             }
         }
 
@@ -129,18 +129,18 @@ namespace Tactility.Calibration
             return configs;
         }
 
-        public static string GetEncodedStringForSinglePad(int padIndex, float padAmp, float padWidth,
+        public static string GetEncodedStringForSinglePad(int padIndex, float padAmp, int padWidth,
             AbstractBoxController boxController)
         {
             var padsFull = new int[DeviceConfig.numPads];
             var ampsFull = new float[DeviceConfig.numPads];
-            var widthsFull = new float[DeviceConfig.numPads];
+            var widthsFull = new int[DeviceConfig.numPads];
 
             padsFull[padIndex] = 1;
             ampsFull[padIndex] = padAmp;
             widthsFull[padIndex] = padWidth;
 
-            return boxController.GetEncodedString(padsFull, ampsFull, widthsFull);
+            return boxController.GetStimString(padsFull, ampsFull, widthsFull);
         }
 
         [CanBeNull]
@@ -208,7 +208,7 @@ namespace Tactility.Calibration
                 }
 
                 BaseAmps = new float[lines.Length - 1];
-                BaseWidths = new float[lines.Length - 1];
+                BaseWidths = new int[lines.Length - 1];
 
                 for (var i = 1; i < lines.Length; i++)
                 {
@@ -217,7 +217,7 @@ namespace Tactility.Calibration
                     
                     // Parse floats with "." and not ","
                     BaseAmps[i - 1] = float.Parse(parts[0], System.Globalization.CultureInfo.InvariantCulture);
-                    BaseWidths[i - 1] = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
+                    BaseWidths[i - 1] = int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
                 }
                 // for (var i = 0; i < BaseAmps.Length; i++)
                 //     Debug.Log($"Pad {i + 1}: Amp = {BaseAmps[i]}, Width = {BaseWidths[i]}");

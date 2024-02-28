@@ -18,7 +18,7 @@ namespace Tactility.Calibration.Old
         public static string connectedMessage;
         private int[] Remap;
 
-        [SerializeField] private CalibrationData cd;
+        // [SerializeField] private CalibrationScriptableObject cd;
 
         public static SerialController gloveSerialController;
 
@@ -44,7 +44,7 @@ namespace Tactility.Calibration.Old
 
         public void MakeConnection()
         {
-            // NOTE: previous coroutine structure was removed from here, may result in breakage
+            // NOTE: previous coroutine structure was removed from here
             Connect();
         }
 
@@ -77,7 +77,7 @@ namespace Tactility.Calibration.Old
             
                 // === The results are printed in a separate GameObject ===
             
-                cd.port = ComPortBox.text;
+                // cd.port = ComPortBox.text;
             }
             catch(Exception e)
             {
