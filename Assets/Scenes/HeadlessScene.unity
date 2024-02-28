@@ -540,11 +540,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1249868595}
+  - component: {fileID: 1249868596}
   - component: {fileID: 1249868594}
   - component: {fileID: 1249868593}
   - component: {fileID: 1249868592}
   - component: {fileID: 1249868591}
-  - component: {fileID: 1249868596}
   m_Layer: 0
   m_Name: TactilityManager
   m_TagString: Untagged
@@ -583,7 +583,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deviceConfigInstance: {fileID: 11400000, guid: 47ebc3596d249de4dac82f5735bddfd2,
     type: 2}
-  calibrationFileName: Test2_Calibration_glove_20240227.txt
+  calibrationFileName: debug_calibration_glove_vrt0.1.txt
 --- !u!114 &1249868593
 MonoBehaviour:
   m_ObjectHideFlags: 0

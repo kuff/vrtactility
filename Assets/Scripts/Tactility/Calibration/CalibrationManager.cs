@@ -147,7 +147,7 @@ namespace Tactility.Calibration
         public static string SaveCalibrationDataToFile(string dataName = null)
         {
             var prefix = string.IsNullOrEmpty(dataName) ? "" : $"{dataName}_";
-            var fileName = $"{prefix}Calibration_{_deviceConfigStatic.deviceName}_{DateTime.Now:yyyyMMdd}.txt";
+            var fileName = $"{prefix}calibration_{_deviceConfigStatic.deviceName}_vrt{Application.version}.txt";
             var filePath = Path.Combine(Application.persistentDataPath, fileName);
 
             try

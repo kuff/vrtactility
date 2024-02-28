@@ -9,7 +9,7 @@ namespace Tactility.Modulation
         [Tooltip("List of GameObjects to cycle through.")]
         public List<GameObject> gameObjects;
         [Tooltip("Time in seconds each GameObject is active.")]
-        public float cycleDelay = 5f;
+        public float cycleDelay = 8f;
 
         private int _currentIndex = -1;         // Track the current index. Starts at -1 to indicate no GameObject is active initially.
         private bool _isCyclingEnabled = true;  // Control cycling on/off.
@@ -30,28 +30,27 @@ namespace Tactility.Modulation
             {
                 if (!Input.GetKeyDown(i.ToString()) || gameObjects.Count < i) continue;
                 
-                ToggleCycling(false); // Disable cycling.
-                ActivateGameObject(i - 1); // Activate the selected GameObject.
+                ToggleCycling(false);  // Disable cycling.
+                ActivateGameObject(i - 1);  // Activate the selected GameObject.
             }
 
             // Check for number key 9 to re-enable cycling.
-            if (Input.GetKeyDown("9")) ToggleCycling(true);
+            if (Input.GetKeyDown("9"))
+            {
+                CycleToNextGameObjectAndContinue();  // Cycle to next GameObject immediately and continue cycling.
+            }
         }
 
         private IEnumerator CycleGameObjects()
         {
             while (_isCyclingEnabled)
             {
-                // Increment the currentIndex and wrap it around if it exceeds the list count.
-                _currentIndex = (_currentIndex + 1) % gameObjects.Count;
-
-                // Enable the current GameObject.
-                gameObjects[_currentIndex].SetActive(true);
+                CycleToNextGameObject();  // Move to the next GameObject and enable it.
 
                 // Wait for the specified delay.
                 yield return new WaitForSeconds(cycleDelay);
 
-                // Check if cycling is still enabled before disabling the current GameObject.
+                // Disable the current GameObject before the next cycle begins, if cycling is still enabled.
                 if (_isCyclingEnabled)
                 {
                     gameObjects[_currentIndex].SetActive(false);
@@ -59,28 +58,30 @@ namespace Tactility.Modulation
             }
         }
 
+        private void CycleToNextGameObjectAndContinue()
+        {
+            ToggleCycling(true);  // Ensure cycling is enabled.
+            CycleToNextGameObject();  // Move to the next GameObject immediately.
+
+            // If not already running, restart the coroutine to continue cycling from the current position.
+            if (_cyclingCoroutine == null)
+            {
+                _cyclingCoroutine = StartCoroutine(CycleGameObjects());
+            }
+        }
+
         private void ToggleCycling(bool enable)
         {
             _isCyclingEnabled = enable;
 
-            if (enable)
-            {
-                // Ensure all GameObjects are initially disabled.
-                foreach (var go in gameObjects)
-                {
-                    go.SetActive(false);
-                }
-
-                // Restart cycling coroutine if not already running.
-                _cyclingCoroutine ??= StartCoroutine(CycleGameObjects());
-            }
-            else
+            if (!enable)
             {
                 // Stop the cycling coroutine if it's running.
-                if (_cyclingCoroutine == null) return;
-                
-                StopCoroutine(_cyclingCoroutine);
-                _cyclingCoroutine = null;
+                if (_cyclingCoroutine != null)
+                {
+                    StopCoroutine(_cyclingCoroutine);
+                    _cyclingCoroutine = null;
+                }
             }
         }
 
@@ -93,6 +94,21 @@ namespace Tactility.Modulation
             }
 
             gameObjects[index].SetActive(true);
+        }
+
+        private void CycleToNextGameObject()
+        {
+            // Increment the currentIndex and wrap it around if it exceeds the list count.
+            _currentIndex = (_currentIndex + 1) % gameObjects.Count;
+
+            // Disable all GameObjects before enabling the next one.
+            foreach (var go in gameObjects)
+            {
+                go.SetActive(false);
+            }
+
+            // Enable the next GameObject.
+            gameObjects[_currentIndex].SetActive(true);
         }
     }
 }
