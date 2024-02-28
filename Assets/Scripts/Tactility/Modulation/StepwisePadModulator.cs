@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Tactility.Calibration;
 using UnityEngine;
@@ -9,12 +10,14 @@ namespace Tactility.Modulation
     {
         private ITactilityDataProvider _dataProvider;
 
-        protected override void OnEnable()
+        protected override IEnumerator Start()
         {
+            yield return base.Start();
+            
             _dataProvider = GetComponent<ITactilityDataProvider>();
             
             // If no ITactilityDataProvider is found, disable the modulator
-            if (_dataProvider != null) return;
+            if (_dataProvider != null) yield break;
             Debug.LogWarning("No ITactilityDataProvider found. Disabling StepwisePadModulator.");
             enabled = false;
         }

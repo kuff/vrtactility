@@ -16,7 +16,7 @@ namespace Tactility.Modulation
 
         private AbstractBoxController _boxController;
         private float _lastSendTime;
-
+        
         private readonly List<AbstractModulator> _modulators = new();
 
         // Store the highest value for each pad
@@ -54,10 +54,45 @@ namespace Tactility.Modulation
 
         private void NotifyModulators()
         {
+            // Notify each modulator to get its modulation data
+            // Also check if any pad data was supplied, otherwise enable all pads
+            // var padDataSupplied = false;
+            // foreach (var modulator in _modulators)
+            // {
+            //     var modulationData = modulator.GetModulationData();
+            //     CombineModulationData(modulationData);
+            //     if (modulationData.Type == ModulationType.Pad) padDataSupplied = true;
+            // }
+            //
+            // if (padDataSupplied) return;
+            // for (var i = 0; i < _combinedPads.Length; i++) _combinedPads[i] = 1;
+            // Notify each modulator to get its modulation data
             foreach (var modulator in _modulators)
             {
                 var modulationData = modulator.GetModulationData();
                 CombineModulationData(modulationData);
+            }
+            
+            // Check if every TactilityData type is contained in _modulators
+            // Apply the given data types default values if not
+            foreach (ModulationType type in Enum.GetValues(typeof(ModulationType)))
+            {
+                if (_modulators.TrueForAll(modulator => modulator.GetModulationData().Type != type))
+                {
+                    // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+                    switch (type)
+                    {
+                        case ModulationType.Pad:
+                            for (var i = 0; i < _combinedPads.Length; i++) _combinedPads[i] = 1;
+                            break;
+                        case ModulationType.Amp:
+                            for (var i = 0; i < _combinedAmps.Length; i++) _combinedAmps[i] = CalibrationManager.BaseAmps[i];
+                            break;
+                        case ModulationType.Width:
+                            for (var i = 0; i < _combinedWidths.Length; i++) _combinedWidths[i] = CalibrationManager.BaseWidths[i];
+                            break;
+                    }
+                }
             }
         }
 
@@ -129,7 +164,20 @@ namespace Tactility.Modulation
 
         public void Subscribe(AbstractModulator modulator)
         {
-            //Debug.Log($"Subscribing {modulator} to TactilityManager");
+            // Find out which derived class the modulator is
+            switch (modulator)
+            {
+                case ConstantAmpModulator _:
+                    break;
+                case ConstantWidthModulator _:
+                    break;
+                case StepwisePadModulator _:
+                    break;
+                case StepwiseWidthModulator _:
+                    break;
+                default:
+                    throw new ArgumentException($"Modulator {modulator} is not a valid derived class of AbstractModulator");
+            }
             
             if (!modulator.IsCompatibleWithDevice(CalibrationManager.DeviceConfig))
                 throw new ArgumentException($"Modulator {modulator} has declared itself incompatible with the " +
