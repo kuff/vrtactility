@@ -22,12 +22,15 @@ namespace Tactility.Modulation
             enabled = false;
         }
         
-        public override ModulationData GetModulationData()
+        public override ModulationData? GetModulationData()
         {
+            if (!_dataProvider.IsActive()) return null;
+            
             ref var modulationData = ref _dataProvider.GetTactilityData();
             var remap = new[] { 30, 27, 29, 28, 25, 31, 32, 26, 17, 18, 20, 1, 2, 22, 19, 3, 23, 21, 24, 4, 5, 8, 9, 6, 7, 10, 13, 14, 11, 12, 15, 16 };
             
             // Define spatial levels (values require remapping)
+            var level0 = new List<int> { };
             var level1 = new List<int> { 1, 9, 22, 27, 32 };
             var level2 = new List<int> { 1, 2, 9, 10, 22, 23, 27, 28, 32 };
             var level3 = new List<int> { 1, 2, 3, 5, 9, 10, 11, 13, 22, 23, 24, 27, 28, 29, 32 };
@@ -89,6 +92,7 @@ namespace Tactility.Modulation
                 > 0.75f => level4,
                 > 0.5f => level3,
                 > 0.25f => level2,
+                0.0f => level0,
                 _ => level1
             };
             // Debug.Log(spatialLevel.Count);

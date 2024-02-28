@@ -41,7 +41,7 @@ namespace Tactility.Modulation
             _tactilityManager?.Unsubscribe(this);
         }
 
-        public abstract ModulationData GetModulationData();
+        public abstract ModulationData? GetModulationData();
         public abstract bool IsCompatibleWithDevice(TactilityDeviceConfig deviceConfig);
     }
 }

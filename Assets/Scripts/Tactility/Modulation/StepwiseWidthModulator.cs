@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using Tactility.Calibration;
 using UnityEngine;
 
@@ -24,8 +25,10 @@ namespace Tactility.Modulation
             enabled = false;
         }
         
-        public override ModulationData GetModulationData()
+        public override ModulationData? GetModulationData()
         {
+            if (!_dataProvider.IsActive()) return null;
+            
             ref var modulationData = ref _dataProvider.GetTactilityData();
             var remap = new[] { 30, 27, 29, 28, 25, 31, 32, 26, 17, 18, 20, 1, 2, 22, 19, 3, 23, 21, 24, 4, 5, 8, 9, 6, 7, 10, 13, 14, 11, 12, 15, 16 };
             
@@ -77,6 +80,9 @@ namespace Tactility.Modulation
                     _ => 0.25f
                 };
                 var widthValue = CalibrationManager.BaseWidths[i] + 200f * pressureValue;
+                
+                // Set widthValue to 0 if all pressure values are 0
+                if (valueBatch.All(p => p == 0f)) widthValue = 0f;
                 
                 // Remap widthValue using the remap array and store it in the pressureValues array
                 pressureValues[remap[i] - 1] = widthValue;

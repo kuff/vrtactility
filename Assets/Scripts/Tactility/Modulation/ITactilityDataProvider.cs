@@ -11,6 +11,6 @@ namespace Tactility.Modulation
     public interface ITactilityDataProvider
     {
         ref TactilityData GetTactilityData();
+        bool IsActive();
     }
-
 }

@@ -5,7 +5,7 @@ namespace Tactility.Modulation
 {
     public class ConstantWidthModulator : AbstractModulator
     {
-        public override ModulationData GetModulationData()
+        public override ModulationData? GetModulationData()
         {
             return new ModulationData()
             {

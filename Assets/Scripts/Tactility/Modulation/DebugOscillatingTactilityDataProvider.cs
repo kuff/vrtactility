@@ -44,5 +44,10 @@ namespace Tactility.Modulation
             // Return the reference to the updated TactilityData
             return ref _tactilityData;
         }
+
+        public bool IsActive()
+        {
+            return true;  // Always active
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Tactility.Box;
 using Tactility.Calibration;
 using UnityEngine;
@@ -36,7 +37,13 @@ namespace Tactility.Modulation
         {
             if (Time.time * 1000 - _lastSendTime < updateInterval) return;
 
-            NotifyModulators();
+            var wasSuccessful = NotifyModulators();
+            if (!wasSuccessful)
+            {
+                _boxController.ResetAllPads();
+                return;
+            }
+            
             SendCombinedModulationData();
             ResetCombinedModulationData();  // Reset for next cycle
             _lastSendTime = Time.time * 1000;
@@ -54,32 +61,34 @@ namespace Tactility.Modulation
             for (var i = 0; i < padCount; i++) _combinedPads[i] = 1;
         }
 
-        private void NotifyModulators()
+        private bool NotifyModulators()
         {
-            // Notify each modulator to get its modulation data
-            // Also check if any pad data was supplied, otherwise enable all pads
-            // var padDataSupplied = false;
-            // foreach (var modulator in _modulators)
-            // {
-            //     var modulationData = modulator.GetModulationData();
-            //     CombineModulationData(modulationData);
-            //     if (modulationData.Type == ModulationType.Pad) padDataSupplied = true;
-            // }
-            //
-            // if (padDataSupplied) return;
-            // for (var i = 0; i < _combinedPads.Length; i++) _combinedPads[i] = 1;
+            var suppliedData = new Dictionary<ModulationType, bool>
+            {
+                { ModulationType.Amplitude, false },
+                { ModulationType.Width, false },
+            };
+            
             // Notify each modulator to get its modulation data
             foreach (var modulator in _modulators)
             {
                 var modulationData = modulator.GetModulationData();
-                CombineModulationData(modulationData);
+                if (modulationData.HasValue)
+                {
+                    CombineModulationData(modulationData.Value);
+                    suppliedData[modulationData.Value.Type] = true;
+                }
             }
+            
+            // Return false if any required data was not supplied
+            if (!suppliedData.Values.All(value => value)) 
+                return false;
             
             // Check if every TactilityData type is contained in _modulators
             // Apply the given data types default values if not
             foreach (ModulationType type in Enum.GetValues(typeof(ModulationType)))
             {
-                if (_modulators.TrueForAll(modulator => modulator.GetModulationData().Type != type))
+                if (_modulators.TrueForAll(modulator => modulator.GetModulationData()?.Type != type))
                 {
                     // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
                     switch (type)
@@ -97,6 +106,8 @@ namespace Tactility.Modulation
                     }
                 }
             }
+
+            return true;
         }
 
         [SuppressMessage("ReSharper", "SwitchStatementMissingSomeEnumCasesNoDefault")]
@@ -128,15 +139,6 @@ namespace Tactility.Modulation
                     throw new ArgumentException("Modulation data cannot exceed the device's max frequency");
             }
 
-            // Check that the modulation data is not all zeros in amplitude or width
-            // switch (modulationData.Type)
-            // {
-            //     case ModulationType.Amplitude when Array.TrueForAll(modulationData.Values, value => value.Equals(0)):
-            //         throw new ArgumentException("Modulation data cannot be all zeros for amplitude");
-            //     case ModulationType.Width when Array.TrueForAll(modulationData.Values, value => value.Equals(0)):
-            //         throw new ArgumentException("Modulation data cannot be all zeros for pulse width");
-            // }
-            
             for (var i = 0; i < modulationData.Values.Length; i++)
             {
                 switch (modulationData.Type)

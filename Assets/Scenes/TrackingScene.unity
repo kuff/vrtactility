@@ -202,27 +202,14 @@ GameObject:
   - component: {fileID: 289385526}
   - component: {fileID: 289385525}
   - component: {fileID: 289385524}
-  - component: {fileID: 289385523}
+  - component: {fileID: 289385528}
   m_Layer: 0
   m_Name: MixedModulator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &289385523
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 289385522}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 963f8661b22b6bd40b4aa4c3018d4eee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  oscillationPeriodSeconds: 4
+  m_IsActive: 1
 --- !u!114 &289385524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274,6 +261,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &289385528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289385522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15ce79f91581de046b10604d842e9e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grabbable: {fileID: 1582491693}
 --- !u!114 &458759416 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 114567484643301796, guid: 835e735ca71bf78459fb2cababd74112,
@@ -429,7 +429,7 @@ GameObject:
   - component: {fileID: 1170190326}
   - component: {fileID: 1170190325}
   - component: {fileID: 1170190324}
-  - component: {fileID: 1170190323}
+  - component: {fileID: 1170190327}
   m_Layer: 0
   m_Name: NoneModulator
   m_TagString: Untagged
@@ -437,19 +437,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &1170190323
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1170190322}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 963f8661b22b6bd40b4aa4c3018d4eee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  oscillationPeriodSeconds: 4
 --- !u!114 &1170190324
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -489,6 +476,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1170190327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1170190322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15ce79f91581de046b10604d842e9e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grabbable: {fileID: 1582491693}
 --- !u!1 &1266751877
 GameObject:
   m_ObjectHideFlags: 0
@@ -994,6 +994,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pressureThreshold: 0.5
   ovrInitializer: {fileID: 1639653292}
+  touchingBoneIds: 
+  touchingBonePressures: []
   isGrabbed: 0
 --- !u!114 &1582491694
 MonoBehaviour:
@@ -1086,7 +1088,7 @@ GameObject:
   - component: {fileID: 1656006131}
   - component: {fileID: 1656006130}
   - component: {fileID: 1656006129}
-  - component: {fileID: 1656006128}
+  - component: {fileID: 1656006133}
   m_Layer: 0
   m_Name: SpatialModulator
   m_TagString: Untagged
@@ -1094,19 +1096,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &1656006128
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1656006127}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 963f8661b22b6bd40b4aa4c3018d4eee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  oscillationPeriodSeconds: 4
 --- !u!114 &1656006129
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1158,6 +1147,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1656006133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1656006127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15ce79f91581de046b10604d842e9e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grabbable: {fileID: 1582491693}
 --- !u!1001 &1690118098
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1316,27 +1318,14 @@ GameObject:
   - component: {fileID: 1743262855}
   - component: {fileID: 1743262854}
   - component: {fileID: 1743262853}
-  - component: {fileID: 1743262852}
+  - component: {fileID: 1743262856}
   m_Layer: 0
   m_Name: FrequencyModulator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1743262852
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1743262851}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 963f8661b22b6bd40b4aa4c3018d4eee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  oscillationPeriodSeconds: 4
+  m_IsActive: 0
 --- !u!114 &1743262853
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1376,6 +1365,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1743262856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1743262851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15ce79f91581de046b10604d842e9e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grabbable: {fileID: 1582491693}
 --- !u!1 &1786654684
 GameObject:
   m_ObjectHideFlags: 0

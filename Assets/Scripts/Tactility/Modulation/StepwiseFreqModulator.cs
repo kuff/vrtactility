@@ -14,16 +14,16 @@ namespace Tactility.Modulation
         {
             yield return base.Start();
             
-            _dataProvider = GetComponent<ITactilityDataProvider>();
-            
             // If no ITactilityDataProvider is found, disable the modulator
             if (_dataProvider != null) yield break;
             Debug.LogWarning("No ITactilityDataProvider found. Disabling StepwiseFreqModulator.");
             enabled = false;
         }
         
-        public override ModulationData GetModulationData()
+        public override ModulationData? GetModulationData()
         {
+            if (!_dataProvider.IsActive()) return null;
+            
             ref var modulationData = ref _dataProvider.GetTactilityData();
             
             // Update stimuli for each touching finger bone of interest

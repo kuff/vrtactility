@@ -4,7 +4,7 @@ namespace Tactility.Modulation
 {
     public class ConstantAmpModulator : AbstractModulator
     {
-        public override ModulationData GetModulationData()
+        public override ModulationData? GetModulationData()
         {
             return new ModulationData()
             {
