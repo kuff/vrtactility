@@ -180,7 +180,7 @@ namespace Editor
                             var parts = pair.Split('=');
                             if (parts.Length != 2) continue;
 
-                            var padIndex = int.Parse(parts[0]);
+                            var padIndex = int.Parse(parts[0]) - 1;
                             // Assuming pads are cathodes if specified, and anodes otherwise
                             tempPadValues[padIndex] = new PadInfo(false);  // Setting specified pads as cathodes
                         }
@@ -194,7 +194,7 @@ namespace Editor
                             var parts = pair.Split('=');
                             if (parts.Length != 2) continue;
 
-                            var padIndex = int.Parse(parts[0]);
+                            var padIndex = int.Parse(parts[0]) - 1;
                             // Parse float with "." and not ","
                             var value = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
 
