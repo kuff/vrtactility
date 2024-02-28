@@ -132,13 +132,15 @@ namespace Tactility.Calibration
         public static string GetEncodedStringForSinglePad(int padIndex, float padAmp, float padWidth,
             AbstractBoxController boxController)
         {
+            var padsFull = new int[DeviceConfig.numPads];
             var ampsFull = new float[DeviceConfig.numPads];
             var widthsFull = new float[DeviceConfig.numPads];
 
+            padsFull[padIndex] = 1;
             ampsFull[padIndex] = padAmp;
             widthsFull[padIndex] = padWidth;
 
-            return boxController.GetEncodedString(ampsFull, widthsFull);
+            return boxController.GetEncodedString(padsFull, ampsFull, widthsFull);
         }
 
         [CanBeNull]
@@ -189,8 +191,8 @@ namespace Tactility.Calibration
                 }
                 
                 // Warn the user if the version of the calibration file is newer than the application
-                if (lines[0].Contains(Application.version)) 
-                    Debug.LogWarning($"The calibration file {filePath} was created with a newer version of the application.");
+                // if (lines[0].Contains(Application.version)) 
+                //     Debug.LogWarning($"The calibration file {filePath} was created with a newer version of the application.");
                 
                 // Extract device name and version from the first line
                 var deviceConfigParts = lines[0].Split(',');

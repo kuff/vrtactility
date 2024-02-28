@@ -65,7 +65,14 @@ namespace Tactility.Modulation
                     _    => valueBatch[4]  // == 31
                 };
                 
-                // Map pressureValue (0 to 1) to pulse width
+                // Define value buckets (0.25, 0.5, 0.75, 1.0) and project pressureValue to last bucket it is greater than
+                pressureValue = pressureValue switch
+                {
+                    > 0.75f => 1.0f,
+                    > 0.5f => 0.75f,
+                    > 0.25f => 0.5f,
+                    _ => 0.25f
+                };
                 var widthValue = CalibrationManager.BaseWidths[i] + (CalibrationManager.DeviceConfig.maxWidth - CalibrationManager.BaseWidths[i]) * pressureValue;
                 
                 // Remap widthValue using the remap array and store it in the pressureValues array

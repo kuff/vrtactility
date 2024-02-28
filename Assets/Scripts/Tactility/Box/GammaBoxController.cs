@@ -60,7 +60,7 @@ namespace Tactility.Box
             Send("velec 11 *selected 0");
         }
         
-        public override string GetEncodedString(float[] amps, float[] widths)
+        public override string GetEncodedString(int[] pads, float[] amps, float[] widths)
         {
             // Define invariable parts of the command string
             const string invariablePart1 = "velec 11 *special_anodes 1 *name test *elec 1 *pads ";
@@ -75,7 +75,7 @@ namespace Tactility.Box
 
             for (var i = 0; i < amps.Length; i++)
             {
-                if (_config.IsAnode(i)) continue;
+                if (_config.IsAnode(i) || pads[i] == 0) continue;
                 
                 var amplitudeValue = amps[i];
                 var widthValue = widths[i];

@@ -35,7 +35,7 @@ namespace Tactility.Box
         public abstract void EnableStimulation();
         public abstract void DisableStimulation();
         public abstract void ResetAllPads();
-        public abstract string GetEncodedString(float[] amps, float[] widths);
+        public abstract string GetEncodedString(int[] pads, float[] amps, float[] widths);
         
         protected SerialController Sc;
 

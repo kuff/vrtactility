@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Tactility.Box;
 using Tactility.Calibration;
 using UnityEngine;
@@ -19,6 +20,7 @@ namespace Tactility.Modulation
         private readonly List<AbstractModulator> _modulators = new();
 
         // Store the highest value for each pad
+        private int[] _combinedPads;
         private float[] _combinedAmps;
         private float[] _combinedWidths;
 
@@ -44,6 +46,10 @@ namespace Tactility.Modulation
             var padCount = CalibrationManager.DeviceConfig.numPads;
             _combinedAmps = new float[padCount];
             _combinedWidths = new float[padCount];
+            
+            // Initialize _combinedPads with all 1s to default them on
+            _combinedPads = new int[padCount];
+            for (var i = 0; i < padCount; i++) _combinedPads[i] = 1;
         }
 
         private void NotifyModulators()
@@ -55,40 +61,35 @@ namespace Tactility.Modulation
             }
         }
 
+        [SuppressMessage("ReSharper", "SwitchStatementMissingSomeEnumCasesNoDefault")]
         private void CombineModulationData(ModulationData modulationData)
         {
             if (modulationData.Values == null) return;
 
             // Check that the modulation data is the correct length
-            if (modulationData.Values.Length != _combinedAmps.Length)
+            if (modulationData.Values.Length != _combinedPads.Length)
                 throw new ArgumentException($"Modulation data length ({modulationData.Values.Length}) does not match " +
                                             $"the number of pads ({_combinedAmps.Length})");
             
             // Check that the modulation data is not negative
             if (Array.Exists(modulationData.Values, value => value < 0))
                 throw new ArgumentException("Modulation data cannot contain negative values");
-            
+
             // Check that modulation data is not greater than the device's max values
-            if (modulationData.Type == ModulationType.Amp)
+            switch (modulationData.Type)
             {
-                if (Array.Exists(modulationData.Values, value => value > CalibrationManager.DeviceConfig.maxAmp))
+                case ModulationType.Amp when Array.Exists(modulationData.Values, value => value > CalibrationManager.DeviceConfig.maxAmp):
                     throw new ArgumentException("Modulation data cannot exceed the device's max amplitude");
-            }
-            else
-            {
-                if (Array.Exists(modulationData.Values, value => value > CalibrationManager.DeviceConfig.maxWidth))
+                case ModulationType.Width when Array.Exists(modulationData.Values, value => value > CalibrationManager.DeviceConfig.maxWidth):
                     throw new ArgumentException("Modulation data cannot exceed the device's max pulse width");
             }
-            
+
             // Check that the modulation data is not all zeros in amplitude or width
-            if (modulationData.Type == ModulationType.Amp)
+            switch (modulationData.Type)
             {
-                if (Array.TrueForAll(modulationData.Values, value => value.Equals(0)))
+                case ModulationType.Amp when Array.TrueForAll(modulationData.Values, value => value.Equals(0)):
                     throw new ArgumentException("Modulation data cannot be all zeros for amplitude");
-            }
-            else
-            {
-                if (Array.TrueForAll(modulationData.Values, value => value.Equals(0)))
+                case ModulationType.Width when Array.TrueForAll(modulationData.Values, value => value.Equals(0)):
                     throw new ArgumentException("Modulation data cannot be all zeros for pulse width");
             }
             
@@ -96,12 +97,18 @@ namespace Tactility.Modulation
             {
                 switch (modulationData.Type)
                 {
+                    case ModulationType.Pad:
+                        var value = modulationData.Values[i] > 0 ? 1 : 0;
+                        _combinedPads[i] = value;
+                        break;
                     case ModulationType.Amp:
                         _combinedAmps[i] = Mathf.Max(_combinedAmps[i], modulationData.Values[i]);
                         break;
                     case ModulationType.Width:
                         _combinedWidths[i] = Mathf.Max(_combinedWidths[i], modulationData.Values[i]);
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         }
@@ -110,7 +117,7 @@ namespace Tactility.Modulation
         {
             if (_modulators.Count == 0) return;
             
-            var encodedString = _boxController.GetEncodedString(_combinedAmps, _combinedWidths);
+            var encodedString = _boxController.GetEncodedString(_combinedPads, _combinedAmps, _combinedWidths);
             _boxController.Send(encodedString);
         }
 

@@ -2,6 +2,7 @@
 {
     public enum ModulationType
     {
+        Pad,
         Amp,
         Width
     }

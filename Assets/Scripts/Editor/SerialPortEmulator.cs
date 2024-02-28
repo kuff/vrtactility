@@ -111,7 +111,7 @@ namespace Editor
                 Debug.Log($"[SerialPortEmulator] Received: {message}");
 
             // Update stimulation state based on received messages
-            switch (message.Trim())
+            switch (message)
             {
                 case "stim on\r":
                     StimulationEnabled = true;
