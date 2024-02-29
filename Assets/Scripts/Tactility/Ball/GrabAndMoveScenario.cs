@@ -9,17 +9,19 @@ namespace Tactility.Ball
         public float targetHeight;
         
         public float Progress { get; private set; }
-
+        
         public event ScenarioOnSuccess WhenOnSuccess;
         public event ScenarioOnFailure WhenOnFailure;
+        [Tooltip("The UniformGrabbable component of the object that is being grabbed and moved. This component is used " +
+                 "to track the object's position and movement.")]
+        public UniformGrabbable ug;  // The sphere's UniformGrabbable component
 
-        private UniformGrabbable _ug;   // The sphere's UniformGrabbable component
-        private FreeFloatable _ff;      // The sphere's FreeFloatable component
+        private FreeFloatable _ff;  // The sphere's FreeFloatable component
 
         private void Start()
         {
-            _ug = FindObjectOfType<UniformGrabbable>();
-            _ff = _ug!.gameObject.GetComponent<FreeFloatable>();
+            // ug = FindObjectOfType<UniformGrabbable>();
+            _ff = ug!.gameObject.GetComponent<FreeFloatable>();
 
             WhenOnSuccess += () => _ff.ResetPosition();
             WhenOnFailure += () => _ff.ResetPosition();
@@ -32,8 +34,8 @@ namespace Tactility.Ball
 
         private void Update()
         {
-            if (_ug && _ug.isGrabbed)
-                UpdateProgress(_ug.gameObject.transform.position.y);
+            if (ug && ug.isGrabbed)
+                UpdateProgress(ug.gameObject.transform.position.y);
             else 
                 Progress = 0f;
         }

@@ -22,7 +22,7 @@ namespace Tactility.Ball
         [SerializeField] private float waitBetweenLoops = 1.5f;
 
         private GrabAndMoveScenario _scenario;
-        private UniformGrabbable _ug;
+        // private UniformGrabbable _ug;
         private Transform _headTransform;
         
         private GameObject _visualProgressInstance;
@@ -33,13 +33,13 @@ namespace Tactility.Ball
         private void Start()
         {
             _scenario = GetComponent<GrabAndMoveScenario>();
-            _ug = FindObjectOfType<UniformGrabbable>();
+            // _ug = FindObjectOfType<UniformGrabbable>();
             _headTransform = FindObjectOfType<OVRInitializer>().headTransform;
         }
 
         private void Update()
         {
-            if (_ug.isGrabbed)
+            if (_scenario.ug.isGrabbed)
             {
                 if (_visualProgressInstance == null)
                 {
@@ -75,15 +75,16 @@ namespace Tactility.Ball
         private void UpdateSpherePositions()
         {
             // Calculate the vector from the head to the _ug object
-            var headToUGDirection = (_ug.transform.position - _headTransform.position).normalized;
+            var headToUgDirection = (_scenario.ug.transform.position - _headTransform.position).normalized;
             
             // Calculate the perpendicular vector to the left or right
-            var perpendicularDirection = _ug.IsLeftHandTouching() ? Vector3.Cross(Vector3.up, headToUGDirection) : Vector3.Cross(headToUGDirection, Vector3.up);
+            var perpendicularDirection = _scenario.ug.IsLeftHandTouching() ? Vector3.Cross(Vector3.up, headToUgDirection) : Vector3.Cross(headToUgDirection, Vector3.up);
 
             // Apply the offset
             var offset = perpendicularDirection * offsetDistance;
-            _visualProgressInstance.transform.position = _ug.transform.position + offset;
-            _targetProgressInstance.transform.position = new Vector3(_visualProgressInstance.transform.position.x, _scenario.targetHeight, _visualProgressInstance.transform.position.z);
+            var position = _scenario.ug.transform.position + offset;
+            _visualProgressInstance.transform.position = position;
+            _targetProgressInstance.transform.position = new Vector3(position.x, _scenario.targetHeight, position.z);
         }
 
         private void UpdateSphereScale()
