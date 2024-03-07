@@ -584,7 +584,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   logMode: 2
   messageDelay: 50
-  maxQueueSize: 10
+  maxQueueSize: 20
   connectOnAwake: 1
 --- !u!114 &1249868594
 MonoBehaviour:

@@ -8,7 +8,7 @@ using Tactility.Calibration;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor
+namespace Editor.Emulator
 {
     public static class GammaBoxEmulator
     {
@@ -126,11 +126,11 @@ namespace Editor
             // Update stimulation state based on received messages
             switch (message)
             {
-                case "stim on\r":
+                case "stim on":
                     StimulationEnabled = true;
                     SendResponse("Re:[] ok");
                     break;
-                case "stim off\r":
+                case "stim off":
                     StimulationEnabled = false;
                     SendResponse("Re:[] ok");
                     break;

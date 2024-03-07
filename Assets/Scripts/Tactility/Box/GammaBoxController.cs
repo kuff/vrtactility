@@ -40,32 +40,26 @@ namespace Tactility.Box
                 "iam TACTILITY", 
                 $"elec 1 *pads_qty {_config.numPads}", 
                 "battery ?", 
-                //$"freq {_config.baseFreq}"
+                $"freq {_config.baseFreq}"
             });
         }
 
         public override void EnableStimulation()
         {
-            Send("stim on");
+            // Circumvent the queue size check by not going through Send()
+            QueueMessage("stim on", ignoreQueueSize:true);
         }
 
         public override void DisableStimulation()
         {
-            // Enclose in try/catch block
-            try
-            {
-                Send("stim off");
-            }
-            catch (System.NullReferenceException e)
-            {
-                Debug.LogWarning("GammaBoxController.DisableStimulation errored, assuming the serial thread was already halted: " + e.Message);
-            }
+            // Circumvent the queue size check by not going through Send()
+            QueueMessage("stim off", ignoreQueueSize:true);
         }
 
         public override void ResetAllPads()
         {
             // NOTE: This was done in the previous implementation but may not be the best approach
-            Send("velec 11 *selected 0");
+            QueueMessage("velec 11 *selected 0", ignoreQueueSize:true);
         }
         
         public override string GetStimString(int[] pads, float[] amps, int[] widths)

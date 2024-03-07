@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor
+namespace Editor.Emulator
 {
     public class GammaBoxEmulatorWindow : EditorWindow
     {
@@ -62,8 +62,6 @@ namespace Editor
                 return;
             }
 
-            _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
-
             GUILayout.Label("Configure Serial Port", EditorStyles.boldLabel);
             _settings.comPort = EditorGUILayout.TextField("COM Port", _settings.comPort);
             _settings.baudRate = EditorGUILayout.IntField("Baud Rate", _settings.baudRate);
@@ -76,10 +74,15 @@ namespace Editor
                 else
                     EnableEmulator();
             }
+            
+            _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
 
             GUILayout.Space(10);
             GUILayout.Label("Stimulation State", EditorStyles.boldLabel);
-            GUILayout.Label(GammaBoxEmulator.StimulationEnabled ? "ON" : "OFF", EditorStyles.wordWrappedLabel);
+            
+            GUILayout.Label(GammaBoxEmulator.IsConnected ? "CONNECTED" : "DISCONNECTED", EditorStyles.wordWrappedLabel);
+            GUILayout.Label(GammaBoxEmulator.StimulationEnabled ? "STIM ON" : "STIM OFF", EditorStyles.wordWrappedLabel);
+            GUILayout.Label($"FREQUENCY: {GammaBoxEmulator.GlobalFrequency} Hz", EditorStyles.wordWrappedLabel);
 
             GUILayout.Space(10);
             GUILayout.Label("Pad Information", EditorStyles.boldLabel);

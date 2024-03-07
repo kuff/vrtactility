@@ -75,15 +75,15 @@ namespace Tactility.Box
             IsSendingMessages = false;
         }
         
-        private void QueueMessage(string message)
+        protected void QueueMessage(string message, bool ignoreQueueSize = false)
         {
-            if (MessageQueue.Count >= maxQueueSize)
+            if (MessageQueue.Count >= maxQueueSize && !ignoreQueueSize)
             {
                 Debug.LogWarning("Message queue is full, dropping message.");
                 return;
             }
             MessageQueue.Enqueue(message);
-
+            
 #if DEBUG
             if (logMode is SerialLogMode.Outbound or SerialLogMode.All)
                 Debug.Log($"{this} Outbound message queued: {message}");
