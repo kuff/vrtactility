@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Editor
 {
-    public static class SerialPortEmulator
+    public static class GammaBoxEmulator
     {
         private static SerialPort _serialPort;
         private static Thread _readThread;
@@ -26,6 +26,13 @@ namespace Editor
         public static readonly List<PadInfo> PadValues = new();
         public static int GlobalFrequency;
         public static bool StimulationEnabled { get; private set; }
+        
+        private static readonly List<(string message, double receivedTime)> RecentMessages = new();
+        private static double _lastMessageTime;
+        private static double _currentTime;
+
+        public static IEnumerable<(string message, double relativeTime)> ExposedMessages => RecentMessages.Select((m, index) =>
+            (m.message, index == 0 ? 0 : m.receivedTime - RecentMessages[index - 1].receivedTime));
         
         public struct PadInfo
         {
@@ -79,6 +86,7 @@ namespace Editor
             _readThread = new Thread(ReadPort);
             _readThread.Start();
             
+            PadValues.Clear();
             for (var i = 0; i < 32; i++)
             {
                 PadValues.Add(new PadInfo(true));  // Assume all pads are anodes initially
@@ -100,7 +108,7 @@ namespace Editor
                 {
                     // Debug.LogError("Error reading from serial port: " + ex.Message);
                     // Log when the connection is lost
-                    Debug.LogWarning("Connection to the serial port lost. This may be due to the application closing or the port being disconnected.");
+                    Debug.LogWarning($"Connection to the serial port lost: {ex}");
                     OnExit();
                 }
             }
@@ -109,6 +117,9 @@ namespace Editor
         [SuppressMessage("ReSharper", "StringLiteralTypo")]
         private static void HandleIncomingMessage(string message)
         {
+            if (RecentMessages.Count >= 5) RecentMessages.RemoveAt(0);
+            RecentMessages.Add((message, _currentTime));
+
             if (EmulatorSettings.Instance.enableLogging)
                 Debug.Log($"[SerialPortEmulator] Received: {message}");
 
@@ -295,6 +306,8 @@ namespace Editor
 
         private static void EditorUpdate()
         {
+            _currentTime = EditorApplication.timeSinceStartup;
+            
             // Only send heartbeats if in play mode and "iam TACTILITY" has been received
             if (_isInPlayMode && _receivedIamTactility)
             {
@@ -309,15 +322,19 @@ namespace Editor
             }
         }
 
-        // Call this method when the application or editor is closed
         public static void OnExit()
         {
+            // Call this method when the application or editor is closed
             if (_serialPort is not { IsOpen: true }) return;
             
             _keepReading = false;
             _serialPort.Close();
             _readThread.Join();
             EditorApplication.update -= EditorUpdate;
+            
+            // Clear the window pad values and stimulation state
+            //PadValues.Clear();
+            StimulationEnabled = false;
             
             Debug.Log("Emulator exited successfully.");
         }

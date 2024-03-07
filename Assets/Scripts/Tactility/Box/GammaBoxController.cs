@@ -35,12 +35,12 @@ namespace Tactility.Box
             Port = port;
         
             Sc.enabled = true;
-            SendManyDelayed(new[]
+            SendMany(new[]
             {
                 "iam TACTILITY", 
                 $"elec 1 *pads_qty {_config.numPads}", 
                 "battery ?", 
-                GetFrequencyString(_config.baseFreq)
+                //$"freq {_config.baseFreq}"
             });
         }
 
@@ -109,11 +109,6 @@ namespace Tactility.Box
                                  + finalPart;
 
             return completeString;
-        }
-
-        public override string GetFrequencyString(float frequency)
-        {
-            return $"freq {frequency}";
         }
 
         protected override void OnMessageArrived(string message)

@@ -22,7 +22,16 @@ namespace Tactility.Box
         [Tooltip("Controls the logging of serial messages. Outbound: Logs messages sent from the device. Inbound: " +
                  "Logs messages received by the device. All: Logs all messages, both inbound and outbound. Use this " +
                  "to debug and monitor serial communication. Only logs when running through the Editor.")]
-        public SerialLogMode logMode;
+        public SerialLogMode logMode = SerialLogMode.None;
+        
+        [Tooltip("The delay in milliseconds between sending messages. This is useful for devices that require a " +
+                 "delay between sending commands. The delay is in milliseconds. The default value is 50 second.")]
+        public float messageDelay = 50f;
+        public int maxQueueSize = 10;
+
+        protected SerialController Sc;
+        protected readonly Queue<string> MessageQueue = new();
+        protected bool IsSendingMessages;
 
         public string Port { get; protected set; }
         public string Battery { get; protected set; }
@@ -36,9 +45,7 @@ namespace Tactility.Box
         public abstract void DisableStimulation();
         public abstract void ResetAllPads();
         public abstract string GetStimString(int[] pads, float[] amps, int[] widths);
-        public abstract string GetFrequencyString(float frequency);
-        
-        protected SerialController Sc;
+
 
         protected virtual void Start()
         {
@@ -48,16 +55,47 @@ namespace Tactility.Box
             // DontDestroyOnLoad(this);
         }
         
-        public void Send(in string message)
+        protected virtual void Update()
         {
-#if UNITY_EDITOR
+            if (!IsSendingMessages && MessageQueue.Count > 0)
+            {
+                StartCoroutine(SendMessagesFromQueue());
+            }
+        }
+        
+        private IEnumerator SendMessagesFromQueue()
+        {
+            IsSendingMessages = true;
+            while (MessageQueue.Count > 0)
+            {
+                var message = MessageQueue.Dequeue();
+                Sc.SendSerialMessage(message);
+                yield return new WaitForSeconds(messageDelay / 1_000f);
+            }
+            IsSendingMessages = false;
+        }
+        
+        private void QueueMessage(string message)
+        {
+            if (MessageQueue.Count >= maxQueueSize)
+            {
+                Debug.LogWarning("Message queue is full, dropping message.");
+                return;
+            }
+            MessageQueue.Enqueue(message);
+
+#if DEBUG
             if (logMode is SerialLogMode.Outbound or SerialLogMode.All)
                 Debug.Log($"{this} Outbound message queued: {message}");
 #endif
-            Sc.SendSerialMessage($"{message}\r");
         }
         
-        public IEnumerator SendAsync(string message, float delay, Action callback = null)
+        public void Send(in string message)
+        {
+            QueueMessage(message);
+        }
+        
+        public IEnumerator SendDelayed(string message, float delay, Action callback = null)
         {
             yield return new WaitForSeconds(delay);
             Send(message);
@@ -70,31 +108,17 @@ namespace Tactility.Box
                 Send(msg);
         }
         
-        public IEnumerator SendManyAsync(IEnumerable<string> messages, float delay, Action callback = null)
+        public IEnumerator SendManyEachDelayed(IEnumerable<string> messages, float delay, Action callback = null)
         {
             foreach (var message in messages)
-                yield return SendAsync(message, delay);
-            
-            callback?.Invoke();
-        }
-
-        public void SendManyDelayed(in IEnumerable<string> messages)
-        {
-            SendMany(messages);
-        }
-        
-        public IEnumerator SendManyDelayedAsync(IEnumerable<string> messages, float initialDelay, float intermediateDelay, Action callback = null)
-        {
-            yield return new WaitForSeconds(initialDelay);
-            foreach (var message in messages)
-                yield return SendAsync(message, intermediateDelay);
+                yield return SendDelayed(message, delay);
             
             callback?.Invoke();
         }
         
         protected virtual void OnMessageArrived(string message)
         {
-#if UNITY_EDITOR
+#if DEBUG
             if (logMode is SerialLogMode.Inbound or SerialLogMode.All)
                 Debug.Log($"{this} Inbound message received: {message}");
 #endif
@@ -102,14 +126,9 @@ namespace Tactility.Box
         
         protected virtual void OnConnectionEvent(bool wasSuccessful)
         {
-#if UNITY_EDITOR
+#if DEBUG
             Debug.Log(this + (wasSuccessful ? ": Connection established" : ": Connection attempt failed or disconnection detected"));
 #endif
         }
-
-        // private void OnDisable()
-        // {
-        //     DisableStimulation();
-        // }
     }
 }

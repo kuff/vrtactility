@@ -109,6 +109,7 @@ namespace Tactility.Calibration
             }
 #else
             // If running outside the editor, attempt to load all configs from a Resources folder
+            // NOTE: Untested
             configs.AddRange(Resources.LoadAll<TactilityDeviceConfig>("Tactility"));
 #endif
             // Check for duplicate device names
@@ -195,7 +196,7 @@ namespace Tactility.Calibration
                     return;
                 }
                 
-                // Warn the user if the version of the calibration file is newer than the application
+                // Warn the user if the version of the calibration file is different from the application
                 // if (lines[0].Contains(Application.version)) 
                 //     Debug.LogWarning($"The calibration file {filePath} was created with a newer version of the application.");
                 
