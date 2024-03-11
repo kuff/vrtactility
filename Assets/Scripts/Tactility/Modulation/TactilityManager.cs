@@ -63,6 +63,7 @@ namespace Tactility.Modulation
 
         private bool NotifyModulators()
         {
+            // We just do this to keep track of if we've received all the required data
             var suppliedData = new Dictionary<ModulationType, bool>
             {
                 { ModulationType.Amplitude, false },
@@ -154,7 +155,7 @@ namespace Tactility.Modulation
                         _combinedWidths[i] = Mathf.Max(_combinedWidths[i], (int)modulationData.Values[i]);
                         break;
                     case ModulationType.Frequency:
-                        _frequency = Mathf.Max(_frequency, (int)modulationData.Values[i]);
+                        _frequency = (int)modulationData.Values[i];
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -166,10 +167,10 @@ namespace Tactility.Modulation
         {
             if (_modulators.Count == 0) return;
             
-            //var freqString = _boxController.GetFrequencyString(_frequency);
             var encodedString = _boxController.GetStimString(_combinedPads, _combinedAmps, _combinedWidths);
-            //_boxController.SendMany(new []{ freqString, encodedString });
+            var freqString = _boxController.GetFreqString(_frequency);
             _boxController.Send(encodedString);
+            _boxController.Send(freqString);
         }
 
         private void ResetCombinedModulationData()

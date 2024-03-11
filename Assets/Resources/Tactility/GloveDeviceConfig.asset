@@ -15,7 +15,7 @@ MonoBehaviour:
   deviceName: glove
   numPads: 32
   maxAmp: 9
-  maxWidth: 900
-  baseFreq: 50
-  maxFreq: 900
+  maxWidth: 500
+  baseFreq: 40
+  maxFreq: 400
   anodes: 0b0000000600000004000000170000000200000015000000190000001e000000

@@ -14,6 +14,8 @@ namespace Tactility.Modulation
         {
             yield return base.Start();
             
+            _dataProvider = GetComponent<ITactilityDataProvider>();
+            
             // If no ITactilityDataProvider is found, disable the modulator
             if (_dataProvider != null) yield break;
             Debug.LogWarning("No ITactilityDataProvider found. Disabling StepwiseFreqModulator.");
@@ -89,7 +91,7 @@ namespace Tactility.Modulation
             };
             
             var config = CalibrationManager.DeviceConfig;
-            var freqValue = config.baseFreq + (config.maxFreq - config.baseFreq) * pressureValue;
+            var freqValue = config.baseFreq * pressureValue;
             // Debug.Log($"Pressure value: {freqValue}");
             
             return new ModulationData()

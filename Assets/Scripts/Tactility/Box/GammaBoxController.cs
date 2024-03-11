@@ -25,8 +25,9 @@ namespace Tactility.Box
             base.Start();
             
             _config = CalibrationManager.DeviceConfig;
-            //Sc.SetTearDownFunction(DisableStimulation);
             if (connectOnAwake) Connect(Sc.portName);
+            
+            // Sc.SetTearDownFunction(DisableStimulation);
         }
 
         public override void Connect(string port)
@@ -40,7 +41,7 @@ namespace Tactility.Box
                 "iam TACTILITY", 
                 $"elec 1 *pads_qty {_config.numPads}", 
                 "battery ?", 
-                $"freq {_config.baseFreq}"
+                GetFreqString(_config.baseFreq)
             });
         }
 
@@ -52,6 +53,13 @@ namespace Tactility.Box
 
         public override void DisableStimulation()
         {
+            // If the GameObject is being disabled, send the message directly
+            if (!gameObject.activeInHierarchy) 
+            {
+                Sc.SendSerialMessage("stim off\r");
+                return;
+            }
+            
             // Circumvent the queue size check by not going through Send()
             QueueMessage("stim off", ignoreQueueSize:true);
         }
@@ -77,7 +85,8 @@ namespace Tactility.Box
 
             for (var i = 0; i < amps.Length; i++)
             {
-                if (_config.IsAnode(i) || pads[i] == 0) continue;
+                if (_config.IsAnode(i) || pads[i] == 0) 
+                    continue;
                 
                 var amplitudeValue = amps[i];
                 var widthValue = widths[i];
@@ -103,6 +112,11 @@ namespace Tactility.Box
                                  + finalPart;
 
             return completeString;
+        }
+        
+        public override string GetFreqString(int frequency)
+        {
+            return $"freq {frequency}";
         }
 
         protected override void OnMessageArrived(string message)

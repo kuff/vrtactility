@@ -87,17 +87,16 @@ namespace Editor.Emulator
             _readThread.Start();
             
             PadValues.Clear();
-            for (var i = 0; i < 32; i++)
-            {
+            for (var i = 0; i < 32; i++) 
                 PadValues.Add(new PadInfo(true));  // Assume all pads are anodes initially
-            }
         }
 
         private static void ReadPort()
         {
             while (_keepReading)
             {
-                if (!_serialPort.IsOpen || _serialPort.BytesToRead <= 0) continue;
+                if (!_serialPort.IsOpen || _serialPort.BytesToRead <= 0) 
+                    continue;
                 
                 try
                 {
@@ -117,23 +116,27 @@ namespace Editor.Emulator
         [SuppressMessage("ReSharper", "StringLiteralTypo")]
         private static void HandleIncomingMessage(string message)
         {
-            if (RecentMessages.Count >= 5) RecentMessages.RemoveAt(0);
+            // Save the time difference between the current and last message
+            if (RecentMessages.Count >= 5) 
+                RecentMessages.RemoveAt(0);
             RecentMessages.Add((message, _currentTime));
 
+            // Log the received message and the time since the last message
             if (EmulatorSettings.Instance.enableLogging)
-                Debug.Log($"[SerialPortEmulator] Received: {message}");
+                // Debug.Log($"[SerialPortEmulator] Received: {message}");
+                Debug.Log($"[SerialPortEmulator] (Δt = {(_currentTime - _lastMessageTime) / 10}ms) Received: {message}");
 
             // Update stimulation state based on received messages
             switch (message)
             {
-                case "stim on":
+                case "stim on\r":
                     StimulationEnabled = true;
                     SendResponse("Re:[] ok");
-                    break;
-                case "stim off":
+                    return;
+                case "stim off\r":
                     StimulationEnabled = false;
                     SendResponse("Re:[] ok");
-                    break;
+                    return;
             }
             
             // Check if the received message is "iam TACTILITY" and set the flag
@@ -191,10 +194,8 @@ namespace Editor.Emulator
             try
             {
                 // Resetting PadValues assuming all pads could be anodes initially
-                for (var i = 0; i < 32; i++)
-                {
+                for (var i = 0; i < 32; i++) 
                     PadValues[i] = new PadInfo(true);  // Assume all pads are anodes initially
-                }
 
                 // Splitting the message on spaces to isolate each segment
                 var segments = message.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -247,33 +248,14 @@ namespace Editor.Emulator
                 }
 
                 // Update PadValues based on tempPadValues
-                foreach (var (key, value) in tempPadValues)
-                {
+                foreach (var (key, value) in tempPadValues) 
                     PadValues[key] = value;
-                }
 
                 // If special_anodes is set to 1, update all non-specified pads to be anodes
                 if (specialAnodes)
-                {
                     for (var i = 0; i < PadValues.Count; i++)
-                    {
-                        if (!tempPadValues.ContainsKey(i)) // For non-specified pads, set them as anodes
-                        {
+                        if (!tempPadValues.ContainsKey(i))  // For non-specified pads, set them as anodes
                             PadValues[i] = new PadInfo(true);
-                        }
-                    }
-                }
-
-                // Log updated PadValues for verification
-                if (EmulatorSettings.Instance.enableLogging)
-                {
-                    Debug.Log("Updated PadValues:");
-                    for (var i = 0; i < PadValues.Count; i++)
-                    {
-                        var padInfo = PadValues[i];
-                        Debug.Log($"Pad {i}: Anode = {padInfo.IsAnode}, Amplitude = {padInfo.Amplitude}, Width = {padInfo.Width}");
-                    }
-                }
 
                 SendResponse("Re:[] ok");
             }
@@ -286,12 +268,14 @@ namespace Editor.Emulator
 
         private static void SendResponse(string response, bool showWarning = false)
         {
-            if (!_serialPort.IsOpen) return;
+            if (!_serialPort.IsOpen) 
+                return;
     
             try
             {
                 _serialPort.WriteLine(response);
-                if (!EmulatorSettings.Instance.enableLogging) return;
+                if (!EmulatorSettings.Instance.enableLogging) 
+                    return;
                 
                 if (showWarning)
                     Debug.LogWarning($"[SerialPortEmulator] Sent: {response}");
@@ -325,7 +309,8 @@ namespace Editor.Emulator
         public static void OnExit()
         {
             // Call this method when the application or editor is closed
-            if (_serialPort is not { IsOpen: true }) return;
+            if (_serialPort is not { IsOpen: true }) 
+                return;
             
             _keepReading = false;
             _serialPort.Close();

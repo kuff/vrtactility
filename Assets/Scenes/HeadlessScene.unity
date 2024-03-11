@@ -304,8 +304,9 @@ GameObject:
   m_Component:
   - component: {fileID: 356980530}
   - component: {fileID: 356980529}
-  - component: {fileID: 356980531}
+  - component: {fileID: 356980532}
   - component: {fileID: 356980527}
+  - component: {fileID: 356980531}
   - component: {fileID: 356980526}
   m_Layer: 0
   m_Name: MixedModulator
@@ -375,7 +376,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 356980525}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c14e9bb7ddadc04e9590c2f243e0f88, type: 3}
+  m_Script: {fileID: 11500000, guid: c18c68f653474114d921488dbe497aa7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &356980532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 356980525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29c8f8c99ad65a54e8ba5f3b46a01674, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &701926599
@@ -667,7 +680,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deviceConfigInstance: {fileID: 11400000, guid: 47ebc3596d249de4dac82f5735bddfd2,
     type: 2}
-  calibrationFileName: debug_calibration_glove_vrt0.1
+  calibrationFileName: DebugNew_calibration_glove_vrt0.2.txt
 --- !u!4 &1336627976
 Transform:
   m_ObjectHideFlags: 0
@@ -776,11 +789,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1914520269}
-  - component: {fileID: 1914520274}
+  - component: {fileID: 1914520275}
   - component: {fileID: 1914520271}
+  - component: {fileID: 1914520274}
   - component: {fileID: 1914520273}
   m_Layer: 0
-  m_Name: WidthModulator
+  m_Name: FreqModulator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -835,6 +849,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 1914520268}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c14e9bb7ddadc04e9590c2f243e0f88, type: 3}
+  m_Script: {fileID: 11500000, guid: c18c68f653474114d921488dbe497aa7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1914520275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914520268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29c8f8c99ad65a54e8ba5f3b46a01674, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

@@ -27,6 +27,7 @@ namespace Tactility.Box
         [Tooltip("The delay in milliseconds between sending messages. This is useful for devices that require a " +
                  "delay between sending commands. The delay is in milliseconds. The default value is 50 second.")]
         public float messageDelay = 50f;
+        [Tooltip("The maximum number of messages that can be queued. If the queue is full, messages will be dropped.")]
         public int maxQueueSize = 10;
 
         protected SerialController Sc;
@@ -45,6 +46,7 @@ namespace Tactility.Box
         public abstract void DisableStimulation();
         public abstract void ResetAllPads();
         public abstract string GetStimString(int[] pads, float[] amps, int[] widths);
+        public abstract string GetFreqString(int frequency);
 
 
         protected virtual void Start()
@@ -57,10 +59,8 @@ namespace Tactility.Box
         
         protected virtual void Update()
         {
-            if (!IsSendingMessages && MessageQueue.Count > 0)
-            {
+            if (!IsSendingMessages && MessageQueue.Count > 0) 
                 StartCoroutine(SendMessagesFromQueue());
-            }
         }
         
         private IEnumerator SendMessagesFromQueue()
@@ -69,7 +69,7 @@ namespace Tactility.Box
             while (MessageQueue.Count > 0)
             {
                 var message = MessageQueue.Dequeue();
-                Sc.SendSerialMessage(message);
+                Sc.SendSerialMessage($"{message}\r");
                 yield return new WaitForSeconds(messageDelay / 1_000f);
             }
             IsSendingMessages = false;
@@ -79,7 +79,7 @@ namespace Tactility.Box
         {
             if (MessageQueue.Count >= maxQueueSize && !ignoreQueueSize)
             {
-                Debug.LogWarning("Message queue is full, dropping message.");
+                Debug.LogWarning($"Message queue is full, dropping message: {message}");
                 return;
             }
             MessageQueue.Enqueue(message);
