@@ -251,11 +251,21 @@ namespace Editor.Emulator
                 foreach (var (key, value) in tempPadValues) 
                     PadValues[key] = value;
 
-                // If special_anodes is set to 1, update all non-specified pads to be anodes
-                if (specialAnodes)
-                    for (var i = 0; i < PadValues.Count; i++)
+                // Find Anodes
+                for (var i = 0; i < PadValues.Count; i++)
+                {
+                    if (specialAnodes)
+                    {
                         if (!tempPadValues.ContainsKey(i))  // For non-specified pads, set them as anodes
+                        {
                             PadValues[i] = new PadInfo(true);
+                        }
+                    }
+                    else if (CalibrationManager.DeviceConfig.IsAnode(i))  // For devices with explicit anodes
+                    {
+                        PadValues[i] = new PadInfo(true);
+                    }
+                }
 
                 SendResponse("Re:[] ok");
             }

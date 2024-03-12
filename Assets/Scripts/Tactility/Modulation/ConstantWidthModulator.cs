@@ -17,7 +17,7 @@ namespace Tactility.Modulation
 
         public override bool IsCompatibleWithDevice(TactilityDeviceConfig deviceConfig)
         {
-            // This should always be true, as the base amps are always compatible with the device
+            // This should always be true, as the base widths should always be compatible with the device
             // Otherwise, this is a problem elsewhere.
             return true;
         }

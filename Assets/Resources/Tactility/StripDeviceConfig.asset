@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33fd2639db5cc8b49aeb06e20ed91e23, type: 3}
-  m_Name: GloveDeviceConfig
+  m_Name: StripDeviceConfig
   m_EditorClassIdentifier: 
-  deviceName: glove
+  deviceName: strip
   numPads: 32
   minAmp: 0.5
   maxAmp: 9
@@ -21,5 +21,5 @@ MonoBehaviour:
   baseFreq: 40
   minFreq: 1
   maxFreq: 400
-  useSpecialAnodes: 1
-  anodes: 0b0000000600000004000000170000000200000015000000190000001e000000
+  useSpecialAnodes: 0
+  anodes: 0000000011000000

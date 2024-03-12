@@ -54,34 +54,6 @@ namespace Tactility.Modulation
                 }
             }
 
-            /*var pressureValues = new float[32];
-            for (var i = 0; i < 32; i++)
-            {
-                // Use remap value to determine which finger pressure value we use
-                var pressureValue = i switch
-                {
-                    < 8  => valueBatch[0],
-                    < 21 => valueBatch[1],
-                    < 26 => valueBatch[2],
-                    < 31 => valueBatch[3],
-                    _    => valueBatch[4]  // == 31
-                };
-                
-                // Define value buckets (0.25, 0.5, 0.75, 1.0) and project pressureValue to last bucket it is greater than
-                pressureValue = pressureValue switch
-                {
-                    > 0.75f => 1.0f,
-                    > 0.5f => 0.75f,
-                    > 0.25f => 0.5f,
-                    _ => 0.25f
-                };
-                var config = CalibrationManager.DeviceConfig;
-                var freqValue = config.baseFreq + (config.maxFreq - config.baseFreq) * pressureValue;
-                
-                // Remap widthValue using the remap array and store it in the pressureValues array
-                pressureValues[remap[i] - 1] = freqValue;
-            }*/
-            
             var pressureValue = valueBatch.Max() switch
             {
                 > 0.75f => 1.0f,

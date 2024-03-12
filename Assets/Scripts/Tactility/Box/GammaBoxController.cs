@@ -10,7 +10,7 @@ namespace Tactility.Box
     public class GammaBoxController : AbstractBoxController
     {
         [SerializeField]
-        [Tooltip("If enabled, the messenger will automatically attempt to connect using the specified serial port " +
+        [Tooltip("If enabled, the controller will automatically attempt to connect using the specified serial port " +
                  "upon the game start. Ensure the correct port name is set in the SerialController. This is useful " +
                  "for scenarios where an immediate connection is desirable without requiring an explicit user action " +
                  "to initiate the connection.")]
@@ -73,7 +73,7 @@ namespace Tactility.Box
         public override string GetStimString(int[] pads, float[] amps, int[] widths)
         {
             // Define invariable parts of the command string
-            const string invariablePart1 = "velec 11 *special_anodes 1 *name test *elec 1 *pads ";
+            var invariablePart1 = $"velec 11 {(_config.useSpecialAnodes ? "*special_anodes 1 " : "")}*name test *elec 1 *pads "; // Set special_anodes according to _config.useSpecialAnodes
             const string invariablePart2 = " *amp ";
             const string invariablePart3 = " *width ";
             const string finalPart = " *selected 1 *sync 0";
@@ -85,8 +85,14 @@ namespace Tactility.Box
 
             for (var i = 0; i < amps.Length; i++)
             {
-                if (_config.IsAnode(i) || pads[i] == 0) 
+                if (_config.IsAnode(i) || pads[i] == 0)
+                {
+                    if (_config.useSpecialAnodes) continue;
+                    
+                    // If not using special anodes, declare anodes explicitly
+                    variablePart1 += $"{i + 1}=A,";
                     continue;
+                }
                 
                 var amplitudeValue = amps[i];
                 var widthValue = widths[i];
