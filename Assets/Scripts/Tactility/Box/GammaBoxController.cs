@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Tactility.Calibration;
 using UnityEngine;
+using static Tactility.Calibration.CalibrationManager;
 
 // ReSharper disable StringLiteralTypo
 
@@ -10,13 +10,9 @@ namespace Tactility.Box
     public class GammaBoxController : AbstractBoxController
     {
         [SerializeField]
-        [Tooltip("If enabled, the controller will automatically attempt to connect using the specified serial port " +
-                 "upon the game start. Ensure the correct port name is set in the SerialController. This is useful " +
-                 "for scenarios where an immediate connection is desirable without requiring an explicit user action " +
-                 "to initiate the connection.")]
+        [Tooltip("If enabled, the controller will automatically attempt to connect using the specified serial port upon the game start. Ensure the correct port name is set in the SerialController. This is useful for scenarios where an immediate connection is desirable without requiring an explicit user action to initiate the connection.")]
         private bool connectOnAwake;
         
-        private TactilityDeviceConfig _config;
         private bool _isSuccessfullyConnected;
         private bool _receivedValidGreeting;
 
@@ -24,9 +20,11 @@ namespace Tactility.Box
         {
             base.Start();
             
-            _config = CalibrationManager.DeviceConfig;
-            if (connectOnAwake) Connect(Sc.portName);
-            
+            if (connectOnAwake)
+            {
+                Connect(Sc.portName);
+            }
+
             // Sc.SetTearDownFunction(DisableStimulation);
         }
 
@@ -39,9 +37,9 @@ namespace Tactility.Box
             SendMany(new[]
             {
                 "iam TACTILITY", 
-                $"elec 1 *pads_qty {_config.numPads}", 
+                $"elec 1 *pads_qty {DeviceConfig.numPads}", 
                 "battery ?", 
-                GetFreqString(_config.baseFreq)
+                GetFreqString(DeviceConfig.baseFreq)
             });
         }
 
@@ -66,14 +64,14 @@ namespace Tactility.Box
 
         public override void ResetAllPads()
         {
-            // NOTE: This was done in the previous implementation but may not be the best approach
+            // NOTE: This was done in the previous implementation but may not be the best approach or even needed
             QueueMessage("velec 11 *selected 0", ignoreQueueSize:true);
         }
         
         public override string GetStimString(int[] pads, float[] amps, int[] widths)
         {
             // Define invariable parts of the command string
-            var invariablePart1 = $"velec 11 {(_config.useSpecialAnodes ? "*special_anodes 1 " : "")}*name test *elec 1 *pads "; // Set special_anodes according to _config.useSpecialAnodes
+            var invariablePart1 = $"velec 11 {(DeviceConfig.useSpecialAnodes ? "*special_anodes 1 " : "")}*name test *elec 1 *pads "; // Set special_anodes according to _config.useSpecialAnodes
             const string invariablePart2 = " *amp ";
             const string invariablePart3 = " *width ";
             const string finalPart = " *selected 1 *sync 0";
@@ -85,10 +83,13 @@ namespace Tactility.Box
 
             for (var i = 0; i < amps.Length; i++)
             {
-                if (_config.IsAnode(i) || pads[i] == 0)
+                if (DeviceConfig.IsAnode(i) || pads[i] == 0)
                 {
-                    if (_config.useSpecialAnodes) continue;
-                    
+                    if (DeviceConfig.useSpecialAnodes)
+                    {
+                        continue;
+                    }
+
                     // If not using special anodes, declare anodes explicitly
                     variablePart1 += $"{i + 1}=A,";
                     continue;
@@ -127,8 +128,11 @@ namespace Tactility.Box
 
         protected override void OnMessageArrived(string message)
         {
-            if (Battery is null) SetBoxInfo(message);
-            
+            if (Battery is null)
+            {
+                SetBoxInfo(message);
+            }
+
             if (!_receivedValidGreeting && _isSuccessfullyConnected)
             {
                 _receivedValidGreeting = message is "Re:[] new connection" or "Re:[] re-connection" or "Re:[] ok";
@@ -142,9 +146,11 @@ namespace Tactility.Box
         {
             // Check if response string contains the known battery response sequence and ignore it if it does not
             const string checkString = "Re:[] battery ";
-            if (response.Length < checkString.Length || response[..checkString.Length] != checkString) 
+            if (response.Length < checkString.Length || response[..checkString.Length] != checkString)
+            {
                 return;
-        
+            }
+
             // Regular expression to match each key-value pair
             const string pattern = @"\*(capacity|voltage|current|temperature)=(?<value>-?\d+(\.\d+)?)";
 
@@ -182,8 +188,11 @@ namespace Tactility.Box
         protected override void OnConnectionEvent(bool wasSuccessful)
         {
             _isSuccessfullyConnected = wasSuccessful;
-            if (!_isSuccessfullyConnected) _receivedValidGreeting = false;
-        
+            if (!_isSuccessfullyConnected)
+            {
+                _receivedValidGreeting = false;
+            }
+
             base.OnConnectionEvent(wasSuccessful);
         }
     }

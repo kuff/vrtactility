@@ -27,7 +27,7 @@ namespace Tactility.Calibration.Old
             Remap = new int[32] { 30, 27, 29, 28, 25, 31, 32, 26, 17, 18, 20, 1, 2, 22, 19, 3, 23, 21, 24, 4, 5, 8, 9, 6, 7, 10, 13, 14, 11, 12, 15, 16 };
             Remap2 = new PadScript.Pad[32];
 
-            for (int i = 0; i < Remap2.Length; i++) {
+            for (var i = 0; i < Remap2.Length; i++) {
                 Remap2[i] = new PadScript.Pad(i + 1, Remap[i], 0.5f, 100, 50);
                 //print("Remap: " + Remap2[i].Remap + "PulseWidth: " + Remap2[i].PulseWidth);
             }

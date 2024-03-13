@@ -19,19 +19,16 @@ namespace Tactility.Box
     [RequireComponent(typeof(SerialController))]
     public abstract class AbstractBoxController : MonoBehaviour
     {
-        [Tooltip("Controls the logging of serial messages. Outbound: Logs messages sent from the device. Inbound: " +
-                 "Logs messages received by the device. All: Logs all messages, both inbound and outbound. Use this " +
-                 "to debug and monitor serial communication. Only logs when running through the Editor.")]
+        [Tooltip("Controls the logging of serial messages. Outbound: Logs messages sent from the device. Inbound: Logs messages received by the device. All: Logs all messages, both inbound and outbound. Use this to debug and monitor serial communication. Only logs when running through the Editor.")]
         public SerialLogMode logMode = SerialLogMode.None;
         
-        [Tooltip("The delay in milliseconds between sending messages. This is useful for devices that require a " +
-                 "delay between sending commands. The delay is in milliseconds. The default value is 50 second.")]
+        [Tooltip("The delay in milliseconds between sending messages. This is useful for devices that require a delay between sending commands. The delay is in milliseconds. The default value is 50 second.")]
         public float messageDelay = 50f;
         [Tooltip("The maximum number of messages that can be queued. If the queue is full, messages will be dropped.")]
         public int maxQueueSize = 10;
 
         protected SerialController Sc;
-        protected readonly Queue<string> MessageQueue = new();
+        protected readonly Queue<string> MessageQueue = new Queue<string>();
         protected bool IsSendingMessages;
 
         public string Port { get; protected set; }
@@ -59,8 +56,10 @@ namespace Tactility.Box
         
         protected virtual void Update()
         {
-            if (!IsSendingMessages && MessageQueue.Count > 0) 
+            if (!IsSendingMessages && MessageQueue.Count > 0)
+            {
                 StartCoroutine(SendMessagesFromQueue());
+            }
         }
         
         private IEnumerator SendMessagesFromQueue()
@@ -86,7 +85,9 @@ namespace Tactility.Box
             
 #if DEBUG
             if (logMode is SerialLogMode.Outbound or SerialLogMode.All)
+            {
                 Debug.Log($"{this} Outbound message queued: {message}");
+            }
 #endif
         }
         
@@ -105,14 +106,18 @@ namespace Tactility.Box
         public void SendMany(in IEnumerable<string> messages)
         {
             foreach (var msg in messages)
+            {
                 Send(msg);
+            }
         }
         
         public IEnumerator SendManyEachDelayed(IEnumerable<string> messages, float delay, Action callback = null)
         {
             foreach (var message in messages)
+            {
                 yield return SendDelayed(message, delay);
-            
+            }
+
             callback?.Invoke();
         }
         
@@ -120,14 +125,18 @@ namespace Tactility.Box
         {
 #if DEBUG
             if (logMode is SerialLogMode.Inbound or SerialLogMode.All)
+            {
                 Debug.Log($"{this} Inbound message received: {message}");
+            }
 #endif
         }
         
         protected virtual void OnConnectionEvent(bool wasSuccessful)
         {
 #if DEBUG
-            Debug.Log(this + (wasSuccessful ? ": Connection established" : ": Connection attempt failed or disconnection detected"));
+            Debug.Log(this + (wasSuccessful 
+                ? ": Connection established" 
+                : ": Connection attempt failed or disconnection detected"));
 #endif
         }
     }

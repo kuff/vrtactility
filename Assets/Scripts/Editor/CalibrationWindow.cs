@@ -4,6 +4,7 @@ using Tactility.Box;
 using Tactility.Calibration;
 using UnityEditor;
 using UnityEngine;
+using static Tactility.Calibration.CalibrationManager;
 
 namespace Editor
 {
@@ -38,7 +39,7 @@ namespace Editor
         private void OnEnable()
         {
             // Retrieve all device configurations and populate names for the dropdown
-            _deviceConfigs = CalibrationManager.GetAllDeviceConfigs().ToArray();
+            _deviceConfigs = GetAllDeviceConfigs().ToArray();
             _deviceConfigNames = _deviceConfigs.Select(config => config.deviceName).ToArray();
             _currentPad = 0;
             _settings = EmulatorSettings.Instance;
@@ -80,8 +81,8 @@ namespace Editor
 
         private void DrawSaveData()
         {
-            var filePath = CalibrationManager.SaveCalibrationDataToFile(_customFileName);
-            EditorGUIUtility.systemCopyBuffer = filePath;  // Copy the file path to the clipboard
+            var filePath = SaveCalibrationDataToFile(_customFileName);
+            EditorGUIUtility.systemCopyBuffer = filePath; // Copy the file path to the clipboard
             EditorUtility.DisplayDialog("Calibration Saved", $"Calibration saved to {filePath}. Path copied to clipboard.", "OK");
             _calibrationState = 0;
         }
@@ -91,8 +92,8 @@ namespace Editor
         {
             GUILayout.Label("Calibration", EditorStyles.boldLabel);
             GUILayout.Label($"Pad {_currentPad + 1}");
-            _currentAmp = EditorGUILayout.Slider("Amplitude", _currentAmp, 0.5f, CalibrationManager.DeviceConfig.maxAmp);
-            _currentWidth = EditorGUILayout.IntSlider("Width", _currentWidth, 100, (int)CalibrationManager.DeviceConfig.maxWidth);
+            _currentAmp = EditorGUILayout.Slider("Amplitude", _currentAmp, 0.5f, DeviceConfig.maxAmp);
+            _currentWidth = EditorGUILayout.IntSlider("Width", _currentWidth, 100, (int)DeviceConfig.maxWidth);
             
             if (_prevAmp != _currentAmp || _prevWidth != _currentWidth)
             {
@@ -101,16 +102,20 @@ namespace Editor
                 HandleRealTimeUpdate();
             }
 
-            if (GUILayout.Button("Next")) 
+            if (GUILayout.Button("Next"))
+            {
                 MoveToNextPad();
+            }
         }
 
         private void HandleRealTimeUpdate()
         {
             var currentTime = (float)EditorApplication.timeSinceStartup;
-            if (!(currentTime - _lastUpdateTimestamp >= 0.1f)) 
-                return;  // Update every 0.1 seconds
-            
+            if (!(currentTime - _lastUpdateTimestamp >= 0.1f))
+            {
+                return; // Update every 0.1 seconds
+            }
+
             _lastUpdateTimestamp = currentTime;
             // Perform the update
             UpdateStimulator(_currentPad, _currentAmp, _currentWidth);
@@ -125,14 +130,16 @@ namespace Editor
         private void MoveToNextPad()
         {
             // Save current settings and move to next pad or finish calibration
-            CalibrationManager.BaseAmps[_currentPad] = _currentAmp;
-            CalibrationManager.BaseWidths[_currentPad] = _currentWidth;
+            BaseAmps[_currentPad] = _currentAmp;
+            BaseWidths[_currentPad] = _currentWidth;
             // _currentAmp = 4.0f;
             // _currentWidth = 400.0f;
 
             _currentPad++;
-            if (_currentPad >= CalibrationManager.DeviceConfig.numPads) 
-                _calibrationState = 2;  // Move to save state
+            if (_currentPad >= DeviceConfig.numPads)
+            {
+                _calibrationState = 2; // Move to save state
+            }
             // Reset the timestamp to ensure immediate update for the new pad
             _lastUpdateTimestamp = (float)EditorApplication.timeSinceStartup;
         }
@@ -144,12 +151,14 @@ namespace Editor
             _comPort = EditorGUILayout.TextField(new GUIContent("COM Port", "Enter the COM port the emulator will use"), _comPort);
             _baudRate = EditorGUILayout.IntField(new GUIContent("Baud Rate", "Set the baud rate for the serial connection"), _baudRate);
             _customFileName = EditorGUILayout.TextField(new GUIContent("File Name", "A custom file name to help identify the calibration data"), _customFileName);
-            if (!GUILayout.Button("Start Calibration")) 
+            if (!GUILayout.Button("Start Calibration"))
+            {
                 return;
-            
+            }
+
             // Load the selected device config
             var selectedConfigName = _deviceConfigNames[_selectedConfigIndex];
-            CalibrationManager.InitializeDeviceConfig(selectedConfigName);
+            InitializeDeviceConfig(selectedConfigName);
             _currentPad = 0;
             
             // Initialize the GammaBoxController with the selected COM port, connect, and enable stimulation

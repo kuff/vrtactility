@@ -2,10 +2,25 @@ using System;
 using System.Collections;
 using Tactility.Calibration;
 using UnityEngine;
+
 // ReSharper disable Unity.NoNullPropagation
 
 namespace Tactility.Modulation
 {
+    public enum ModulationType
+    {
+        Pad,
+        Amplitude,
+        Width,
+        Frequency
+    }
+    
+    public struct ModulationData
+    {
+        public ModulationType Type;
+        public float[] Values;
+    }
+    
     public abstract class AbstractModulator : MonoBehaviour
     {
         private TactilityManager _tactilityManager;

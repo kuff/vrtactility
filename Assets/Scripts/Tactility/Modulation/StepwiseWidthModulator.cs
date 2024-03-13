@@ -2,15 +2,13 @@ using System.Collections;
 using System.Linq;
 using Tactility.Calibration;
 using UnityEngine;
+using static Tactility.Calibration.CalibrationManager;
 
 namespace Tactility.Modulation
 {
     [RequireComponent(typeof(ITactilityDataProvider))]
     public class StepwiseWidthModulator : AbstractModulator
     {
-        // [Tooltip("The maximum width value to add to the base width value. This value is multiplied by the pressure value to determine the final width value.")]
-        // public float additiveUpperLimitWidth = 400f;
-        
         private ITactilityDataProvider _dataProvider;
 
         protected override IEnumerator Start()
@@ -20,15 +18,21 @@ namespace Tactility.Modulation
             _dataProvider = GetComponent<ITactilityDataProvider>();
             
             // If no ITactilityDataProvider is found, disable the modulator
-            if (_dataProvider != null) yield break;
+            if (_dataProvider != null)
+            {
+                yield break;
+            }
             Debug.LogWarning("No ITactilityDataProvider found. Disabling StepwiseWidthModulator.");
             enabled = false;
         }
         
         public override ModulationData? GetModulationData()
         {
-            if (!_dataProvider.IsActive()) return null;
-            
+            if (!_dataProvider.IsActive())
+            {
+                return null;
+            }
+
             ref var modulationData = ref _dataProvider.GetTactilityData();
             var remap = new[] { 30, 27, 29, 28, 25, 31, 32, 26, 17, 18, 20, 1, 2, 22, 19, 3, 23, 21, 24, 4, 5, 8, 9, 6, 7, 10, 13, 14, 11, 12, 15, 16 };
             
@@ -68,7 +72,7 @@ namespace Tactility.Modulation
                     < 21 => valueBatch[1],
                     < 26 => valueBatch[2],
                     < 31 => valueBatch[3],
-                    _    => valueBatch[4]  // == 31
+                    _    => valueBatch[4] // == 31
                 };
                 
                 // Define value buckets (0.25, 0.5, 0.75, 1.0) and project pressureValue to last bucket it is greater than
@@ -79,11 +83,14 @@ namespace Tactility.Modulation
                     > 0.25f => 0.5f,
                     _ => 0.25f
                 };
-                var widthValue = CalibrationManager.BaseWidths[i] + 200f * pressureValue;
+                var widthValue = BaseWidths[i] + 200f * pressureValue;
                 
                 // Set widthValue to 0 if all pressure values are 0
-                if (valueBatch.All(p => p == 0f)) widthValue = 0f;
-                
+                if (valueBatch.All(p => p == 0f))
+                {
+                    widthValue = 0f;
+                }
+
                 // Remap widthValue using the remap array and store it in the pressureValues array
                 pressureValues[remap[i] - 1] = widthValue;
             }

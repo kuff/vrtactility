@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -54,21 +53,23 @@ namespace Tactility.Calibration.Old
 
             if (File.Exists(SaveDocumentPath))
             {
-                List<string> fileLines = File.ReadAllLines(SaveDocumentPath).ToList();
+                var fileLines = File.ReadAllLines(SaveDocumentPath).ToList();
 
-                for (int i = 0; i < fileLines.Count; i++)
+                for (var i = 0; i < fileLines.Count; i++)
                 {
 
-                    string amplitude = "";
-                    string pulseWidth = "";
-                    string frequency = "";
-                    int separationCount = 0;
-                    PadScript.Pad currentPad = ConnectDevice.Remap2[i];
+                    var amplitude = "";
+                    var pulseWidth = "";
+                    var frequency = "";
+                    var separationCount = 0;
+                    var currentPad = ConnectDevice.Remap2[i];
 
-                    foreach (char c in fileLines[i])
+                    foreach (var c in fileLines[i])
                     {
                         if (c.ToString() == separation)
+                        {
                             separationCount++;
+                        }
                         else
                         {
                             switch (separationCount)

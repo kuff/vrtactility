@@ -17,15 +17,21 @@ namespace Tactility.Modulation
             _dataProvider = GetComponent<ITactilityDataProvider>();
             
             // If no ITactilityDataProvider is found, disable the modulator
-            if (_dataProvider != null) yield break;
+            if (_dataProvider != null)
+            {
+                yield break;
+            }
             Debug.LogWarning("No ITactilityDataProvider found. Disabling StepwisePadModulator.");
             enabled = false;
         }
         
         public override ModulationData? GetModulationData()
         {
-            if (!_dataProvider.IsActive()) return null;
-            
+            if (!_dataProvider.IsActive())
+            {
+                return null;
+            }
+
             ref var modulationData = ref _dataProvider.GetTactilityData();
             var remap = new[] { 30, 27, 29, 28, 25, 31, 32, 26, 17, 18, 20, 1, 2, 22, 19, 3, 23, 21, 24, 4, 5, 8, 9, 6, 7, 10, 13, 14, 11, 12, 15, 16 };
             
@@ -100,9 +106,11 @@ namespace Tactility.Modulation
             // Define a list where each element is 1f if the index is in the spatial level, 0f otherwise
             // NOTE: This requires remapping of the spatial level indices
             var spatialValues = new float[32];
-            for (var i = 0; i < 32; i++) 
+            for (var i = 0; i < 32; i++)
+            {
                 spatialValues[remap[i] - 1] = spatialLevel.Contains(i + 1) ? 1f : 0f;
-            
+            }
+
             // Return ModulationData object
             return new ModulationData()
             {

@@ -18,8 +18,7 @@ namespace Editor
             if (modulator.GetComponent<ITactilityDataProvider>() == null)
             {
                 // Display a warning if ITactilityDataProvider is missing
-                EditorGUILayout.HelpBox("Warning: No ITactilityDataProvider component found on this GameObject. " +
-                                        "It is often needed for AbstractModulator derivatives.", MessageType.Warning);
+                EditorGUILayout.HelpBox("Warning: No ITactilityDataProvider component found on this GameObject. It is often needed for AbstractModulator derivatives.", MessageType.Warning);
             }
         }
     }

@@ -45,15 +45,17 @@ namespace Editor
                     // Read the response
                     var response = serialPort.ReadLine();
                     // Check if the response is what you expect from the Tactility box
-                    if (response.Contains("Re:[] new connection") ||
-                        response.Contains("Re:[] re-connection") ||
-                        response.Contains("Re:[] ok"))
+                    if (!response.Contains("Re:[] new connection") &&
+                        !response.Contains("Re:[] re-connection") &&
+                        !response.Contains("Re:[] ok"))
                     {
-                        foundPort = portName;
-                        EditorGUIUtility.systemCopyBuffer = foundPort;
-                        Debug.Log($"Tactility box found on port {foundPort}. Copied to clipboard.");
-                        break;
+                        continue;
                     }
+                    
+                    foundPort = portName;
+                    EditorGUIUtility.systemCopyBuffer = foundPort;
+                    Debug.Log($"Tactility box found on port {foundPort}. Copied to clipboard.");
+                    break;
                 }
                 catch (TimeoutException)
                 {
@@ -112,15 +114,11 @@ namespace Editor
             
                 if (stimBoxData != null)
                 {
-                    //EditorGUI.BeginDisabledGroup(true);  // Disable the GUI elements (make them grey and unclickable)
-
                     EditorGUILayout.LabelField("Capacity (%):", stimBoxData.capacity);
                     EditorGUILayout.LabelField("Voltage (V):", stimBoxData.voltage);
                     EditorGUILayout.LabelField("Current (mA):", stimBoxData.current);
                     EditorGUILayout.LabelField("Temperature (\u00b0C):", stimBoxData.temperature);
                     EditorGUILayout.LabelField("Last Updated:", stimBoxData.GetTimeSinceLastUpdate());
-
-                    //EditorGUI.EndDisabledGroup();
                 }
                 else
                 {

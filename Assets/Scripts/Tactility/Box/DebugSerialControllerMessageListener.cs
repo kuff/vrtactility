@@ -34,9 +34,11 @@ namespace Tactility.Box
         {
             // Check if response string contains the known battery response sequence and ignore it if it does not
             const string checkString = "Re:[] battery *capacity=";
-            if (response.Length < checkString.Length || response[..checkString.Length] != checkString) 
+            if (response.Length < checkString.Length || response[..checkString.Length] != checkString)
+            {
                 return;
-        
+            }
+
             uim.SetBatteryLevel(response);
         }
 
@@ -47,18 +49,32 @@ namespace Tactility.Box
         // ReSharper disable once UnusedMember.Local
         private void OnConnectionEvent(bool success)
         {
-            if (!success) SetConnectionStatus(false);
-            else _isSuccessfullyConnected = true;
+            if (!success)
+            {
+                SetConnectionStatus(false);
+            }
+            else
+            {
+                _isSuccessfullyConnected = true;
+            }
         }
 
         private void SetConnectionStatus(bool success)
         {
             // Manage ConnectDevice state
-            if (success) cd.ConnectDevicePanel.SetActive(false);
-            else cd.ConnectingText.alpha = 0;
+            if (success)
+            {
+                cd.ConnectDevicePanel.SetActive(false);
+            }
+            else
+            {
+                cd.ConnectingText.alpha = 0;
+            }
 
             // Log connection status
-            Debug.Log(success ? "Connection established" : "Connection attempt failed or disconnection detected");
+            Debug.Log(success 
+                ? "Connection established" 
+                : "Connection attempt failed or disconnection detected");
         }
     }
 }

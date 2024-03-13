@@ -42,7 +42,7 @@ namespace Tactility.Calibration.Old
         private void OnTriggerEnter(Collider other)
         {
             timeElapsed = 0;
-            int actualPath = buttonsManager.getActualCondition();
+            var actualPath = buttonsManager.getActualCondition();
             if ((actualPath != 1) && (actualPath != 4))
             {
                 indexHelping++; 
@@ -63,7 +63,9 @@ namespace Tactility.Calibration.Old
         {
             //ConnectDevice.glovePort.Write("stim off\r\n");
             if (count > 1)
+            {
                 count = 0;
+            }
             print(name + ": " + timeElapsed);
         }
 
@@ -131,7 +133,7 @@ namespace Tactility.Calibration.Old
         {
             patternUpdated();
 
-            int loops = currentArray[indexHelping];
+            var loops = currentArray[indexHelping];
 
             //ConnectDevice.glovePort.Write("stim on\r\n");
             float waitTime = 0;
@@ -141,7 +143,7 @@ namespace Tactility.Calibration.Old
                 yield return null;
             }
 
-            for (int i = 0; i < loops; i++)
+            for (var i = 0; i < loops; i++)
             {
                 ConnectDevice.glovePort.Write(patterns.ActivateString(indexPattern));
                 print(patterns.ActivateString(indexPattern));

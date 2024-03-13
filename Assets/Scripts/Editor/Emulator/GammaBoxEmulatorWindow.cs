@@ -36,20 +36,32 @@ namespace Editor.Emulator
 
         private void RequestRepaint()
         {
-            if (!(EditorApplication.timeSinceStartup - _lastRepaintTime > RepaintInterval)) return;
-            
+            if (!(EditorApplication.timeSinceStartup - _lastRepaintTime > RepaintInterval))
+            {
+                return;
+            }
+
             _lastRepaintTime = EditorApplication.timeSinceStartup;
             Repaint(); // Force the window to repaint
         }
 
         private void UpdateDurations(double newMessageTime)
         {
-            if (newMessageTime <= 0) return; // Ignore invalid times (e.g. 0)
+            if (newMessageTime <= 0)
+            {
+                return; // Ignore invalid times (e.g. 0)
+            }
             if (_lastMessageTime.HasValue)
             {
                 var duration = newMessageTime - _lastMessageTime.Value;
-                if (duration < _shortestDuration) _shortestDuration = duration;
-                if (duration > _longestDuration) _longestDuration = duration;
+                if (duration < _shortestDuration)
+                {
+                    _shortestDuration = duration;
+                }
+                if (duration > _longestDuration)
+                {
+                    _longestDuration = duration;
+                }
             }
             _lastMessageTime = newMessageTime;
         }
@@ -70,9 +82,13 @@ namespace Editor.Emulator
             if (GUILayout.Button(GammaBoxEmulator.IsConnected ? "Disable Emulator" : "Enable Emulator"))
             {
                 if (GammaBoxEmulator.IsConnected)
+                {
                     DisableEmulator();
+                }
                 else
+                {
                     EnableEmulator();
+                }
             }
             
             _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
@@ -120,7 +136,9 @@ namespace Editor.Emulator
                 }
 
                 if (!GammaBoxEmulator.ExposedMessages.Any())
+                {
                     GUILayout.Label("No messages received yet.");
+                }
             }
             catch (Exception e)
             {

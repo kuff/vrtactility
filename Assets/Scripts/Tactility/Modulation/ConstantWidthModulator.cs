@@ -1,5 +1,6 @@
 using System.Linq;
 using Tactility.Calibration;
+using static Tactility.Calibration.CalibrationManager;
 
 namespace Tactility.Modulation
 {
@@ -11,7 +12,7 @@ namespace Tactility.Modulation
             {
                 Type = ModulationType.Width,
                 // Case CalibrationManager.BaseWidths to floats
-                Values = CalibrationManager.BaseWidths.Select(x => (float)x).ToArray()
+                Values = BaseWidths.Select(x => (float)x).ToArray()
             };
         }
 

@@ -1,4 +1,5 @@
 using Tactility.Calibration;
+using static Tactility.Calibration.CalibrationManager;
 
 namespace Tactility.Modulation
 {
@@ -9,7 +10,7 @@ namespace Tactility.Modulation
             return new ModulationData()
             {
                 Type = ModulationType.Amplitude,
-                Values = CalibrationManager.BaseAmps
+                Values = BaseAmps
             };
         }
 

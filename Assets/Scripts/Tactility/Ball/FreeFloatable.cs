@@ -8,20 +8,16 @@ namespace Tactility.Ball
     {
         private const float DotMoveThreshold = 0.4f;
         
-        [Tooltip("Determines whether the object should move relative to the player's head movement. When enabled, " +
-                 "the object will adjust its position based on the orientation and position of the player's head.")]
+        [Tooltip("Determines whether the object should move relative to the player's head movement. When enabled, the object will adjust its position based on the orientation and position of the player's head.")]
         public bool moveWithPlayerHead;
-        [Tooltip("Specifies the height at which the object should reset when 'ResetPosition' is called. This height " +
-                 "determines the vertical position of the object upon reset.")]
+        [Tooltip("Specifies the height at which the object should reset when 'ResetPosition' is called. This height determines the vertical position of the object upon reset.")]
         public float resetHeight;
 
         public Vector3 OriginPoint { get; private set; }
         
-        [Tooltip("The base force applied to move the object towards its origin point. This force determines how " +
-                 "strongly the object is pushed back to its starting position.")]
+        [Tooltip("The base force applied to move the object towards its origin point. This force determines how strongly the object is pushed back to its starting position.")]
         [SerializeField] private float baseForce;
-        [Tooltip("A factor that restricts the movement of the object towards its origin point. A higher value " +
-                 "results in less force applied, dampening the movement.")]
+        [Tooltip("A factor that restricts the movement of the object towards its origin point. A higher value results in less force applied, dampening the movement.")]
         [SerializeField] private float restriction;
 
         private Rigidbody _rigidbody;
@@ -56,8 +52,11 @@ namespace Tactility.Ball
             else if (!_localGrabbable.isGrabbed && _localFixedJoint is not null)
             {
                 var touchingHand = _localGrabbable.GetTouchingHandRoot();
-                if (!touchingHand) return;
-            
+                if (!touchingHand)
+                {
+                    return;
+                }
+
                 touchingHand.isKinematic = false;
                 Destroy(_localFixedJoint);
                 _localFixedJoint = null;
@@ -67,7 +66,7 @@ namespace Tactility.Ball
             {
                 // Calculate the direction from the player's head to the object
                 var delta = transform.position - _playerHeadTransform.position;
-                delta.y = 0f;  // Make sure the movement is only in the XZ plane
+                delta.y = 0f; // Make sure the movement is only in the XZ plane
 
                 // Calculate the dot product to check the relative position
                 var forward = _playerHeadTransform.TransformDirection(Vector3.forward);

@@ -12,12 +12,10 @@ namespace Tactility.Ball
     {
         private const float MatchingThreshold = 0.001f;
         
-        [Tooltip("Defines the minimum pressure required for a bone to be considered as grabbing the object. This " +
-                 "threshold helps distinguish between a light touch and an actual grip.")]
+        [Tooltip("Defines the minimum pressure required for a bone to be considered as grabbing the object. This threshold helps distinguish between a light touch and an actual grip.")]
         [Range(0.1f, 1.0f)]
         public float pressureThreshold;
-        [Tooltip("Reference to the OVRInitializer component. This component is used for initializing and managing " +
-                 "Oculus VR hand tracking data.")]
+        [Tooltip("Reference to the OVRInitializer component. This component is used for initializing and managing Oculus VR hand tracking data.")]
         [SerializeField]
         private OVRInitializer ovrInitializer;
 
@@ -68,7 +66,9 @@ namespace Tactility.Ball
             // Update applied pressure for each touching bone if any
             // TODO: Optimize this to only loop through finger tips
             for (var i = 0; i < _touchingBoneCapsules.Count; i++)
+            {
                 touchingBonePressures[i] = GetAppliedPressure(_touchingBoneCapsules[i]);
+            }
 
             // Stop updating if the applied pressure is less than would be required to grib the object
             // TODO: New pressure calculations must be reflected here...
@@ -80,7 +80,10 @@ namespace Tactility.Ball
 
             // Calculate union of all collision point vectors to indicate grip distribution
             var gripVector = Vector3.zero;
-            foreach (var vec in _touchingPointVectors.Values) gripVector += vec - transform.position;
+            foreach (var vec in _touchingPointVectors.Values)
+            {
+                gripVector += vec - transform.position;
+            }
             if (gripVector == Vector3.zero)
             {
                 isGrabbed = false;
@@ -90,20 +93,29 @@ namespace Tactility.Ball
 
             // Manage FreeFloatable in accordance with grip
             if (gripVector.magnitude < 0.014)
+            {
                 isGrabbed = true;
+            }
             else if (gripVector.magnitude > 0.014)
+            {
                 isGrabbed = false;
+            }
         }
         
         private void OnCollisionStay(Collision collision)
         {
             // Find matching bone
             var closestBoneCapsule = FindMatchingBone(in collision);
-            if (closestBoneCapsule is null) return;  // If the colliding object is not a bone
-        
-            if (!IsBoneOnValidHand(in closestBoneCapsule) || _touchingBoneCapsules.Count == 0) 
-                return;  // Ignore collision if the colliding bone is from the wrong hand or state has been reset
-        
+            if (closestBoneCapsule is null)
+            {
+                return; // If the colliding object is not a bone
+            }
+
+            if (!IsBoneOnValidHand(in closestBoneCapsule) || _touchingBoneCapsules.Count == 0)
+            {
+                return; // Ignore collision if the colliding bone is from the wrong hand or state has been reset
+            }
+
             // Update the contact points of each touching OVRBoneCapsule
             var boneId = GetBoneId(in closestBoneCapsule);
             _touchingPointVectors[boneId] = collision.contacts[0].point;
@@ -114,7 +126,9 @@ namespace Tactility.Ball
         {
             // Loop through all Rigidbodies on all OVRBoneCapsules and update their state
             foreach (var boneCapsule in _boneCapsules)
+            {
                 SetIsKinematic(in boneCapsule, in state);
+            }
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -161,7 +175,9 @@ namespace Tactility.Ball
             // Add the closest matching OVRBone to list of touching bones
             var closestBoneCapsule = FindMatchingBone(in collision);
             if (closestBoneCapsule is null || IsTouching(in closestBoneCapsule))
-                return;  // Don't add a bone that doesn't exist or is already touching
+            {
+                return; // Don't add a bone that doesn't exist or is already touching
+            }
 
             if (!IsBoneOnValidHand(in closestBoneCapsule))
             {
@@ -216,8 +232,11 @@ namespace Tactility.Ball
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsBoneOnValidHand(in OVRBoneCapsule boneCapsule)
         {
-            if (_touchingBoneCapsules.Count == 0) return true;
-        
+            if (_touchingBoneCapsules.Count == 0)
+            {
+                return true;
+            }
+
             var collidingBoneIndex = GetBoneIndex(in boneCapsule);
             var firstTouchingBoneIndex = GetBoneIndex(_touchingBoneCapsules[0]);
         
@@ -240,8 +259,11 @@ namespace Tactility.Ball
             foreach (var bone in _boneCapsules)
             {
                 var distance = Vector3.Distance(bone.CapsuleCollider.transform.position, collision.transform.position);
-                if (distance > MatchingThreshold || distance > smallestDistance) continue;  // NOTE: MATCHING_THRESHOLD check may be redundant
-        
+                if (distance > MatchingThreshold || distance > smallestDistance)
+                {
+                    continue; // NOTE: MATCHING_THRESHOLD check may be redundant
+                }
+
                 closestBone = bone;
                 smallestDistance = distance;
             }
@@ -253,7 +275,12 @@ namespace Tactility.Ball
         private bool IsTouching(in OVRBoneCapsule bone)
         {
             foreach (var b in _touchingBoneCapsules)
-                if (b.BoneIndex == bone.BoneIndex) return true;
+            {
+                if (b.BoneIndex == bone.BoneIndex)
+                {
+                    return true;
+                }
+            }
 
             return false;
         }
@@ -263,14 +290,20 @@ namespace Tactility.Ball
             // Find the OVRBone that best matches the colliding object
             var closestBoneCapsule = FindMatchingBone(in collision);
             if (closestBoneCapsule is null)
-                return;  // If the colliding object is not an OVRBone
+            {
+                return; // If the colliding object is not an OVRBone
+            }
 
             var touchingIdx = _touchingBoneCapsules.IndexOf(closestBoneCapsule);
             if (touchingIdx == -1)
-                return;  // If the colliding bone was not previously touching
+            {
+                return; // If the colliding bone was not previously touching
+            }
 
             if (!IsBoneOnValidHand(in closestBoneCapsule))
-                return;  // If the colliding bone is from the wrong hand
+            {
+                return; // If the colliding bone is from the wrong hand
+            }
 
             if (_touchingBoneCapsules.Count != 1)
             {
@@ -299,8 +332,11 @@ namespace Tactility.Ball
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Rigidbody GetTouchingHandRoot()
         {
-            if (_touchingBoneCapsules.Count == 0) return null;
-            
+            if (_touchingBoneCapsules.Count == 0)
+            {
+                return null;
+            }
+
             return IsLeftHandTouching()
                 ? _boneCapsules[0].CapsuleRigidbody
                 : _boneCapsules[19].CapsuleRigidbody;
@@ -326,7 +362,9 @@ namespace Tactility.Ball
             _touchingPointVectors.Remove(lastPair.Key);
         
             if (!EqualityComparer<OVRSkeleton.BoneId>.Default.Equals(pairAtIndex.Key, lastPair.Key))
+            {
                 _touchingPointVectors[pairAtIndex.Key] = lastPair.Value;
+            }
         }
     }
 }

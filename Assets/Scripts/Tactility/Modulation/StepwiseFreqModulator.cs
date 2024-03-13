@@ -2,6 +2,7 @@ using System.Collections;
 using System.Linq;
 using Tactility.Calibration;
 using UnityEngine;
+using static Tactility.Calibration.CalibrationManager;
 
 namespace Tactility.Modulation
 {
@@ -17,15 +18,21 @@ namespace Tactility.Modulation
             _dataProvider = GetComponent<ITactilityDataProvider>();
             
             // If no ITactilityDataProvider is found, disable the modulator
-            if (_dataProvider != null) yield break;
+            if (_dataProvider != null)
+            {
+                yield break;
+            }
             Debug.LogWarning("No ITactilityDataProvider found. Disabling StepwiseFreqModulator.");
             enabled = false;
         }
         
         public override ModulationData? GetModulationData()
         {
-            if (!_dataProvider.IsActive()) return null;
-            
+            if (!_dataProvider.IsActive())
+            {
+                return null;
+            }
+
             ref var modulationData = ref _dataProvider.GetTactilityData();
             
             // Update stimuli for each touching finger bone of interest
@@ -62,8 +69,7 @@ namespace Tactility.Modulation
                 _ => 0.25f
             };
             
-            var config = CalibrationManager.DeviceConfig;
-            var freqValue = config.baseFreq * pressureValue;
+            var freqValue = DeviceConfig.baseFreq * pressureValue;
             // Debug.Log($"Pressure value: {freqValue}");
             
             return new ModulationData()

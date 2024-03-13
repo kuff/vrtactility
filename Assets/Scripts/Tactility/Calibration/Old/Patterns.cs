@@ -135,17 +135,17 @@ namespace Tactility.Calibration.Old
 
         public string ActivateString(int index)
         {
-            string CompleteLine = "";
-            string InvariablePart1 = "velec 11 *special_anodes 1 *name test *elec 1 *pads ";
-            string InvariablePart2 = " *amp ";
-            string InvariablePart3 = " *width ";
-            string InvariablePart4 = " *selected 1 *sync 0\r\n";
+            var CompleteLine = "";
+            var InvariablePart1 = "velec 11 *special_anodes 1 *name test *elec 1 *pads ";
+            var InvariablePart2 = " *amp ";
+            var InvariablePart3 = " *width ";
+            var InvariablePart4 = " *selected 1 *sync 0\r\n";
 
-            string VariablePart1 = "";
-            string VariablePart2 = "";
-            string VariablePart3 = "";
+            var VariablePart1 = "";
+            var VariablePart2 = "";
+            var VariablePart3 = "";
 
-            for (int i = 0; i < currentPatternPads[index].Length; i++)
+            for (var i = 0; i < currentPatternPads[index].Length; i++)
             {
                 VariablePart1 += ConnectDevice.Remap2[currentPatternPads[index][i]-1].GetRemap() + "=C,";
                 VariablePart2 += ConnectDevice.Remap2[currentPatternPads[index][i]-1].GetRemap() + "=" + Mathf.Round(((ConnectDevice.Remap2[currentPatternPads[index][i]-1].GetAmplitude() + 0.001f) * currentAmpMult[index]) * 10.0f) * 0.1f + ",";

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Tactility.Ball;
 using UnityEngine;
 
@@ -15,8 +16,8 @@ namespace Tactility.Modulation
             // Initialize new TactilityData
             _tactilityData = new TactilityData
             {
-                BoneIds = new System.Collections.Generic.List<OVRSkeleton.BoneId>(),
-                Values = new System.Collections.Generic.List<float>()
+                BoneIds = new List<OVRSkeleton.BoneId>(),
+                Values = new List<float>()
             };
             
             if (grabbable.isGrabbed)

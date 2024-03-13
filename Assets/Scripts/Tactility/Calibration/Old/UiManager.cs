@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -69,7 +68,7 @@ namespace Tactility.Calibration.Old
 
         public void SelectPad()
         {
-            string buttonTag = EventSystem.current.currentSelectedGameObject.tag;
+            var buttonTag = EventSystem.current.currentSelectedGameObject.tag;
             currentPad = Convert.ToInt32(buttonTag) - 1;
             AmplitudeBox.interactable = true;
             PulseWidthBox.interactable = true;
@@ -91,7 +90,7 @@ namespace Tactility.Calibration.Old
 
         public void SetAmplitude()
         {
-            float amplitude = (float) Decimal.Round(Convert.ToDecimal(AmplitudeBox.text), 1);
+            var amplitude = (float) Decimal.Round(Convert.ToDecimal(AmplitudeBox.text), 1);
             amplitude =  Mathf.Clamp(amplitude, 0.5f, 7.5f);
             AmplitudeBox.text = Convert.ToString(amplitude);
             ConnectDevice.GetPadsInfo(currentPad).SetAmplitude(amplitude);
@@ -102,7 +101,7 @@ namespace Tactility.Calibration.Old
 
         public void IncreaseAmplitude()
         {
-            float amplitude = (float)Decimal.Round(Convert.ToDecimal(AmplitudeBox.text), 1);
+            var amplitude = (float)Decimal.Round(Convert.ToDecimal(AmplitudeBox.text), 1);
             amplitude = Mathf.Clamp(amplitude + 0.1f, 0.5f, 7.5f);
             AmplitudeBox.text = Convert.ToString(amplitude);
             ConnectDevice.GetPadsInfo(currentPad).SetAmplitude(amplitude);
@@ -116,7 +115,7 @@ namespace Tactility.Calibration.Old
 
         public void DecreaseAmplitude()
         {
-            float amplitude = (float)Decimal.Round(Convert.ToDecimal(AmplitudeBox.text), 1);
+            var amplitude = (float)Decimal.Round(Convert.ToDecimal(AmplitudeBox.text), 1);
             amplitude = Mathf.Clamp(amplitude - 0.1f, 0.5f, 7.5f);
             AmplitudeBox.text = Convert.ToString(amplitude);
             ConnectDevice.GetPadsInfo(currentPad).SetAmplitude(amplitude);
@@ -130,7 +129,7 @@ namespace Tactility.Calibration.Old
 
         public void SetPulseWidth()
         {
-            int pulseWidth = (int)Mathf.Round((float)(Convert.ToDouble(PulseWidthBox.text) / 10.0)) * 10;
+            var pulseWidth = (int)Mathf.Round((float)(Convert.ToDouble(PulseWidthBox.text) / 10.0)) * 10;
             pulseWidth = Mathf.Clamp(pulseWidth, 30, 500);
             PulseWidthBox.text = Convert.ToString(pulseWidth);
             ConnectDevice.GetPadsInfo(currentPad).SetPulseWidth(pulseWidth);
@@ -141,7 +140,7 @@ namespace Tactility.Calibration.Old
 
         public void SetFrequency()
         {
-            int frequency = Convert.ToInt32(FrequencyBox.text);
+            var frequency = Convert.ToInt32(FrequencyBox.text);
             frequency = Mathf.Clamp(frequency, 1, 200);
             FrequencyBox.text = Convert.ToString(frequency);
             ConnectDevice.GetPadsInfo(currentPad).SetFrequency(frequency);
@@ -155,23 +154,23 @@ namespace Tactility.Calibration.Old
 
         public void InitialCalibration()
         {
-            float amplitude = ConnectDevice.GetPadsInfo(3).GetAmplitude();
-            for (int i = 0; i < 8; i++)
+            var amplitude = ConnectDevice.GetPadsInfo(3).GetAmplitude();
+            for (var i = 0; i < 8; i++)
             {
                 ConnectDevice.GetPadsInfo(i).SetAmplitude(amplitude);
             }
             amplitude = ConnectDevice.GetPadsInfo(11).GetAmplitude();
-            for (int i = 8; i < 21; i++)
+            for (var i = 8; i < 21; i++)
             {
                 ConnectDevice.GetPadsInfo(i).SetAmplitude(amplitude);
             }
             amplitude = ConnectDevice.GetPadsInfo(22).GetAmplitude();
-            for (int i = 21; i < 26; i++)
+            for (var i = 21; i < 26; i++)
             {
                 ConnectDevice.GetPadsInfo(i).SetAmplitude(amplitude);
             }
             amplitude = ConnectDevice.GetPadsInfo(27).GetAmplitude();
-            for (int i = 26; i < 31; i++)
+            for (var i = 26; i < 31; i++)
             {
                 ConnectDevice.GetPadsInfo(i).SetAmplitude(amplitude);
             }
@@ -180,10 +179,14 @@ namespace Tactility.Calibration.Old
         public void EnableStimulation() {
             if (EventSystem.current.currentSelectedGameObject.GetComponent<Toggle>().isOn)
                 //StimManager.glovePort.Write("stim on\r\n");
+            {
                 ConnectDevice.gloveSerialController.SendSerialMessage("stim on\r");
+            }
             else
                 //StimManager.glovePort.Write("stim off\r\n");
+            {
                 ConnectDevice.gloveSerialController.SendSerialMessage("stim off\r");
+            }
         }
 
         public void ChangeScene()
@@ -199,15 +202,15 @@ namespace Tactility.Calibration.Old
         {
             // Initialize the arrays with default values to ensure all pads are accounted for.
             // Assuming there are 32 pads, but you should adjust this number based on your actual device's configuration.
-            int numPads = ConnectDevice.Remap2.Length; // Or set to a constant if you know the exact number
+            var numPads = ConnectDevice.Remap2.Length; // Or set to a constant if you know the exact number
             CalibrationManager.BaseAmps = new float[numPads];
             CalibrationManager.BaseWidths = new int[numPads];
 
             // Iterate over the Remap2 array to place values in the correct positions based on the Remap array.
-            for (int i = 0; i < ConnectDevice.Remap2.Length; i++)
+            for (var i = 0; i < ConnectDevice.Remap2.Length; i++)
             {
-                PadScript.Pad pad = ConnectDevice.Remap2[i];
-                int remappedIndex = pad.GetRemap() - 1; // Assuming Remap values are 1-based and need to be converted to 0-based indices.
+                var pad = ConnectDevice.Remap2[i];
+                var remappedIndex = pad.GetRemap() - 1; // Assuming Remap values are 1-based and need to be converted to 0-based indices.
         
                 // Safety check in case of out-of-range values
                 if (remappedIndex >= 0 && remappedIndex < numPads)
@@ -222,7 +225,7 @@ namespace Tactility.Calibration.Old
             }
 
             // Use a placeholder name for the calibration file.
-            string placeholderName = "PlaceholderCalibrationName";
+            var placeholderName = "PlaceholderCalibrationName";
             // Ensure that CalibrationManager has a method to save the data using the current BaseAmps and BaseWidths arrays.
             var calibrationFile = CalibrationManager.SaveCalibrationDataToFile(placeholderName);
             CalibrationManager.LoadCalibrationDataFromFile(calibrationFile);
@@ -233,21 +236,23 @@ namespace Tactility.Calibration.Old
 
             if (File.Exists(SaveDocumentPath))
             {
-                List<string> fileLines = File.ReadAllLines(SaveDocumentPath).ToList();
+                var fileLines = File.ReadAllLines(SaveDocumentPath).ToList();
 
-                for (int i = 0; i < fileLines.Count; i++)
+                for (var i = 0; i < fileLines.Count; i++)
                 {
 
-                    string amplitude = "";
-                    string pulseWidth = "";
-                    string frequency = "";
-                    int separationCount = 0;
-                    PadScript.Pad currentPad = ConnectDevice.Remap2[i];
+                    var amplitude = "";
+                    var pulseWidth = "";
+                    var frequency = "";
+                    var separationCount = 0;
+                    var currentPad = ConnectDevice.Remap2[i];
 
-                    foreach (char c in fileLines[i])
+                    foreach (var c in fileLines[i])
                     {
                         if (c.ToString() == separation)
+                        {
                             separationCount++;
+                        }
                         else
                         {
                             switch (separationCount)
@@ -281,8 +286,8 @@ namespace Tactility.Calibration.Old
 
         public void SetBatteryLevel(string batteryLife)
         {
-            int startPos = batteryLife.LastIndexOf(stringStart) + stringStart.Length;
-            int length = batteryLife.IndexOf("%") - startPos;
+            var startPos = batteryLife.LastIndexOf(stringStart) + stringStart.Length;
+            var length = batteryLife.IndexOf("%") - startPos;
             batteryLife = batteryLife.Substring(startPos, length);
             BatteryLifeText.text = BatteryLifeText.text + " " + batteryLife + " %";
 

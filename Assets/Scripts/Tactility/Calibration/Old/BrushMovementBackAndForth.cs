@@ -40,11 +40,11 @@ namespace Tactility.Calibration.Old
             //PathsObject = new GameObject[PathsSize];
             PathsArray = new GameObject[PathsObject.Length][];
 
-            for (int i = 0; i < PathsObject.Length; i++)
+            for (var i = 0; i < PathsObject.Length; i++)
             {
                 PathsArray[i] = new GameObject[PathsObject[i].transform.childCount];
 
-                for (int j = 0; j < PathsArray[i].Length; j++)
+                for (var j = 0; j < PathsArray[i].Length; j++)
                 {
                     PathsArray[i][j] = PathsObject[i].transform.GetChild(j).gameObject;
                 }
@@ -159,12 +159,12 @@ namespace Tactility.Calibration.Old
             playing = true;
             //MenuButton.interactable = false;
             Vector3 targetDirection;
-            float enterTime = currentTime;
-            for (int l = 0; l < loops; l++)
+            var enterTime = currentTime;
+            for (var l = 0; l < loops; l++)
             {
                 transform.position = PathsArray[index][0].transform.GetChild(0).position;
 
-                for (int i = 0; i < PathsArray[index].Length; i++)
+                for (var i = 0; i < PathsArray[index].Length; i++)
                 {
                     target1 = PathsArray[index][i].transform.GetChild(0);
                     target2 = PathsArray[index][i].transform.GetChild(1);
@@ -198,14 +198,14 @@ namespace Tactility.Calibration.Old
                         yield return null;
                     }
                     //invert targets
-                    Transform tempTarget = target1;
+                    var tempTarget = target1;
                     target1 = target2;
                     target2 = tempTarget;
 
                     //yield return null;
                 }
 
-                for (int i = PathsArray[index].Length - 1; i >= 0; i--)
+                for (var i = PathsArray[index].Length - 1; i >= 0; i--)
                 {
                     target1 = PathsArray[index][i].transform.GetChild(1);
                     target2 = PathsArray[index][i].transform.GetChild(0);
@@ -238,13 +238,13 @@ namespace Tactility.Calibration.Old
                         yield return null;
                     }
                     //invert targets
-                    Transform tempTarget = target1;
+                    var tempTarget = target1;
                     target1 = target2;
                     target2 = tempTarget;
 
                     yield return null;
                 }
-                float exitTime = currentTime;
+                var exitTime = currentTime;
                 //print(currentTime - exitTime);
                 while ((currentTime - exitTime) < waitingTime)
                 {

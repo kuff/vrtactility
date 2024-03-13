@@ -18,14 +18,21 @@ namespace Editor
         {
             get
             {
-                if (_instance) return _instance;
+                if (_instance)
+                {
+                    return _instance;
+                }
 #if UNITY_EDITOR
                 _instance = UnityEditor.AssetDatabase.LoadAssetAtPath<EmulatorSettings>(AssetPath);
-                if (_instance) 
+                if (_instance)
+                {
                     return _instance;
-                
-                if (!System.IO.Directory.Exists(AssetFolderPath)) 
+                }
+
+                if (!System.IO.Directory.Exists(AssetFolderPath))
+                {
                     System.IO.Directory.CreateDirectory(AssetFolderPath);
+                }
 
                 _instance = CreateInstance<EmulatorSettings>();
                 UnityEditor.AssetDatabase.CreateAsset(_instance, AssetPath);

@@ -60,7 +60,10 @@ namespace Tactility.Logging
         protected void Update()
         {
 #pragma warning disable CS0162
-            if (!DO_LOGGING) return;
+            if (!DO_LOGGING)
+            {
+                return;
+            }
 #pragma warning restore CS0162
     
             // Update OVR Hand States
@@ -165,7 +168,10 @@ namespace Tactility.Logging
                         var compDataOld = (OVRPlugin.Posef)_previousLogs[(int)type][3];
                         var orientation1 = compDataNew.Orientation;
                         var orientation2 = compDataOld.Orientation;
-                        if (orientation1.Equals(orientation2)) return;
+                        if (orientation1.Equals(orientation2))
+                        {
+                            return;
+                        }
                     }
                     else
                     {
@@ -177,7 +183,10 @@ namespace Tactility.Logging
                         var obj1 = JsonUtility.ToJson(data);
                         var obj2 = JsonUtility.ToJson(_previousLogs[(int)type]);
 
-                        if (obj1 == obj2) return; // If the serialized JSON strings are equal, return without doing anything.
+                        if (obj1 == obj2)
+                        {
+                            return; // If the serialized JSON strings are equal, return without doing anything.
+                        }
                     }
                 }
                 catch
@@ -250,8 +259,14 @@ namespace Tactility.Logging
                     }
             
                     // Parse and save elem
-                    if (elem is ICollection or IList) result += "< " + BuildRecursively((IEnumerable)elem) + "> ";
-                    else result += "" + elem + " ";
+                    if (elem is ICollection or IList)
+                    {
+                        result += "< " + BuildRecursively((IEnumerable)elem) + "> ";
+                    }
+                    else
+                    {
+                        result += "" + elem + " ";
+                    }
                 }
 
                 return result;
@@ -272,7 +287,9 @@ namespace Tactility.Logging
                 using (var sw = File.AppendText(path))
                 {
                     foreach (var list in _logQueue)
+                    {
                         sw.WriteLine(list.ToString());
+                    }
                 }
 
                 // Clear log queue and return

@@ -10,18 +10,14 @@ namespace Tactility.Calibration
 {
     public class CalibrationManager : MonoBehaviour
     {
-        [Tooltip("The configuration settings for the connected tactility device. This includes device-specific " +
-                 "parameters such as number of pads, use of implicit anodes, and other configurable properties." +
-                 "Note: This selection may be overruled at runtime by the LoadDeviceConfigByName method.")]
+        [Tooltip("The configuration settings for the connected tactility device. This includes device-specific parameters such as number of pads, use of implicit anodes, and other configurable properties.Note: This selection may be overruled at runtime by the LoadDeviceConfigByName method.")]
         [SerializeField]
-        private TactilityDeviceConfig deviceConfigInstance;        // Non-static, serialized field
-        [Tooltip("The name of the calibration file to be loaded at startup. If left blank, no file will be loaded. " +
-                 "This file should be located in the persistent data path and contain a list of amplitudes and " +
-                 "widths for each pad, separated by commas. The first line should contain the device name and version.")]
+        private TactilityDeviceConfig deviceConfigInstance; // Non-static, serialized field
+        [Tooltip("The name of the calibration file to be loaded at startup. If left blank, no file will be loaded. This file should be located in the persistent data path and contain a list of amplitudes and widths for each pad, separated by commas. The first line should contain the device name and version.")]
         [SerializeField]
         private string calibrationFileName;
         
-        private static TactilityDeviceConfig _deviceConfigStatic;  // Static field to hold the instance
+        private static TactilityDeviceConfig _deviceConfigStatic; // Static field to hold the instance
 
         // Calibrated "just noticeable differences" (JNDs) for the device
         public static float[] BaseAmps;
@@ -35,8 +31,10 @@ namespace Tactility.Calibration
         {
             get
             {
-                if (_deviceConfigStatic == null) 
+                if (_deviceConfigStatic == null)
+                {
                     Debug.LogError("DeviceConfig has not been initialized. Ensure that CalibrationManager is active in the scene.");
+                }
                 return _deviceConfigStatic;
             }
         }
@@ -58,16 +56,21 @@ namespace Tactility.Calibration
             DontDestroyOnLoad(gameObject);
 
             // Load the default configuration if none is assigned
-            if (_deviceConfigStatic == null) InitializeDeviceConfig();
-            
+            if (_deviceConfigStatic == null)
+            {
+                InitializeDeviceConfig();
+            }
+
             // Load the calibration data if a file name is provided
-            if (!string.IsNullOrEmpty(calibrationFileName)) LoadCalibrationDataFromFile(calibrationFileName);
+            if (!string.IsNullOrEmpty(calibrationFileName))
+            {
+                LoadCalibrationDataFromFile(calibrationFileName);
+            }
         }
 
         public static void InitializeDeviceConfig(string deviceName = null)
         {
-            _deviceConfigStatic = LoadDeviceConfigByName(deviceName) ?? 
-                                  Resources.Load<TactilityDeviceConfig>("Tactility/GloveDeviceConfig");
+            _deviceConfigStatic = LoadDeviceConfigByName(deviceName) ?? Resources.Load<TactilityDeviceConfig>("Tactility/GloveDeviceConfig");
 
             if (_deviceConfigStatic == null)
             {
@@ -86,7 +89,10 @@ namespace Tactility.Calibration
             var allConfigs = GetAllDeviceConfigs();
             foreach (var config in allConfigs)
             {
-                if (config.deviceName != deviceName) continue;
+                if (config.deviceName != deviceName)
+                {
+                    continue;
+                }
                 Debug.Log($"Configuration for {deviceName} loaded successfully.");
                 return config;
             }
@@ -158,7 +164,9 @@ namespace Tactility.Calibration
                     writer.WriteLine($"{_deviceConfigStatic.deviceName}, {Application.version}");
                     for (var i = 0; i < BaseAmps.Length; i++)
                         // Ensure floats are formatted with "." and not ","
+                    {
                         writer.WriteLine($"{BaseAmps[i].ToString(System.Globalization.CultureInfo.InvariantCulture)},{BaseWidths[i].ToString(System.Globalization.CultureInfo.InvariantCulture)}");
+                    }
                 }
                 Debug.Log($"Calibration data saved to {filePath}");
                 return filePath;
@@ -214,8 +222,11 @@ namespace Tactility.Calibration
                 for (var i = 1; i < lines.Length; i++)
                 {
                     var parts = lines[i].Split(',');
-                    if (parts.Length < 2) continue;
-                    
+                    if (parts.Length < 2)
+                    {
+                        continue;
+                    }
+
                     // Parse floats with "." and not ","
                     BaseAmps[i - 1] = float.Parse(parts[0], System.Globalization.CultureInfo.InvariantCulture);
                     BaseWidths[i - 1] = int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);

@@ -28,16 +28,19 @@ namespace Tactility.Modulation
             // Check for number keys 1-8 to select specific GameObject and disable cycling.
             for (var i = 1; i <= 8; i++)
             {
-                if (!Input.GetKeyDown(i.ToString()) || gameObjects.Count < i) continue;
-                
-                ToggleCycling(false);  // Disable cycling.
-                ActivateGameObject(i - 1);  // Activate the selected GameObject.
+                if (!Input.GetKeyDown(i.ToString()) || gameObjects.Count < i)
+                {
+                    continue;
+                }
+
+                ToggleCycling(false); // Disable cycling.
+                ActivateGameObject(i - 1); // Activate the selected GameObject.
             }
 
             // Check for number key 9 to re-enable cycling.
             if (Input.GetKeyDown("9"))
             {
-                CycleToNextGameObjectAndContinue();  // Cycle to next GameObject immediately and continue cycling.
+                CycleToNextGameObjectAndContinue(); // Cycle to next GameObject immediately and continue cycling.
             }
         }
 
@@ -45,7 +48,7 @@ namespace Tactility.Modulation
         {
             while (_isCyclingEnabled)
             {
-                CycleToNextGameObject();  // Move to the next GameObject and enable it.
+                CycleToNextGameObject(); // Move to the next GameObject and enable it.
 
                 // Wait for the specified delay.
                 yield return new WaitForSeconds(cycleDelay);
@@ -60,29 +63,25 @@ namespace Tactility.Modulation
 
         private void CycleToNextGameObjectAndContinue()
         {
-            ToggleCycling(true);  // Ensure cycling is enabled.
-            CycleToNextGameObject();  // Move to the next GameObject immediately.
+            ToggleCycling(true); // Ensure cycling is enabled.
+            CycleToNextGameObject(); // Move to the next GameObject immediately.
 
             // If not already running, restart the coroutine to continue cycling from the current position.
-            if (_cyclingCoroutine == null)
-            {
-                _cyclingCoroutine = StartCoroutine(CycleGameObjects());
-            }
+            _cyclingCoroutine ??= StartCoroutine(CycleGameObjects());
         }
 
         private void ToggleCycling(bool enable)
         {
             _isCyclingEnabled = enable;
 
-            if (!enable)
+            if (enable || _cyclingCoroutine == null)
             {
-                // Stop the cycling coroutine if it's running.
-                if (_cyclingCoroutine != null)
-                {
-                    StopCoroutine(_cyclingCoroutine);
-                    _cyclingCoroutine = null;
-                }
+                return;
             }
+            
+            // Stop the cycling coroutine if it's running.
+            StopCoroutine(_cyclingCoroutine);
+            _cyclingCoroutine = null;
         }
 
         private void ActivateGameObject(int index)

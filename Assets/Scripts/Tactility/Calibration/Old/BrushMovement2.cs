@@ -27,11 +27,11 @@ namespace Tactility.Calibration.Old
             //PathsObject = new GameObject[PathsSize];
             PathsArray = new GameObject[PathsObject.Length][];
 
-            for (int i = 0; i < PathsObject.Length; i++)
+            for (var i = 0; i < PathsObject.Length; i++)
             {
                 PathsArray[i] = new GameObject[PathsObject[i].transform.childCount];
 
-                for (int j = 0; j < PathsArray[i].Length; j++)
+                for (var j = 0; j < PathsArray[i].Length; j++)
                 {
                     PathsArray[i][j] = PathsObject[i].transform.GetChild(j).gameObject;
                 }
@@ -71,11 +71,11 @@ namespace Tactility.Calibration.Old
 
         IEnumerator StartLoop(int index)
         {
-            for (int l = 0; l < Loops; l++)
+            for (var l = 0; l < Loops; l++)
             {
                 transform.position = PathsArray[index][0].transform.GetChild(0).position;
 
-                for (int i = 0; i < PathsArray[index].Length; i++)
+                for (var i = 0; i < PathsArray[index].Length; i++)
                 {
                     target1 = PathsArray[index][i].transform.GetChild(0);
                     target2 = PathsArray[index][i].transform.GetChild(1);
@@ -102,7 +102,7 @@ namespace Tactility.Calibration.Old
                     }
                     //invert targets
                     print(currentTime);
-                    Transform tempTarget = target1;
+                    var tempTarget = target1;
                     target1 = target2;
                     target2 = tempTarget;
 

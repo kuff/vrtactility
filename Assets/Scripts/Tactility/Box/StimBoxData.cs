@@ -1,8 +1,6 @@
 using System;
 using UnityEditor;
 using UnityEngine;
-#if UNITY_EDITOR
-#endif
 
 namespace Tactility.Box
 {
@@ -31,11 +29,17 @@ namespace Tactility.Box
         {
             get
             {
-                if (_instance) return _instance;
+                if (_instance)
+                {
+                    return _instance;
+                }
 
                 // Try to load the asset from the Resources folder
                 _instance = Resources.Load<StimBoxData>(ResourcePath);
-                if (_instance) return _instance;
+                if (_instance)
+                {
+                    return _instance;
+                }
 
                 // Only if it doesn't exist, create a new instance and save it
                 _instance = CreateInstance<StimBoxData>();
@@ -51,7 +55,7 @@ namespace Tactility.Box
             voltage = newVoltage;
             current = newCurrent;
             temperature = newTemperature;
-            LastUpdated = DateTime.UtcNow;  // Update the timestamp to current time
+            LastUpdated = DateTime.UtcNow; // Update the timestamp to current time
             SaveAsset(_instance, "StimBoxData");
         }
         
@@ -68,14 +72,22 @@ namespace Tactility.Box
             var timeSinceUpdate = TimeSpan.FromSeconds(timeDifference);
     
             if (timeSinceUpdate.TotalDays >= 1)
+            {
                 return $">{(int)timeSinceUpdate.TotalDays} day(s) ago";
+            }
             if (timeSinceUpdate.TotalHours >= 1)
+            {
                 return $">{(int)timeSinceUpdate.TotalHours} hour(s) ago";
+            }
             if (timeSinceUpdate.TotalMinutes >= 1)
+            {
                 return $">{(int)timeSinceUpdate.TotalMinutes} minute(s) ago";
+            }
             if (timeSinceUpdate.TotalSeconds >= 1)
+            {
                 return $">{(int)timeSinceUpdate.TotalSeconds} second(s) ago";
-    
+            }
+
             return "just now";
         }
 
