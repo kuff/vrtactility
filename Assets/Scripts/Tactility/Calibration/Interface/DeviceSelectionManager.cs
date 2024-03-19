@@ -15,10 +15,12 @@ namespace Tactility.Calibration.Interface
         [SerializeField]
         [Tooltip("The dropdown menu for selecting the device configuration.")]
         private Dropdown configDropdown;
+
         [SerializeField]
         [CanBeNull]
         [Tooltip("The default device configuration to use if no other is selected. It is not required that this field be specified.")]
         private TactilityDeviceConfig defaultConfig;
+
         [HideInInspector]
         public TactilityDeviceConfig selectedConfig;
 
@@ -39,12 +41,15 @@ namespace Tactility.Calibration.Interface
             {
                 configDropdown.options.Add(new Dropdown.OptionData(config.deviceName));
             }
+
+            UpdateSelectedConfig();
         }
 
         // Set the selectedConfig to the TactilityDeviceConfig instance corresponding to the selected name
-        public void SetSelectedConfig()
+        public void UpdateSelectedConfig()
         {
-            selectedConfig = GetAllDeviceConfigs().First(config => config.deviceName == configDropdown.options[configDropdown.value].text);
+            var configName = configDropdown.options[configDropdown.value].text;
+            SetDeviceConfig(configName);
         }
     }
 }

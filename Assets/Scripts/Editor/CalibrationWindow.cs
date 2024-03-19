@@ -171,7 +171,7 @@ namespace Editor
 
             // Load the selected device config
             var selectedConfigName = _deviceConfigNames[_selectedConfigIndex];
-            InitializeDeviceConfig(selectedConfigName);
+            SetDeviceConfig(selectedConfigName);
             _currentPad = 0;
 
             // Initialize the GammaBoxController with the selected COM port, connect, and enable stimulation

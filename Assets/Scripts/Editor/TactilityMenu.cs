@@ -1,13 +1,11 @@
 // Copyright (C) 2024 Peter Leth
 
 #region
-using System;
 using System.Diagnostics;
-using System.IO.Ports;
-using System.Threading;
 using Tactility.Box;
 using UnityEditor;
 using UnityEngine;
+using static Tactility.Calibration.Interface.BoxConnectionManager;
 using Debug = UnityEngine.Debug;
 #endregion
 
@@ -24,59 +22,9 @@ namespace Editor
         [MenuItem("Tactility/Find Box Port", false, 2)]
         private static void FindPort()
         {
-            Debug.Log("Searching for Tactility box...");
-            var portNames = SerialPort.GetPortNames();
-            string foundPort = null;
-            foreach (var portName in portNames)
-            {
-                using var serialPort = new SerialPort(portName);
-                try
-                {
-                    // Configure serial port settings here if necessary
-                    serialPort.BaudRate = 115200;
-                    serialPort.DataBits = 8;
-                    serialPort.Parity = Parity.None;
-                    serialPort.StopBits = StopBits.One;
-                    serialPort.ReadTimeout = 500; // Set timeouts to prevent hanging
-                    serialPort.WriteTimeout = 500;
-
-                    serialPort.Open();
-                    // Write the command to the port
-                    serialPort.WriteLine("iam TACTILITY");
-                    // Give the device a bit of time to respond
-                    Thread.Sleep(100);
-
-                    // Read the response
-                    var response = serialPort.ReadLine();
-                    // Check if the response is what you expect from the Tactility box
-                    if (!response.Contains("Re:[] new connection") &&
-                        !response.Contains("Re:[] re-connection") &&
-                        !response.Contains("Re:[] ok"))
-                    {
-                        continue;
-                    }
-
-                    foundPort = portName;
-                    EditorGUIUtility.systemCopyBuffer = foundPort;
-                    Debug.Log($"Tactility box found on port {foundPort}. Copied to clipboard.");
-                    break;
-                }
-                catch (TimeoutException)
-                {
-                    // Handle timeout exceptions (no response in a timely manner)
-                    Debug.Log("No response from " + portName);
-                }
-                catch (Exception e)
-                {
-                    // Handle other exceptions such as port being in use, etc.
-                    Debug.Log($"Failed to test port {portName}: {e.Message}");
-                }
-            }
-
-            if (foundPort == null)
-            {
-                Debug.LogError("Tactility box not found.");
-            }
+            var foundPort = ScanForBox();
+            EditorGUIUtility.systemCopyBuffer = foundPort;
+            Debug.Log($"Tactility box found on port {foundPort}. Copied to clipboard.");
         }
 
         [MenuItem("Tactility/Documentation", false, 50)]

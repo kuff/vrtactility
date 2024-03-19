@@ -64,7 +64,7 @@ namespace Tactility.Calibration
             // Load the default configuration if none is assigned
             if (_deviceConfigStatic == null)
             {
-                InitializeDeviceConfig();
+                SetDeviceConfig();
             }
 
             // Load the calibration data if a file name is provided
@@ -74,7 +74,7 @@ namespace Tactility.Calibration
             }
         }
 
-        public static void InitializeDeviceConfig(string deviceName = null)
+        public static void SetDeviceConfig(string deviceName = null)
         {
             _deviceConfigStatic = LoadDeviceConfigByName(deviceName) ?? Resources.Load<TactilityDeviceConfig>("Tactility/GloveDeviceConfig");
 
@@ -90,7 +90,7 @@ namespace Tactility.Calibration
             }
         }
 
-        public static TactilityDeviceConfig LoadDeviceConfigByName(string deviceName)
+        private static TactilityDeviceConfig LoadDeviceConfigByName(string deviceName)
         {
             var allConfigs = GetAllDeviceConfigs();
             foreach (var config in allConfigs.Where(config => config.deviceName == deviceName))
@@ -132,8 +132,7 @@ namespace Tactility.Calibration
             return configs;
         }
 
-        public static string GetEncodedStringForSinglePad(int padIndex, float padAmp, int padWidth,
-                                                          AbstractBoxController boxController)
+        public static string GetEncodedStringForSinglePad(int padIndex, float padAmp, int padWidth, AbstractBoxController boxController)
         {
             var padsFull = new int[DeviceConfig.numPads];
             var ampsFull = new float[DeviceConfig.numPads];
@@ -161,8 +160,8 @@ namespace Tactility.Calibration
                 {
                     writer.WriteLine($"{_deviceConfigStatic.deviceName}, {Application.version}");
                     for (var i = 0; i < BaseAmps.Length; i++)
-                        // Ensure floats are formatted with "." and not ","
                     {
+                        // Ensure floats are formatted with "." and not ","
                         writer.WriteLine($"{BaseAmps[i].ToString(CultureInfo.InvariantCulture)},{BaseWidths[i].ToString(CultureInfo.InvariantCulture)}");
                     }
                 }
@@ -176,7 +175,7 @@ namespace Tactility.Calibration
             }
         }
 
-        public static void LoadCalibrationDataFromFile(string calibrationFileName)
+        private static void LoadCalibrationDataFromFile(string calibrationFileName)
         {
             var filePath = Path.Combine(Application.persistentDataPath, calibrationFileName);
 

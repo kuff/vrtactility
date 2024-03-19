@@ -128,7 +128,7 @@ namespace Tactility.Box
         {
             if (Battery is null)
             {
-                SetBoxInfo(message);
+                ParseAndSetBoxInfo(message);
             }
 
             if (!_receivedValidGreeting && _isSuccessfullyConnected)
@@ -140,7 +140,7 @@ namespace Tactility.Box
             base.OnMessageArrived(message);
         }
 
-        private void SetBoxInfo(string response)
+        private void ParseAndSetBoxInfo(string response)
         {
             // Check if response string contains the known battery response sequence and ignore it if it does not
             const string checkString = "Re:[] battery ";
