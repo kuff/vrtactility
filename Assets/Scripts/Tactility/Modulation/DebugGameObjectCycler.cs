@@ -1,6 +1,10 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#endregion
 
 namespace Tactility.Modulation
 {
@@ -11,9 +15,9 @@ namespace Tactility.Modulation
         [Tooltip("Time in seconds each GameObject is active.")]
         public float cycleDelay = 8f;
 
-        private int _currentIndex = -1;         // Track the current index. Starts at -1 to indicate no GameObject is active initially.
-        private bool _isCyclingEnabled = true;  // Control cycling on/off.
-        private Coroutine _cyclingCoroutine;    // To hold the coroutine for controlling its execution.
+        private int _currentIndex = -1;        // Track the current index. Starts at -1 to indicate no GameObject is active initially.
+        private Coroutine _cyclingCoroutine;   // To hold the coroutine for controlling its execution.
+        private bool _isCyclingEnabled = true; // Control cycling on/off.
 
         private void Start()
         {
@@ -33,7 +37,7 @@ namespace Tactility.Modulation
                     continue;
                 }
 
-                ToggleCycling(false); // Disable cycling.
+                ToggleCycling(false);      // Disable cycling.
                 ActivateGameObject(i - 1); // Activate the selected GameObject.
             }
 
@@ -63,7 +67,7 @@ namespace Tactility.Modulation
 
         private void CycleToNextGameObjectAndContinue()
         {
-            ToggleCycling(true); // Ensure cycling is enabled.
+            ToggleCycling(true);     // Ensure cycling is enabled.
             CycleToNextGameObject(); // Move to the next GameObject immediately.
 
             // If not already running, restart the coroutine to continue cycling from the current position.
@@ -78,7 +82,7 @@ namespace Tactility.Modulation
             {
                 return;
             }
-            
+
             // Stop the cycling coroutine if it's running.
             StopCoroutine(_cyclingCoroutine);
             _cyclingCoroutine = null;

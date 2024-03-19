@@ -1,3 +1,6 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Tactility.Box;
@@ -5,36 +8,31 @@ using Tactility.Calibration;
 using UnityEditor;
 using UnityEngine;
 using static Tactility.Calibration.CalibrationManager;
+#endregion
 
 namespace Editor
 {
     public class CalibrationWindow : EditorWindow
     {
-        private string[] _deviceConfigNames;
-        private TactilityDeviceConfig[] _deviceConfigs;
-        private int _selectedConfigIndex;
+        private int _baudRate = 115200;
         private int _calibrationState;
-        private int _currentPad;
+        private string _comPort = "COM3";
         private float _currentAmp;
+        private int _currentPad;
         private int _currentWidth;
 
         private string _customFileName = "Test";
-        private string _comPort = "COM3";
-        private int _baudRate = 115200;
-        private EmulatorSettings _settings;
-        
+        private string[] _deviceConfigNames;
+        private TactilityDeviceConfig[] _deviceConfigs;
+        private GammaBoxController _gammaBoxController;
+
         private float _lastUpdateTimestamp;
         private float _prevAmp;
         private float _prevWidth;
-        
-        private SerialController _serialController;
-        private GammaBoxController _gammaBoxController;
+        private int _selectedConfigIndex;
 
-        [MenuItem("Tactility/Onboard Calibrator")]
-        public static void ShowWindow()
-        {
-            GetWindow<CalibrationWindow>("Onboard Calibrator");
-        }
+        private SerialController _serialController;
+        private EmulatorSettings _settings;
 
         private void OnEnable()
         {
@@ -43,7 +41,7 @@ namespace Editor
             _deviceConfigNames = _deviceConfigs.Select(config => config.deviceName).ToArray();
             _currentPad = 0;
             _settings = EmulatorSettings.Instance;
-            
+
             var gammaBoxControllerObject = new GameObject("TEMP_GammaBoxController");
             gammaBoxControllerObject.SetActive(false);
             _serialController = gammaBoxControllerObject.AddComponent<SerialController>();
@@ -56,6 +54,15 @@ namespace Editor
             _gammaBoxController = gammaBoxControllerObject.AddComponent<GammaBoxController>();
         }
 
+        private void OnDestroy()
+        {
+            // Check if the GameObject exists and destroy it
+            if (_gammaBoxController != null)
+            {
+                DestroyImmediate(_gammaBoxController.gameObject);
+            }
+        }
+
         private void OnGUI()
         {
             // NOTE: Currently disabled from here
@@ -63,7 +70,7 @@ namespace Editor
             // GUILayout.Label("Not yet implemented", EditorStyles.boldLabel);
             // if (GUILayout.Button("Close Window")) 
             //     Close();
-            
+
             // Switch between calibration states
             switch (_calibrationState)
             {
@@ -77,6 +84,12 @@ namespace Editor
                     DrawSaveData();
                     break;
             }
+        }
+
+        [MenuItem("Tactility/Onboard Calibrator")]
+        public static void ShowWindow()
+        {
+            GetWindow<CalibrationWindow>("Onboard Calibrator");
         }
 
         private void DrawSaveData()
@@ -94,7 +107,7 @@ namespace Editor
             GUILayout.Label($"Pad {_currentPad + 1}");
             _currentAmp = EditorGUILayout.Slider("Amplitude", _currentAmp, 0.5f, DeviceConfig.maxAmp);
             _currentWidth = EditorGUILayout.IntSlider("Width", _currentWidth, 100, (int)DeviceConfig.maxWidth);
-            
+
             if (_prevAmp != _currentAmp || _prevWidth != _currentWidth)
             {
                 _prevAmp = _currentAmp;
@@ -120,7 +133,7 @@ namespace Editor
             // Perform the update
             UpdateStimulator(_currentPad, _currentAmp, _currentWidth);
         }
-        
+
         private void UpdateStimulator(int padIndex, float amp, float width)
         {
             // var commandString = CalibrationManager.GetEncodedStringForSinglePad(padIndex, amp, width, _gammaBoxController);
@@ -160,24 +173,15 @@ namespace Editor
             var selectedConfigName = _deviceConfigNames[_selectedConfigIndex];
             InitializeDeviceConfig(selectedConfigName);
             _currentPad = 0;
-            
+
             // Initialize the GammaBoxController with the selected COM port, connect, and enable stimulation
             // _serialController.portName = _comPort;
             // _serialController.enabled = true;
             //_gammaBoxController.gameObject.SetActive(true);
             // _gammaBoxController.Connect(_comPort);
             // _gammaBoxController.EnableStimulation();
-            
+
             _calibrationState = 1;
-        }
-        
-        private void OnDestroy()
-        {
-            // Check if the GameObject exists and destroy it
-            if (_gammaBoxController != null)
-            {
-                DestroyImmediate(_gammaBoxController.gameObject);
-            }
         }
     }
 }

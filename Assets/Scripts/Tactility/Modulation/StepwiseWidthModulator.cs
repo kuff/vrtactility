@@ -1,8 +1,12 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System.Collections;
 using System.Linq;
 using Tactility.Calibration;
 using UnityEngine;
 using static Tactility.Calibration.CalibrationManager;
+#endregion
 
 namespace Tactility.Modulation
 {
@@ -14,9 +18,9 @@ namespace Tactility.Modulation
         protected override IEnumerator Start()
         {
             yield return base.Start();
-            
+
             _dataProvider = GetComponent<ITactilityDataProvider>();
-            
+
             // If no ITactilityDataProvider is found, disable the modulator
             if (_dataProvider != null)
             {
@@ -25,7 +29,7 @@ namespace Tactility.Modulation
             Debug.LogWarning("No ITactilityDataProvider found. Disabling StepwiseWidthModulator.");
             enabled = false;
         }
-        
+
         public override ModulationData? GetModulationData()
         {
             if (!_dataProvider.IsActive())
@@ -35,7 +39,7 @@ namespace Tactility.Modulation
 
             ref var modulationData = ref _dataProvider.GetTactilityData();
             var remap = new[] { 30, 27, 29, 28, 25, 31, 32, 26, 17, 18, 20, 1, 2, 22, 19, 3, 23, 21, 24, 4, 5, 8, 9, 6, 7, 10, 13, 14, 11, 12, 15, 16 };
-            
+
             // Update stimuli for each touching finger bone of interest
             var valueBatch = new float[5];
             for (var i = 0; i < modulationData.BoneIds.Count; i++)
@@ -68,13 +72,13 @@ namespace Tactility.Modulation
                 // Use remap value to determine which finger pressure value we use
                 var pressureValue = i switch
                 {
-                    < 8  => valueBatch[0],
+                    < 8 => valueBatch[0],
                     < 21 => valueBatch[1],
                     < 26 => valueBatch[2],
                     < 31 => valueBatch[3],
-                    _    => valueBatch[4] // == 31
+                    _ => valueBatch[4] // == 31
                 };
-                
+
                 // Define value buckets (0.25, 0.5, 0.75, 1.0) and project pressureValue to last bucket it is greater than
                 pressureValue = pressureValue switch
                 {
@@ -84,7 +88,7 @@ namespace Tactility.Modulation
                     _ => 0.25f
                 };
                 var widthValue = BaseWidths[i] + 200f * pressureValue;
-                
+
                 // Set widthValue to 0 if all pressure values are 0
                 if (valueBatch.All(p => p == 0f))
                 {
@@ -94,8 +98,8 @@ namespace Tactility.Modulation
                 // Remap widthValue using the remap array and store it in the pressureValues array
                 pressureValues[remap[i] - 1] = widthValue;
             }
-            
-            return new ModulationData()
+
+            return new ModulationData
             {
                 Type = ModulationType.Width,
                 Values = pressureValues

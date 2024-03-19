@@ -1,4 +1,8 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using UnityEngine;
+#endregion
 
 namespace Tactility.Ball
 {
@@ -15,14 +19,14 @@ namespace Tactility.Ball
         [SerializeField] private float animationDuration = 1.0f;
         [Tooltip("Wait time between the end of one animation loop and the start of the next. This determines the pause duration before the animation restarts.")]
         [SerializeField] private float waitBetweenLoops = 1.5f;
+        private float _animationTimer;
+        private Transform _headTransform;
+        private bool _isAnimating;
 
         private GrabAndMoveScenario _scenario;
-        private Transform _headTransform;
-        
-        private GameObject _visualProgressInstance;
         private GameObject _targetProgressInstance;
-        private float _animationTimer;
-        private bool _isAnimating;
+
+        private GameObject _visualProgressInstance;
 
         private void Start()
         {
@@ -32,7 +36,7 @@ namespace Tactility.Ball
 
         private void Update()
         {
-            if (_scenario.ug.isGrabbed)
+            if (_scenario.grabbable.isGrabbed)
             {
                 if (_visualProgressInstance == null)
                 {
@@ -40,7 +44,7 @@ namespace Tactility.Ball
                     _targetProgressInstance = CreateSphere(visualSize * 2);
                     StartAnimation();
                 }
-                
+
                 UpdateSpherePositions();
                 AnimateTowardsTarget();
                 UpdateSphereScale();
@@ -71,16 +75,16 @@ namespace Tactility.Ball
         private void UpdateSpherePositions()
         {
             // Calculate the vector from the head to the _ug object
-            var headToUgDirection = (_scenario.ug.transform.position - _headTransform.position).normalized;
-            
+            var headToUgDirection = (_scenario.grabbable.transform.position - _headTransform.position).normalized;
+
             // Calculate the perpendicular vector to the left or right
-            var perpendicularDirection = _scenario.ug.IsLeftHandTouching() 
-                ? Vector3.Cross(Vector3.up, headToUgDirection) 
+            var perpendicularDirection = _scenario.grabbable.IsLeftHandTouching()
+                ? Vector3.Cross(Vector3.up, headToUgDirection)
                 : Vector3.Cross(headToUgDirection, Vector3.up);
 
             // Apply the offset
             var offset = perpendicularDirection * offsetDistance;
-            var position = _scenario.ug.transform.position + offset;
+            var position = _scenario.grabbable.transform.position + offset;
             _visualProgressInstance.transform.position = position;
             _targetProgressInstance.transform.position = new Vector3(position.x, _scenario.targetHeight, position.z);
         }
@@ -88,7 +92,7 @@ namespace Tactility.Ball
         private void UpdateSphereScale()
         {
             var distanceToTarget = Vector3.Distance(_visualProgressInstance.transform.position, _targetProgressInstance.transform.position);
-            var scaleMultiplier = Mathf.Clamp01(1 - (distanceToTarget / offsetDistance));
+            var scaleMultiplier = Mathf.Clamp01(1 - distanceToTarget / offsetDistance);
             _visualProgressInstance.transform.localScale = Vector3.one * (visualSize * (1 + scaleMultiplier));
         }
 

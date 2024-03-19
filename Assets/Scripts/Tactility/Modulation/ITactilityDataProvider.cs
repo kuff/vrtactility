@@ -1,4 +1,8 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System.Collections.Generic;
+#endregion
 
 namespace Tactility.Modulation
 {

@@ -1,57 +1,50 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO.Ports;
 using System.Linq;
 using System.Threading;
 using UnityEditor;
 using UnityEngine;
 using static Tactility.Calibration.CalibrationManager;
+#endregion
 
 namespace Editor.Emulator
 {
     public static class GammaBoxEmulator
     {
+        private const double HeartbeatInterval = 3.0; // seconds
         private static SerialPort _serialPort;
         private static Thread _readThread;
         private static bool _keepReading;
         private static bool _receivedIamTactility;
         private static bool _isInPlayMode;
-        
+
         private static double _lastHeartbeatTime;
         private static int _heartbeatIterator;
-        private const double HeartbeatInterval = 3.0; // seconds
-        
-        public static bool IsConnected
-        {
-            get => _serialPort is { IsOpen: true };
-        }
-        public static readonly List<PadInfo> PadValues = new List<PadInfo>();
+        public static readonly List<PadData> PadValues = new List<PadData>();
         public static int GlobalFrequency;
 
-        public static bool StimulationEnabled { get; private set; }
-        
         private static readonly List<(string message, double receivedTime)> RecentMessages = new List<(string message, double receivedTime)>();
         private static double _lastMessageTime;
         private static double _currentTime;
 
-        public static IEnumerable<(string message, double relativeTime)> ExposedMessages
+        public static bool IsConnected
         {
-            get => RecentMessages.Select((m, index) => (m.message, index == 0 ? 0 : m.receivedTime - RecentMessages[index - 1].receivedTime));
+            get => _serialPort is { IsOpen: true };
         }
 
-        public struct PadInfo
-        {
-            public readonly bool IsAnode;
-            public readonly float Amplitude;
-            public readonly float Width;
+        public static bool StimulationEnabled { get; private set; }
 
-            public PadInfo(bool isAnode, float amplitude = 0, float width = 0)
-            {
-                IsAnode = isAnode;
-                Amplitude = amplitude;
-                Width = width;
-            }
+        public static IEnumerable<(string message, double relativeTime)> ExposedMessages
+        {
+            get => RecentMessages.Select((m, index) => (m.message, index == 0
+                ? 0
+                : m.receivedTime - RecentMessages[index - 1].receivedTime));
         }
 
         public static void InitializePort(string portName, int baudRate)
@@ -91,11 +84,11 @@ namespace Editor.Emulator
 
             _readThread = new Thread(ReadPort);
             _readThread.Start();
-            
+
             PadValues.Clear();
             for (var i = 0; i < 32; i++)
             {
-                PadValues.Add(new PadInfo(true)); // Assume all pads are anodes initially
+                PadValues.Add(new PadData(true)); // Assume all pads are anodes initially
             }
         }
 
@@ -135,8 +128,8 @@ namespace Editor.Emulator
 
             // Log the received message and the time since the last message
             if (EmulatorSettings.Instance.enableLogging)
-                // Debug.Log($"[SerialPortEmulator] Received: {message}");
             {
+                // Debug.Log($"[SerialPortEmulator] Received: {message}");
                 Debug.Log($"[SerialPortEmulator] (Δt = {(_currentTime - _lastMessageTime) / 10}ms) Received: {message}");
             }
 
@@ -152,7 +145,7 @@ namespace Editor.Emulator
                     SendResponse("Re:[] ok");
                     return;
             }
-            
+
             // Check if the received message is "iam TACTILITY" and set the flag
             if (message == "iam TACTILITY\r")
             {
@@ -165,7 +158,7 @@ namespace Editor.Emulator
                 ParsePadValues(message);
                 return;
             }
-            
+
             // Handle frequency message "freq 50\r"
             if (message.StartsWith("freq"))
             {
@@ -180,35 +173,35 @@ namespace Editor.Emulator
                     }
                     else
                     {
-                        SendResponse("Re:[] error: invalid frequency value", showWarning:true);
+                        SendResponse("Re:[] error: invalid frequency value", true);
                     }
                 }
                 else
                 {
-                    SendResponse("Re:[] error: invalid frequency message", showWarning:true);
+                    SendResponse("Re:[] error: invalid frequency message", true);
                 }
                 return;
             }
-            
+
             var response = message switch
             {
                 "iam TACTILITY\r" => "Re:[] re-connection",
                 "elec 1 *pads_qty 32\r" => "Re:[] ok",
-                "battery ?\r" => "Re:[] battery *capacity=21% *voltage=3.63V *current=-91.59mA",  // TODO: missing temperature
+                "battery ?\r" => "Re:[] battery *capacity=21% *voltage=3.63V *current=-91.59mA", // TODO: missing temperature
                 // "freq 50\r" => "Re:[] ok",
                 _ => "(Emulator) unrecognized command"
             };
-        
+
             if (response != "(Emulator) unrecognized command")
             {
                 SendResponse(response);
             }
             else
             {
-                SendResponse(response + $": \"{message}\"", showWarning:true);
+                SendResponse(response + $": \"{message}\"", true);
             }
         }
-        
+
         private static void ParsePadValues(string message)
         {
             try
@@ -216,7 +209,7 @@ namespace Editor.Emulator
                 // Resetting PadValues assuming all pads could be anodes initially
                 for (var i = 0; i < 32; i++)
                 {
-                    PadValues[i] = new PadInfo(true); // Assume all pads are anodes initially
+                    PadValues[i] = new PadData(true); // Assume all pads are anodes initially
                 }
 
                 // Splitting the message on spaces to isolate each segment
@@ -226,7 +219,7 @@ namespace Editor.Emulator
                 var specialAnodes = segments.Contains("*special_anodes 1");
 
                 // Temporary storage to hold parsed values before updating PadValues
-                var tempPadValues = new Dictionary<int, PadInfo>();
+                var tempPadValues = new Dictionary<int, PadData>();
 
                 for (var i = 1; i < segments.Length; i += 2)
                 {
@@ -245,7 +238,7 @@ namespace Editor.Emulator
 
                             var padIndex = int.Parse(parts[0]) - 1;
                             // Assuming pads are cathodes if specified, and anodes otherwise
-                            tempPadValues[padIndex] = new PadInfo(false); // Setting specified pads as cathodes
+                            tempPadValues[padIndex] = new PadData(false); // Setting specified pads as cathodes
                         }
                     }
                     else if (prevSegment.StartsWith("*amp") || prevSegment.StartsWith("*width"))
@@ -262,20 +255,20 @@ namespace Editor.Emulator
 
                             var padIndex = int.Parse(parts[0]) - 1;
                             // Parse float with "." and not ","
-                            var value = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
+                            var value = float.Parse(parts[1], CultureInfo.InvariantCulture);
 
                             if (!tempPadValues.ContainsKey(padIndex))
                             {
-                                tempPadValues[padIndex] = new PadInfo(tempPadValues.ContainsKey(padIndex) && tempPadValues[padIndex].IsAnode, 0, 0);
+                                tempPadValues[padIndex] = new PadData(tempPadValues.ContainsKey(padIndex) && tempPadValues[padIndex].IsAnode);
                             }
 
                             if (isAmplitude)
                             {
-                                tempPadValues[padIndex] = new PadInfo(tempPadValues[padIndex].IsAnode, value, tempPadValues[padIndex].Width);
+                                tempPadValues[padIndex] = new PadData(tempPadValues[padIndex].IsAnode, value, tempPadValues[padIndex].Width);
                             }
                             else
                             {
-                                tempPadValues[padIndex] = new PadInfo(tempPadValues[padIndex].IsAnode, tempPadValues[padIndex].Amplitude, value);
+                                tempPadValues[padIndex] = new PadData(tempPadValues[padIndex].IsAnode, tempPadValues[padIndex].Amplitude, value);
                             }
                         }
                     }
@@ -294,12 +287,12 @@ namespace Editor.Emulator
                     {
                         if (!tempPadValues.ContainsKey(i)) // For non-specified pads, set them as anodes
                         {
-                            PadValues[i] = new PadInfo(true);
+                            PadValues[i] = new PadData(true);
                         }
                     }
                     else if (DeviceConfig.IsAnode(i)) // For devices with explicit anodes
                     {
-                        PadValues[i] = new PadInfo(true);
+                        PadValues[i] = new PadData(true);
                     }
                 }
 
@@ -308,7 +301,7 @@ namespace Editor.Emulator
             catch (Exception ex)
             {
                 Debug.LogError("Error parsing pad values: " + ex.Message);
-                SendResponse($"(Emulator) error during pad value parsing: message: \"{message}\", error: {ex.Message}", showWarning: true);
+                SendResponse($"(Emulator) error during pad value parsing: message: \"{message}\", error: {ex.Message}", true);
             }
         }
 
@@ -345,19 +338,19 @@ namespace Editor.Emulator
         private static void EditorUpdate()
         {
             _currentTime = EditorApplication.timeSinceStartup;
-            
+
             // Only send heartbeats if in play mode and "iam TACTILITY" has been received
             if (!_isInPlayMode || !_receivedIamTactility)
             {
                 return;
             }
-            
+
             var currentTime = EditorApplication.timeSinceStartup;
             if (!(currentTime > _lastHeartbeatTime + HeartbeatInterval))
             {
                 return;
             }
-            
+
             var periodicMessage = $"[{_heartbeatIterator}] tic *stim 20";
             SendResponse(periodicMessage);
             _lastHeartbeatTime = currentTime;
@@ -376,19 +369,19 @@ namespace Editor.Emulator
             _serialPort.Close();
             _readThread.Join();
             EditorApplication.update -= EditorUpdate;
-            
+
             // Clear the window pad values and stimulation state
             //PadValues.Clear();
             StimulationEnabled = false;
-            
+
             Debug.Log("Emulator exited successfully.");
         }
-        
+
         [InitializeOnLoadMethod]
         private static void InitializeOnLoad()
         {
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-            
+
             if (!SessionState.GetBool("IsEmulatorEnabled", false) || IsConnected)
             {
                 return;
@@ -433,6 +426,20 @@ namespace Editor.Emulator
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
+        }
+
+        public struct PadData
+        {
+            public readonly bool IsAnode;
+            public readonly float Amplitude;
+            public readonly float Width;
+
+            public PadData(bool isAnode, float amplitude = 0, float width = 0)
+            {
+                IsAnode = isAnode;
+                Amplitude = amplitude;
+                Width = width;
             }
         }
     }

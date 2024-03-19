@@ -1,6 +1,10 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using Tactility.Box;
 using UnityEditor;
 using UnityEngine;
+#endregion
 
 namespace Editor
 {
@@ -23,7 +27,7 @@ namespace Editor
             {
                 return;
             }
-            
+
             // Set GUI enabled to false to make the fields read-only
             GUI.enabled = false;
 

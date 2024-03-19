@@ -1,9 +1,13 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using UnityEngine;
+#endregion
 
 namespace Tactility.Ball
 {
@@ -11,7 +15,7 @@ namespace Tactility.Ball
     public class UniformGrabbable : MonoBehaviour
     {
         private const float MatchingThreshold = 0.001f;
-        
+
         [Tooltip("Defines the minimum pressure required for a bone to be considered as grabbing the object. This threshold helps distinguish between a light touch and an actual grip.")]
         [Range(0.1f, 1.0f)]
         public float pressureThreshold;
@@ -19,27 +23,27 @@ namespace Tactility.Ball
         [SerializeField]
         private OVRInitializer ovrInitializer;
 
-        private SphereCollider _sphereCollider;
-
-        // Managing touch
-        private List<OVRBone> _bones;
-        private List<OVRBoneCapsule> _boneCapsules;
-        private List<OVRBoneCapsule> _touchingBoneCapsules;
-        private Dictionary<OVRSkeleton.BoneId, Vector3> _touchingPointVectors;
-
         // Exposing touch
         [HideInInspector] public List<OVRSkeleton.BoneId> touchingBoneIds;
         [HideInInspector] public List<float> touchingBonePressures;
 
         // Exposing grab
         [HideInInspector] public bool isGrabbed;
+        private List<OVRBoneCapsule> _boneCapsules;
+
+        // Managing touch
+        private List<OVRBone> _bones;
+
+        private SphereCollider _sphereCollider;
+        private List<OVRBoneCapsule> _touchingBoneCapsules;
+        private Dictionary<OVRSkeleton.BoneId, Vector3> _touchingPointVectors;
 
         private void Start()
         {
             _sphereCollider = GetComponent<SphereCollider>();
 
             // if (pressureThreshold > _sphereCollider.radius) pressureThreshold = _sphereCollider.radius;
-        
+
             _touchingBoneCapsules = new List<OVRBoneCapsule>();
             _touchingPointVectors = new Dictionary<OVRSkeleton.BoneId, Vector3>();
         }
@@ -50,19 +54,15 @@ namespace Tactility.Ball
             if (_boneCapsules is null && ovrInitializer.isInitialized)
             {
                 // ...Save bone capsules
-                _boneCapsules = ovrInitializer.LeftHandBoneCapsules
-                    .Concat(ovrInitializer.RightHandBoneCapsules)
-                    .ToList();
+                _boneCapsules = ovrInitializer.LeftHandBoneCapsules.Concat(ovrInitializer.RightHandBoneCapsules).ToList();
                 SetIsKinematic(false);
             }
             if (_bones is null && ovrInitializer.isInitialized)
             {
                 // ...Save bones
-                _bones = ovrInitializer.LeftHandBones
-                    .Concat(ovrInitializer.RightHandBones)
-                    .ToList();
+                _bones = ovrInitializer.LeftHandBones.Concat(ovrInitializer.RightHandBones).ToList();
             }
-        
+
             // Update applied pressure for each touching bone if any
             // TODO: Optimize this to only loop through finger tips
             for (var i = 0; i < _touchingBoneCapsules.Count; i++)
@@ -79,11 +79,7 @@ namespace Tactility.Ball
             }
 
             // Calculate union of all collision point vectors to indicate grip distribution
-            var gripVector = Vector3.zero;
-            foreach (var vec in _touchingPointVectors.Values)
-            {
-                gripVector += vec - transform.position;
-            }
+            var gripVector = _touchingPointVectors.Values.Aggregate(Vector3.zero, (current, vec) => current + (vec - transform.position));
             if (gripVector == Vector3.zero)
             {
                 isGrabbed = false;
@@ -101,7 +97,91 @@ namespace Tactility.Ball
                 isGrabbed = false;
             }
         }
-        
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            // Add the closest matching OVRBone to list of touching bones
+            var closestBoneCapsule = FindMatchingBone(in collision);
+            if (closestBoneCapsule is null || IsTouching(in closestBoneCapsule))
+            {
+                return; // Don't add a bone that doesn't exist or is already touching
+            }
+
+            if (!IsBoneOnValidHand(in closestBoneCapsule))
+            {
+                // Clear state and return if the colliding hand is not the hand currently touching
+                ClearTrackedBones();
+
+                SetIsKinematic(in closestBoneCapsule, true);
+                SetIsKinematic(in closestBoneCapsule, false);
+
+                return;
+            }
+
+            // Add bone and calculate applied pressure
+            var boneId = GetBoneId(in closestBoneCapsule);
+
+            // switch (boneId)
+            // {
+            //     case OVRSkeleton.BoneId.Hand_Thumb3:
+            //     case OVRSkeleton.BoneId.Hand_Index3:
+            //     case OVRSkeleton.BoneId.Hand_Middle3:
+            //     case OVRSkeleton.BoneId.Hand_Ring3:
+            //     case OVRSkeleton.BoneId.Hand_Pinky3:
+            //         break;
+            //     default:
+            //         return;
+            // }
+
+            try
+            {
+                _touchingPointVectors.Add(boneId, collision.contacts[0].point);
+            }
+            catch (ArgumentException)
+            {
+                return;
+            }
+            _touchingBoneCapsules.Add(closestBoneCapsule);
+            touchingBoneIds.Add(boneId);
+            touchingBonePressures.Add(GetAppliedPressure(in closestBoneCapsule));
+        }
+
+        private void OnCollisionExit(Collision collision)
+        {
+            // Find the OVRBone that best matches the colliding object
+            var closestBoneCapsule = FindMatchingBone(in collision);
+            if (closestBoneCapsule is null)
+            {
+                return; // If the colliding object is not an OVRBone
+            }
+
+            var touchingIdx = _touchingBoneCapsules.IndexOf(closestBoneCapsule);
+            if (touchingIdx == -1)
+            {
+                return; // If the colliding bone was not previously touching
+            }
+
+            if (!IsBoneOnValidHand(in closestBoneCapsule))
+            {
+                return; // If the colliding bone is from the wrong hand
+            }
+
+            if (_touchingBoneCapsules.Count != 1)
+            {
+                SwapRemove(in touchingIdx); // Remove the no-longer-colliding OVRBone
+
+                // Make the bone kinematic briefly to reset position in relation to the rest of the hand
+                SetIsKinematic(in closestBoneCapsule, true);
+                SetIsKinematic(in closestBoneCapsule, false);
+                return;
+            }
+            ClearTrackedBones();
+
+            // If no bones are touching anymore we do the same for all bones in the hand, even those that haven't directly touched the object
+            SetIsKinematic(true);
+            SetIsKinematic(false);
+        }
+
         private void OnCollisionStay(Collision collision)
         {
             // Find matching bone
@@ -130,7 +210,7 @@ namespace Tactility.Ball
                 SetIsKinematic(in boneCapsule, in state);
             }
         }
-    
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void SetIsKinematic(in OVRBoneCapsule boneCapsule, in bool state)
         {
@@ -141,7 +221,7 @@ namespace Tactility.Ball
         private float GetAppliedPressure(in OVRBoneCapsule boneCapsule)
         {
             var r = _sphereCollider.transform.localScale.x;
-        
+
             // Find corresponding OVRBone (which doesn't collide with the sphere surface) and its position
             var targetBone = _bones[GetBoneIndex(in boneCapsule)];
             var bonePosition = targetBone.Transform.position;
@@ -159,65 +239,19 @@ namespace Tactility.Ball
         {
             // Find out what hand boneCapsule belongs to in order to index properly
             var isLeftHand = _boneCapsules.IndexOf(boneCapsule) < _boneCapsules.Count / 2;
-            var indexOffset = isLeftHand ? 0 : _bones.Count / 2;
+            var indexOffset = isLeftHand
+                ? 0
+                : _bones.Count / 2;
 
             return indexOffset + boneCapsule.BoneIndex;
         }
-    
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsIndexOnLeftHand(in int index)
         {
             return index < _bones.Count / 2;
         }
 
-        private void OnCollisionEnter(Collision collision)
-        {
-            // Add the closest matching OVRBone to list of touching bones
-            var closestBoneCapsule = FindMatchingBone(in collision);
-            if (closestBoneCapsule is null || IsTouching(in closestBoneCapsule))
-            {
-                return; // Don't add a bone that doesn't exist or is already touching
-            }
-
-            if (!IsBoneOnValidHand(in closestBoneCapsule))
-            {
-                // Clear state and return if the colliding hand is not the hand currently touching
-                ClearTrackedBones();
-
-                SetIsKinematic(in closestBoneCapsule, true);
-                SetIsKinematic(in closestBoneCapsule, false);
-
-                return;
-            }
-
-            // Add bone and calculate applied pressure
-            var boneId = GetBoneId(in closestBoneCapsule);
-        
-            // switch (boneId)
-            // {
-            //     case OVRSkeleton.BoneId.Hand_Thumb3:
-            //     case OVRSkeleton.BoneId.Hand_Index3:
-            //     case OVRSkeleton.BoneId.Hand_Middle3:
-            //     case OVRSkeleton.BoneId.Hand_Ring3:
-            //     case OVRSkeleton.BoneId.Hand_Pinky3:
-            //         break;
-            //     default:
-            //         return;
-            // }
-        
-            try
-            {
-                _touchingPointVectors.Add(boneId, collision.contacts[0].point);
-            }
-            catch (ArgumentException)
-            {
-                return;
-            }
-            _touchingBoneCapsules.Add(closestBoneCapsule);
-            touchingBoneIds.Add(boneId);
-            touchingBonePressures.Add(GetAppliedPressure(in closestBoneCapsule));
-        }
-    
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ClearTrackedBones()
         {
@@ -239,7 +273,7 @@ namespace Tactility.Ball
 
             var collidingBoneIndex = GetBoneIndex(in boneCapsule);
             var firstTouchingBoneIndex = GetBoneIndex(_touchingBoneCapsules[0]);
-        
+
             return IsIndexOnLeftHand(in collidingBoneIndex) == IsIndexOnLeftHand(in firstTouchingBoneIndex);
         }
 
@@ -285,42 +319,6 @@ namespace Tactility.Ball
             return false;
         }
 
-        private void OnCollisionExit(Collision collision)
-        {
-            // Find the OVRBone that best matches the colliding object
-            var closestBoneCapsule = FindMatchingBone(in collision);
-            if (closestBoneCapsule is null)
-            {
-                return; // If the colliding object is not an OVRBone
-            }
-
-            var touchingIdx = _touchingBoneCapsules.IndexOf(closestBoneCapsule);
-            if (touchingIdx == -1)
-            {
-                return; // If the colliding bone was not previously touching
-            }
-
-            if (!IsBoneOnValidHand(in closestBoneCapsule))
-            {
-                return; // If the colliding bone is from the wrong hand
-            }
-
-            if (_touchingBoneCapsules.Count != 1)
-            {
-                SwapRemove(in touchingIdx);  // Remove the no-longer-colliding OVRBone
-
-                // Make the bone kinematic briefly to reset position in relation to the rest of the hand
-                SetIsKinematic(in closestBoneCapsule, true);
-                SetIsKinematic(in closestBoneCapsule, false);
-                return;
-            }
-            ClearTrackedBones();
-
-            // If no bones are touching anymore we do the same for all bones in the hand, even those that haven't directly touched the object
-            SetIsKinematic(true);
-            SetIsKinematic(false);
-        }
-        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsLeftHandTouching()
         {
@@ -348,19 +346,19 @@ namespace Tactility.Ball
             // A more efficient way of removing elements from lists when the order of elements doesn't matter
 
             // For touchingBoneIds, _touchingBoneCapsules, touchingBonePressures
-            touchingBoneIds         [index] = touchingBoneIds[^1];
-            _touchingBoneCapsules   [index] = _touchingBoneCapsules[^1];
-            touchingBonePressures   [index] = touchingBonePressures[^1];
-            touchingBoneIds         .RemoveAt(touchingBoneIds.Count - 1);
-            _touchingBoneCapsules   .RemoveAt(_touchingBoneCapsules.Count - 1);
-            touchingBonePressures   .RemoveAt(touchingBonePressures.Count - 1);
+            touchingBoneIds[index] = touchingBoneIds[^1];
+            _touchingBoneCapsules[index] = _touchingBoneCapsules[^1];
+            touchingBonePressures[index] = touchingBonePressures[^1];
+            touchingBoneIds.RemoveAt(touchingBoneIds.Count - 1);
+            _touchingBoneCapsules.RemoveAt(_touchingBoneCapsules.Count - 1);
+            touchingBonePressures.RemoveAt(touchingBonePressures.Count - 1);
 
             // For _touchingPointVectors
             var pairAtIndex = _touchingPointVectors.ElementAt(index);
             var lastPair = _touchingPointVectors.ElementAt(_touchingPointVectors.Count - 1);
-        
+
             _touchingPointVectors.Remove(lastPair.Key);
-        
+
             if (!EqualityComparer<OVRSkeleton.BoneId>.Default.Equals(pairAtIndex.Key, lastPair.Key))
             {
                 _touchingPointVectors[pairAtIndex.Key] = lastPair.Value;

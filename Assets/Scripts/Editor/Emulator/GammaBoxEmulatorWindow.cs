@@ -1,27 +1,23 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+#endregion
 
 namespace Editor.Emulator
 {
     public class GammaBoxEmulatorWindow : EditorWindow
     {
+        private const double RepaintInterval = 0.1; // Repaint every 0.1 seconds
+        private double? _lastMessageTime;
+        private double _lastRepaintTime;
+        private double _longestDuration = double.MinValue;
         private Vector2 _scrollPosition;
         private EmulatorSettings _settings;
-        private double _lastRepaintTime;
-        private const double RepaintInterval = 0.1; // Repaint every 0.1 seconds
-
-        // Tracking time durations between messages
-        private double _shortestDuration = double.MaxValue;
-        private double _longestDuration = double.MinValue;
-        private double? _lastMessageTime;
-
-        [MenuItem("Tactility/Gamma Box Emulator")]
-        public static void ShowWindow()
-        {
-            GetWindow<GammaBoxEmulatorWindow>("Gamma Box Emulator");
-        }
+        private double _shortestDuration = double.MaxValue; // Tracking time durations between messages
 
         private void OnEnable()
         {
@@ -32,6 +28,104 @@ namespace Editor.Emulator
         private void OnDisable()
         {
             EditorApplication.update -= RequestRepaint; // Unsubscribe
+        }
+
+        private void OnGUI()
+        {
+            if (_settings == null)
+            {
+                EditorGUILayout.HelpBox("Emulator Settings not found!", MessageType.Error);
+                return;
+            }
+
+            GUILayout.Label("Configure Serial Port", EditorStyles.boldLabel);
+            _settings.comPort = EditorGUILayout.TextField("COM Port", _settings.comPort);
+            _settings.baudRate = EditorGUILayout.IntField("Baud Rate", _settings.baudRate);
+            _settings.enableLogging = EditorGUILayout.Toggle("Enable Logging", _settings.enableLogging);
+
+            if (GUILayout.Button(GammaBoxEmulator.IsConnected
+                    ? "Disable Emulator"
+                    : "Enable Emulator"))
+            {
+                if (GammaBoxEmulator.IsConnected)
+                {
+                    DisableEmulator();
+                }
+                else
+                {
+                    EnableEmulator();
+                }
+            }
+
+            _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
+
+            GUILayout.Space(10);
+            GUILayout.Label("Stimulation State", EditorStyles.boldLabel);
+
+            GUILayout.Label(GammaBoxEmulator.IsConnected
+                ? "CONNECTED"
+                : "DISCONNECTED", EditorStyles.wordWrappedLabel);
+            GUILayout.Label(GammaBoxEmulator.StimulationEnabled
+                ? "STIM ON"
+                : "STIM OFF", EditorStyles.wordWrappedLabel);
+            GUILayout.Label($"FREQUENCY: {GammaBoxEmulator.GlobalFrequency} Hz", EditorStyles.wordWrappedLabel);
+
+            GUILayout.Space(10);
+            GUILayout.Label("Pad Information", EditorStyles.boldLabel);
+            try
+            {
+                for (var i = 0; i < GammaBoxEmulator.PadValues.Count; i++)
+                {
+                    var padInfo = GammaBoxEmulator.PadValues[i];
+                    GUILayout.Label($"Pad {i + 1}: " + (padInfo.IsAnode
+                        ? "Anode"
+                        : $"Cathode - Amp: {padInfo.Amplitude}, Width: {padInfo.Width}"));
+                }
+            }
+#pragma warning disable CS0168 // Variable is declared but never used
+            catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
+            {
+                // We don't care about exceptions here
+            }
+
+            // Display durations
+            // GUILayout.Space(10);
+            // GUILayout.Label("Durations Between Messages", EditorStyles.boldLabel);
+            // GUILayout.Label($"Shortest Duration: {_shortestDuration:F2} s");
+            // GUILayout.Label($"Longest Duration: {_longestDuration:F2} s");
+
+            // Recent Messages
+            GUILayout.Space(10);
+            GUILayout.Label("Recent Messages", EditorStyles.boldLabel);
+
+            try
+            {
+                foreach (var message in GammaBoxEmulator.ExposedMessages)
+                {
+                    UpdateDurations(message.relativeTime);
+                    GUILayout.Label($"({message.relativeTime * 1000:F2} ms) {message.message}");
+                }
+
+                if (!GammaBoxEmulator.ExposedMessages.Any())
+                {
+                    GUILayout.Label("No messages received yet.");
+                }
+            }
+#pragma warning disable CS0168 // Variable is declared but never used
+            catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
+            {
+                // We don't care about exceptions here
+            }
+
+            GUILayout.EndScrollView();
+        }
+
+        [MenuItem("Tactility/Gamma Box Emulator")]
+        public static void ShowWindow()
+        {
+            GetWindow<GammaBoxEmulatorWindow>("Gamma Box Emulator");
         }
 
         private void RequestRepaint()
@@ -64,88 +158,6 @@ namespace Editor.Emulator
                 }
             }
             _lastMessageTime = newMessageTime;
-        }
-
-        private void OnGUI()
-        {
-            if (_settings == null)
-            {
-                EditorGUILayout.HelpBox("Emulator Settings not found!", MessageType.Error);
-                return;
-            }
-
-            GUILayout.Label("Configure Serial Port", EditorStyles.boldLabel);
-            _settings.comPort = EditorGUILayout.TextField("COM Port", _settings.comPort);
-            _settings.baudRate = EditorGUILayout.IntField("Baud Rate", _settings.baudRate);
-            _settings.enableLogging = EditorGUILayout.Toggle("Enable Logging", _settings.enableLogging);
-
-            if (GUILayout.Button(GammaBoxEmulator.IsConnected ? "Disable Emulator" : "Enable Emulator"))
-            {
-                if (GammaBoxEmulator.IsConnected)
-                {
-                    DisableEmulator();
-                }
-                else
-                {
-                    EnableEmulator();
-                }
-            }
-            
-            _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
-
-            GUILayout.Space(10);
-            GUILayout.Label("Stimulation State", EditorStyles.boldLabel);
-            
-            GUILayout.Label(GammaBoxEmulator.IsConnected ? "CONNECTED" : "DISCONNECTED", EditorStyles.wordWrappedLabel);
-            GUILayout.Label(GammaBoxEmulator.StimulationEnabled ? "STIM ON" : "STIM OFF", EditorStyles.wordWrappedLabel);
-            GUILayout.Label($"FREQUENCY: {GammaBoxEmulator.GlobalFrequency} Hz", EditorStyles.wordWrappedLabel);
-
-            GUILayout.Space(10);
-            GUILayout.Label("Pad Information", EditorStyles.boldLabel);
-            try
-            {
-                for (var i = 0; i < GammaBoxEmulator.PadValues.Count; i++)
-                {
-                    var padInfo = GammaBoxEmulator.PadValues[i];
-                    GUILayout.Label($"Pad {i + 1}: " + (padInfo.IsAnode
-                        ? "Anode"
-                        : $"Cathode - Amp: {padInfo.Amplitude}, Width: {padInfo.Width}"));
-                }
-            }
-            catch (Exception e)
-            {
-                // We don't care about exceptions here
-            }
-
-            // Display durations
-            // GUILayout.Space(10);
-            // GUILayout.Label("Durations Between Messages", EditorStyles.boldLabel);
-            // GUILayout.Label($"Shortest Duration: {_shortestDuration:F2} s");
-            // GUILayout.Label($"Longest Duration: {_longestDuration:F2} s");
-
-            // Recent Messages
-            GUILayout.Space(10);
-            GUILayout.Label("Recent Messages", EditorStyles.boldLabel);
-
-            try
-            {
-                foreach (var message in GammaBoxEmulator.ExposedMessages)
-                {
-                    UpdateDurations(message.relativeTime);
-                    GUILayout.Label($"({(message.relativeTime * 1000):F2} ms) {message.message}");
-                }
-
-                if (!GammaBoxEmulator.ExposedMessages.Any())
-                {
-                    GUILayout.Label("No messages received yet.");
-                }
-            }
-            catch (Exception e)
-            {
-                // We don't care about exceptions here
-            }
-
-            GUILayout.EndScrollView();
         }
 
         private void EnableEmulator()

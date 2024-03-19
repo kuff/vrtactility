@@ -1,3 +1,6 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System;
 using System.Diagnostics;
 using System.IO.Ports;
@@ -6,6 +9,7 @@ using Tactility.Box;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+#endregion
 
 namespace Editor
 {
@@ -16,7 +20,7 @@ namespace Editor
         {
             EditorWindow.GetWindow(typeof(BatteryInfoWindow), false, "Tactility Info");
         }
-    
+
         [MenuItem("Tactility/Find Box Port", false, 2)]
         private static void FindPort()
         {
@@ -33,7 +37,7 @@ namespace Editor
                     serialPort.DataBits = 8;
                     serialPort.Parity = Parity.None;
                     serialPort.StopBits = StopBits.One;
-                    serialPort.ReadTimeout = 500;  // Set timeouts to prevent hanging
+                    serialPort.ReadTimeout = 500; // Set timeouts to prevent hanging
                     serialPort.WriteTimeout = 500;
 
                     serialPort.Open();
@@ -41,7 +45,7 @@ namespace Editor
                     serialPort.WriteLine("iam TACTILITY");
                     // Give the device a bit of time to respond
                     Thread.Sleep(100);
-                        
+
                     // Read the response
                     var response = serialPort.ReadLine();
                     // Check if the response is what you expect from the Tactility box
@@ -51,7 +55,7 @@ namespace Editor
                     {
                         continue;
                     }
-                    
+
                     foundPort = portName;
                     EditorGUIUtility.systemCopyBuffer = foundPort;
                     Debug.Log($"Tactility box found on port {foundPort}. Copied to clipboard.");
@@ -80,7 +84,7 @@ namespace Editor
         {
             Application.OpenURL("https://github.com/kuff/vrtactility/wiki");
         }
-        
+
         [MenuItem("Tactility/Open Persistent Data Path", false, 3)]
         private static void OpenPersistentDataPath()
         {
@@ -111,7 +115,7 @@ namespace Editor
             private void OnGUI()
             {
                 var stimBoxData = StimBoxData.Instance;
-            
+
                 if (stimBoxData != null)
                 {
                     EditorGUILayout.LabelField("Capacity (%):", stimBoxData.capacity);

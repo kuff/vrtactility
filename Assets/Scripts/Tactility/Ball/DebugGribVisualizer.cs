@@ -1,5 +1,9 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System.Linq;
 using UnityEngine;
+#endregion
 
 namespace Tactility.Ball
 {
@@ -7,10 +11,10 @@ namespace Tactility.Ball
     [RequireComponent(typeof(Renderer))]
     public class DebugGribVisualizer : MonoBehaviour
     {
-        private UniformGrabbable _ug;
-        private Renderer _renderer;
         private static readonly int Color1 = Shader.PropertyToID("_Color");
         private int _lastCount; // The number of touching bones in the previous frame update
+        private Renderer _renderer;
+        private UniformGrabbable _ug;
 
         private void Start()
         {

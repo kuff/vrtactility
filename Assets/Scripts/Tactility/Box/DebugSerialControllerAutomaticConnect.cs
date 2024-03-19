@@ -1,5 +1,9 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
+#endregion
 
 namespace Tactility.Box
 {
@@ -10,7 +14,7 @@ namespace Tactility.Box
         private void Start()
         {
             var sc = GetComponent<SerialController>();
-        
+
             sc.SendSerialMessage("iam TACTILITY\r");
             sc.SendSerialMessage("elec 1 *pads_qty 32\r");
             sc.SendSerialMessage("battery ?\r");

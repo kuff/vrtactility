@@ -1,5 +1,9 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using Tactility.Modulation;
 using UnityEditor;
+#endregion
 
 namespace Editor
 {
@@ -10,7 +14,7 @@ namespace Editor
         {
             // Draw the default inspector options
             base.OnInspectorGUI();
-        
+
             // Cast the target of this inspector to AbstractModulator
             var modulator = (AbstractModulator)target;
 

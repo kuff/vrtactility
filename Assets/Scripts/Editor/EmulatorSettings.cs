@@ -1,18 +1,24 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
+using System.IO;
+using UnityEditor;
 using UnityEngine;
+#endregion
 
 namespace Editor
 {
     public class EmulatorSettings : ScriptableObject
     {
+        private const string AssetFolderPath = "Assets/Resources/Tactility";
+        private const string AssetPath = AssetFolderPath + "/EmulatorSettings.asset";
+
+        private static EmulatorSettings _instance;
         public string comPort = "COM2";
         public int baudRate = 115200;
         public bool enableLogging = true;
         public int reconnectionDelay = 1000;
         public int maxUnreadMessages = 10;
-
-        private static EmulatorSettings _instance;
-        private const string AssetFolderPath = "Assets/Resources/Tactility";
-        private const string AssetPath = AssetFolderPath + "/EmulatorSettings.asset";
 
         public static EmulatorSettings Instance
         {
@@ -23,20 +29,20 @@ namespace Editor
                     return _instance;
                 }
 #if UNITY_EDITOR
-                _instance = UnityEditor.AssetDatabase.LoadAssetAtPath<EmulatorSettings>(AssetPath);
+                _instance = AssetDatabase.LoadAssetAtPath<EmulatorSettings>(AssetPath);
                 if (_instance)
                 {
                     return _instance;
                 }
 
-                if (!System.IO.Directory.Exists(AssetFolderPath))
+                if (!Directory.Exists(AssetFolderPath))
                 {
-                    System.IO.Directory.CreateDirectory(AssetFolderPath);
+                    Directory.CreateDirectory(AssetFolderPath);
                 }
 
                 _instance = CreateInstance<EmulatorSettings>();
-                UnityEditor.AssetDatabase.CreateAsset(_instance, AssetPath);
-                UnityEditor.AssetDatabase.SaveAssets();
+                AssetDatabase.CreateAsset(_instance, AssetPath);
+                AssetDatabase.SaveAssets();
 #endif
                 return _instance;
             }

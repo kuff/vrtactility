@@ -1,28 +1,32 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using Tactility.Calibration;
 using UnityEditor;
 using UnityEngine;
+#endregion
 
 namespace Editor
 {
     [CustomEditor(typeof(TactilityDeviceConfig))]
     public class TactilityDeviceConfigEditor : UnityEditor.Editor
     {
-        private SerializedProperty _deviceName;
-        private SerializedProperty _numPads;
-        private SerializedProperty _minAmp;
-        private SerializedProperty _maxAmp;
-        private SerializedProperty _minWidth;
-        private SerializedProperty _maxWidth;
-        private SerializedProperty _baseFreq;
-        private SerializedProperty _minFreq;
-        private SerializedProperty _maxFreq;
-        private SerializedProperty _useSpecialAnodes;
-        private SerializedProperty _anodes;
 
         // Foldout states
         private static bool _showBasicInfo = true;
         private static bool _showMinMaxValues = true;
         private static bool _showSpecialAnodes = true;
+        private SerializedProperty _anodes;
+        private SerializedProperty _baseFreq;
+        private SerializedProperty _deviceName;
+        private SerializedProperty _maxAmp;
+        private SerializedProperty _maxFreq;
+        private SerializedProperty _maxWidth;
+        private SerializedProperty _minAmp;
+        private SerializedProperty _minFreq;
+        private SerializedProperty _minWidth;
+        private SerializedProperty _numPads;
+        private SerializedProperty _useSpecialAnodes;
 
         private void OnEnable()
         {
@@ -90,7 +94,8 @@ namespace Editor
                         if (GUILayout.Button("Remove", GUILayout.MaxWidth(60)))
                         {
                             _anodes.DeleteArrayElementAtIndex(i);
-                            if (i < _anodes.arraySize - 1) {
+                            if (i < _anodes.arraySize - 1)
+                            {
                                 // When not the last element, Unity duplicates the last element to the removed position, so delete again
                                 _anodes.DeleteArrayElementAtIndex(i);
                             }

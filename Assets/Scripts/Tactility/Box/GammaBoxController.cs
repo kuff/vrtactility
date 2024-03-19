@@ -1,7 +1,11 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System.Globalization;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using static Tactility.Calibration.CalibrationManager;
+#endregion
 
 // ReSharper disable StringLiteralTypo
 
@@ -12,14 +16,14 @@ namespace Tactility.Box
         [SerializeField]
         [Tooltip("If enabled, the controller will automatically attempt to connect using the specified serial port upon the game start. Ensure the correct port name is set in the SerialController. This is useful for scenarios where an immediate connection is desirable without requiring an explicit user action to initiate the connection.")]
         private bool connectOnAwake;
-        
+
         private bool _isSuccessfullyConnected;
         private bool _receivedValidGreeting;
 
         protected override void Start()
         {
             base.Start();
-            
+
             if (connectOnAwake)
             {
                 Connect(Sc.portName);
@@ -32,13 +36,13 @@ namespace Tactility.Box
         {
             Sc.portName = port;
             Port = port;
-        
+
             Sc.enabled = true;
             SendMany(new[]
             {
-                "iam TACTILITY", 
-                $"elec 1 *pads_qty {DeviceConfig.numPads}", 
-                "battery ?", 
+                "iam TACTILITY",
+                $"elec 1 *pads_qty {DeviceConfig.numPads}",
+                "battery ?",
                 GetFreqString(DeviceConfig.baseFreq)
             });
         }
@@ -46,28 +50,28 @@ namespace Tactility.Box
         public override void EnableStimulation()
         {
             // Circumvent the queue size check by not going through Send()
-            QueueMessage("stim on", ignoreQueueSize:true);
+            QueueMessage("stim on", true);
         }
 
         public override void DisableStimulation()
         {
             // If the GameObject is being disabled, send the message directly
-            if (!gameObject.activeInHierarchy) 
+            if (!gameObject.activeInHierarchy)
             {
                 Sc.SendSerialMessage("stim off\r");
                 return;
             }
-            
+
             // Circumvent the queue size check by not going through Send()
-            QueueMessage("stim off", ignoreQueueSize:true);
+            QueueMessage("stim off", true);
         }
 
         public override void ResetAllPads()
         {
             // NOTE: This was done in the previous implementation but may not be the best approach or even needed
-            QueueMessage("velec 11 *selected 0", ignoreQueueSize:true);
+            QueueMessage("velec 11 *selected 0", true);
         }
-        
+
         public override string GetStimString(int[] pads, float[] amps, int[] widths)
         {
             // Define invariable parts of the command string
@@ -94,7 +98,7 @@ namespace Tactility.Box
                     variablePart1 += $"{i + 1}=A,";
                     continue;
                 }
-                
+
                 var amplitudeValue = amps[i];
                 var widthValue = widths[i];
 
@@ -110,17 +114,11 @@ namespace Tactility.Box
             variablePart3 = variablePart3.TrimEnd(',');
 
             // Concatenate all parts to form the complete command string
-            var completeString = invariablePart1 
-                                 + variablePart1 
-                                 + invariablePart2 
-                                 + variablePart2 
-                                 + invariablePart3 
-                                 + variablePart3 
-                                 + finalPart;
+            var completeString = invariablePart1 + variablePart1 + invariablePart2 + variablePart2 + invariablePart3 + variablePart3 + finalPart;
 
             return completeString;
         }
-        
+
         public override string GetFreqString(int frequency)
         {
             return $"freq {frequency}";
@@ -138,7 +136,7 @@ namespace Tactility.Box
                 _receivedValidGreeting = message is "Re:[] new connection" or "Re:[] re-connection" or "Re:[] ok";
                 IsConnected = _receivedValidGreeting;
             }
-        
+
             base.OnMessageArrived(message);
         }
 
@@ -156,7 +154,7 @@ namespace Tactility.Box
 
             // Find matches
             var matches = Regex.Matches(response[checkString.Length..], pattern);
-            
+
             // Parse and assign the values to the respective properties
             foreach (Match match in matches)
             {
@@ -184,7 +182,7 @@ namespace Tactility.Box
             var stimBoxData = StimBoxData.Instance;
             stimBoxData.UpdateData(Battery, Voltage, Current, Temperature);
         }
-    
+
         protected override void OnConnectionEvent(bool wasSuccessful)
         {
             _isSuccessfullyConnected = wasSuccessful;

@@ -1,4 +1,9 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
+using System;
 using UnityEngine;
+#endregion
 
 namespace Tactility.Calibration
 {
@@ -23,9 +28,11 @@ namespace Tactility.Calibration
         public int minFreq;
         [Tooltip("The maximum frequency value for the tactile stimulation in Hz. This value represents the highest frequency that can be applied to the pads. Setting frequencies higher than this may have no additional effect or could potentially cause hardware damage or user discomfort. Bare in mind that a value much larger than the base frequency will likely lead to no stimulation happening if many pads are active at once.")]
         public int maxFreq;
-        [Tooltip("Whether to use special anodes logic when determining which pads are anodes. If the device supports it, using special anodes can result in a shorter command string and thus faster processing times. Special anodes works by not declaring anodes explicitly in the command string, with the understanding that the omitted pads should be considered anodes by the stimulator. If disabled, explicit anode/cathode declarations will be sent in every command string.")]
+        [Tooltip(
+            "Whether to use special anodes logic when determining which pads are anodes. If the device supports it, using special anodes can result in a shorter command string and thus faster processing times. Special anodes works by not declaring anodes explicitly in the command string, with the understanding that the omitted pads should be considered anodes by the stimulator. If disabled, explicit anode/cathode declarations will be sent in every command string.")]
         public bool useSpecialAnodes;
-        [Tooltip("The non-remapped indexes of the pads which are anodes. This is used to determine which pads are anodes when the device has special anodes. If the device does not have implicit anodes, this field is ignored. If the device has implicit anodes and this field is not set, the default behaviour is to use the first half of the pads as anodes and the second half as cathodes. If the device has implicit anodes and this field is set, the values in this field are used to determine which pads are anodes. For example, if the device has 4 pads and the mapping is { 0, 1, 2, 3 } and the anodes are { 0, 3 }, then pads 0 and 3 are anodes and pads 1 and 2 are cathodes. If the device has implicit anodes and this field is set, the length of the array must be equal to the number of pads")]
+        [Tooltip(
+            "The non-remapped indexes of the pads which are anodes. This is used to determine which pads are anodes when the device has special anodes. If the device does not have implicit anodes, this field is ignored. If the device has implicit anodes and this field is not set, the default behaviour is to use the first half of the pads as anodes and the second half as cathodes. If the device has implicit anodes and this field is set, the values in this field are used to determine which pads are anodes. For example, if the device has 4 pads and the mapping is { 0, 1, 2, 3 } and the anodes are { 0, 3 }, then pads 0 and 3 are anodes and pads 1 and 2 are cathodes. If the device has implicit anodes and this field is set, the length of the array must be equal to the number of pads")]
         public int[] anodes;
 
         public bool IsAnode(int padIndex)
@@ -34,7 +41,7 @@ namespace Tactility.Calibration
             {
                 return false;
             }
-            return System.Array.Exists(anodes, element => element == padIndex);
+            return Array.Exists(anodes, element => element == padIndex);
         }
     }
 }

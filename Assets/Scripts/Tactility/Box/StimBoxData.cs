@@ -1,16 +1,23 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System;
 using UnityEditor;
 using UnityEngine;
+#endregion
 
 namespace Tactility.Box
 {
     public class StimBoxData : ScriptableObject
     {
+        private const string ResourcePath = "Tactility/StimBoxData";
+
+        private static StimBoxData _instance;
         public string capacity;
         public string voltage;
         public string current;
         public string temperature;
-        
+
         // Unix timestamp for last updated time
         [SerializeField]
         private long lastUpdatedUnix;
@@ -21,9 +28,6 @@ namespace Tactility.Box
             get => DateTimeOffset.FromUnixTimeSeconds(lastUpdatedUnix).UtcDateTime;
             private set => lastUpdatedUnix = ((DateTimeOffset)value).ToUnixTimeSeconds();
         }
-
-        private static StimBoxData _instance;
-        private const string ResourcePath = "Tactility/StimBoxData";
 
         public static StimBoxData Instance
         {
@@ -48,7 +52,7 @@ namespace Tactility.Box
                 return _instance;
             }
         }
-        
+
         public void UpdateData(string newCapacity, string newVoltage, string newCurrent, string newTemperature)
         {
             capacity = newCapacity;
@@ -58,19 +62,19 @@ namespace Tactility.Box
             LastUpdated = DateTime.UtcNow; // Update the timestamp to current time
             SaveAsset(_instance, "StimBoxData");
         }
-        
+
         public string GetTimeSinceLastUpdate()
         {
             // Get the current Unix timestamp and the last updated Unix timestamp
             var currentUnix = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
-            var unix = this.lastUpdatedUnix;
-    
+            var unix = lastUpdatedUnix;
+
             // Calculate the time difference in seconds
             var timeDifference = currentUnix - unix;
-    
+
             // Convert the time difference to TimeSpan for easy manipulation
             var timeSinceUpdate = TimeSpan.FromSeconds(timeDifference);
-    
+
             if (timeSinceUpdate.TotalDays >= 1)
             {
                 return $">{(int)timeSinceUpdate.TotalDays} day(s) ago";

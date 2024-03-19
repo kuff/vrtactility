@@ -1,4 +1,8 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using UnityEngine;
+#endregion
 
 namespace Tactility.Ball
 {
@@ -7,25 +11,25 @@ namespace Tactility.Ball
     public class FreeFloatable : MonoBehaviour
     {
         private const float DotMoveThreshold = 0.4f;
-        
+
         [Tooltip("Determines whether the object should move relative to the player's head movement. When enabled, the object will adjust its position based on the orientation and position of the player's head.")]
         public bool moveWithPlayerHead;
         [Tooltip("Specifies the height at which the object should reset when 'ResetPosition' is called. This height determines the vertical position of the object upon reset.")]
         public float resetHeight;
 
-        public Vector3 OriginPoint { get; private set; }
-        
         [Tooltip("The base force applied to move the object towards its origin point. This force determines how strongly the object is pushed back to its starting position.")]
         [SerializeField] private float baseForce;
         [Tooltip("A factor that restricts the movement of the object towards its origin point. A higher value results in less force applied, dampening the movement.")]
         [SerializeField] private float restriction;
+        private FixedJoint _localFixedJoint;
 
-        private Rigidbody _rigidbody;
+        private UniformGrabbable _localGrabbable;
         private float _originDistanceFromCenter;
         private Transform _playerHeadTransform;
 
-        private UniformGrabbable _localGrabbable;
-        private FixedJoint _localFixedJoint;
+        private Rigidbody _rigidbody;
+
+        public Vector3 OriginPoint { get; private set; }
 
         private void Start()
         {
@@ -42,7 +46,7 @@ namespace Tactility.Ball
             {
                 var touchingHand = _localGrabbable.GetTouchingHandRoot();
                 var joint = gameObject.AddComponent<FixedJoint>();
-            
+
                 joint.anchor = touchingHand!.position;
                 joint.connectedBody = touchingHand!.GetComponentInParent<Rigidbody>();
                 joint.enableCollision = false;
@@ -72,7 +76,7 @@ namespace Tactility.Ball
                 var forward = _playerHeadTransform.TransformDirection(Vector3.forward);
                 forward.y = 0f;
                 var dot = Vector3.Dot(forward, delta.normalized);
-            
+
                 // If the object is within a certain angle in front of the player
                 if (dot < DotMoveThreshold)
                 {
@@ -85,7 +89,7 @@ namespace Tactility.Ball
                     OriginPoint = newPosition;
                 }
             }
-        
+
             // Add force to the ball, moving it towards the origin point
             var distanceVector = OriginPoint - transform.position;
             var movementVector = distanceVector * (baseForce * (1f - restriction));

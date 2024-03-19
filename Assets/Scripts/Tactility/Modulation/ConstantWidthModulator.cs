@@ -1,6 +1,10 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System.Linq;
 using Tactility.Calibration;
 using static Tactility.Calibration.CalibrationManager;
+#endregion
 
 namespace Tactility.Modulation
 {
@@ -8,7 +12,7 @@ namespace Tactility.Modulation
     {
         public override ModulationData? GetModulationData()
         {
-            return new ModulationData()
+            return new ModulationData
             {
                 Type = ModulationType.Width,
                 // Case CalibrationManager.BaseWidths to floats

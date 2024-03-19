@@ -524,6 +524,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   configDropdown: {fileID: 758455182}
+  defaultConfig: {fileID: 11400000, guid: 0ec9462c633e8d54a8301d83ea24e0ef, type: 2}
   selectedConfig: {fileID: 0}
 --- !u!4 &666963504
 Transform:

@@ -1,7 +1,11 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System;
 using System.Collections;
 using Tactility.Calibration;
 using UnityEngine;
+#endregion
 
 // ReSharper disable Unity.NoNullPropagation
 
@@ -14,18 +18,18 @@ namespace Tactility.Modulation
         Width,
         Frequency
     }
-    
+
     public struct ModulationData
     {
         public ModulationType Type;
         public float[] Values;
     }
-    
+
     public abstract class AbstractModulator : MonoBehaviour
     {
-        private TactilityManager _tactilityManager;
         // ReSharper disable once NotAccessedField.Local
         private CalibrationManager _calibrationManager;
+        private TactilityManager _tactilityManager;
 
         protected virtual IEnumerator Start()
         {
@@ -36,7 +40,7 @@ namespace Tactility.Modulation
             yield return new WaitForSeconds(0.1f);
             _tactilityManager.Subscribe(this);
         }
-        
+
         protected virtual void OnEnable()
         {
             try
@@ -50,7 +54,7 @@ namespace Tactility.Modulation
                 enabled = false;
             }
         }
-        
+
         protected virtual void OnDisable()
         {
             _tactilityManager?.Unsubscribe(this);

@@ -1,5 +1,9 @@
-using Tactility.Calibration.Old;
+// Copyright (C) 2024 Peter Leth
+
+#region
+// using Tactility.Calibration.Old;
 using UnityEngine;
+#endregion
 
 namespace Tactility.Box
 {
@@ -8,11 +12,11 @@ namespace Tactility.Box
     //       mess but will stay like this till the new calibration gui is implemented...
     public class DebugSerialControllerMessageListener : MonoBehaviour
     {
-        [SerializeField] private ConnectDevice cd;
-        [SerializeField] private UiManager uim;
+        // [SerializeField] private ConnectDevice cd;
+        // [SerializeField] private UiManager uim;
 
-        private bool _isSuccessfullyConnected = false;
-        private bool _receivedValidGreeting = false;
+        private bool _isSuccessfullyConnected;
+        private bool _receivedValidGreeting;
 
         // Invoked when a line of data is received from the serial device.
         // ReSharper disable once UnusedMember.Local
@@ -20,7 +24,7 @@ namespace Tactility.Box
         private void OnMessageArrived(string msg)
         {
             SetBattery(msg);
-        
+
             if (!_receivedValidGreeting && _isSuccessfullyConnected)
             {
                 _receivedValidGreeting = msg is "Re:[] new connection" or "Re:[] re-connection" or "Re:[] ok";
@@ -36,10 +40,9 @@ namespace Tactility.Box
             const string checkString = "Re:[] battery *capacity=";
             if (response.Length < checkString.Length || response[..checkString.Length] != checkString)
             {
-                return;
             }
 
-            uim.SetBatteryLevel(response);
+            // uim.SetBatteryLevel(response);
         }
 
         // Invoked when a connect/disconnect event occurs. The parameter 'success'
@@ -62,18 +65,18 @@ namespace Tactility.Box
         private void SetConnectionStatus(bool success)
         {
             // Manage ConnectDevice state
-            if (success)
-            {
-                cd.ConnectDevicePanel.SetActive(false);
-            }
-            else
-            {
-                cd.ConnectingText.alpha = 0;
-            }
+            // if (success)
+            // {
+            //     cd.ConnectDevicePanel.SetActive(false);
+            // }
+            // else
+            // {
+            //     cd.ConnectingText.alpha = 0;
+            // }
 
             // Log connection status
-            Debug.Log(success 
-                ? "Connection established" 
+            Debug.Log(success
+                ? "Connection established"
                 : "Connection attempt failed or disconnection detected");
         }
     }

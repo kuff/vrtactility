@@ -1,6 +1,10 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System.Collections.Generic;
 using Tactility.Ball;
 using UnityEngine;
+#endregion
 
 namespace Tactility.Modulation
 {
@@ -19,7 +23,7 @@ namespace Tactility.Modulation
                 BoneIds = new List<OVRSkeleton.BoneId>(),
                 Values = new List<float>()
             };
-            
+
             if (grabbable.isGrabbed)
             {
                 var bonePressures = grabbable.touchingBonePressures;

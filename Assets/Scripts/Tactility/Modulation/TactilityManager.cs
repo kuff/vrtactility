@@ -1,3 +1,6 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -5,6 +8,7 @@ using System.Linq;
 using Tactility.Box;
 using UnityEngine;
 using static Tactility.Calibration.CalibrationManager;
+#endregion
 
 namespace Tactility.Modulation
 {
@@ -14,15 +18,15 @@ namespace Tactility.Modulation
         [Tooltip("The time interval in milliseconds at which to send modulation data to the device. This value should be greater than the device's minimum update interval.")]
         public float updateInterval = 100f;
 
-        private AbstractBoxController _boxController;
-        private float _lastSendTime;
-        
         private readonly List<AbstractModulator> _modulators = new List<AbstractModulator>();
 
-        private int[] _combinedPads;
+        private AbstractBoxController _boxController;
         private float[] _combinedAmps;
+
+        private int[] _combinedPads;
         private int[] _combinedWidths;
         private int _frequency;
+        private float _lastSendTime;
 
         protected void Start()
         {
@@ -44,7 +48,7 @@ namespace Tactility.Modulation
                 _boxController.ResetAllPads();
                 return;
             }
-            
+
             SendCombinedModulationData();
             ResetCombinedModulationData(); // Reset for next cycle
             _lastSendTime = Time.time * 1000;
@@ -56,7 +60,7 @@ namespace Tactility.Modulation
             _combinedAmps = new float[padCount];
             _combinedWidths = new int[padCount];
             _frequency = DeviceConfig.baseFreq;
-            
+
             // Initialize _combinedPads with all 1s to default them on
             _combinedPads = new int[padCount];
             for (var i = 0; i < padCount; i++)
@@ -71,33 +75,28 @@ namespace Tactility.Modulation
             var suppliedData = new Dictionary<ModulationType, bool>
             {
                 { ModulationType.Amplitude, false },
-                { ModulationType.Width, false },
+                { ModulationType.Width, false }
             };
-            
+
             // Notify each modulator to get its modulation data
-            foreach (var modulator in _modulators)
+            foreach (var modulationData in _modulators.Select(modulator => modulator.GetModulationData()).Where(modulationData => modulationData.HasValue))
             {
-                var modulationData = modulator.GetModulationData();
-                if (modulationData.HasValue)
-                {
-                    CombineModulationData(modulationData.Value);
-                    suppliedData[modulationData.Value.Type] = true;
-                }
+                CombineModulationData(modulationData.Value);
+                suppliedData[modulationData.Value.Type] = true;
             }
-            
+
             // Return false if any required data was not supplied
             if (!suppliedData.Values.All(value => value))
             {
                 return false;
             }
 
-            // Check if every TactilityData type is contained in _modulators
-            // Apply the given data types default values if not
+            // Check if every TactilityData type is contained in _modulators, applying the given data types default values if not
             foreach (ModulationType type in Enum.GetValues(typeof(ModulationType)))
             {
                 if (_modulators.TrueForAll(modulator => modulator.GetModulationData()?.Type != type))
                 {
-                    // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+                    // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
                     switch (type)
                     {
                         case ModulationType.Pad:
@@ -118,7 +117,6 @@ namespace Tactility.Modulation
                                 _combinedWidths[i] = BaseWidths[i];
                             }
                             break;
-                        // TODO: Add frequency?..
                     }
                 }
             }
@@ -168,7 +166,9 @@ namespace Tactility.Modulation
                 switch (modulationData.Type)
                 {
                     case ModulationType.Pad:
-                        var value = modulationData.Values[i] > 0 ? 1 : 0;
+                        var value = modulationData.Values[i] > 0
+                            ? 1
+                            : 0;
                         _combinedPads[i] = value;
                         break;
                     case ModulationType.Amplitude:
@@ -181,7 +181,7 @@ namespace Tactility.Modulation
                         _frequency = (int)modulationData.Values[i];
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentOutOfRangeException(nameof(modulationData), modulationData.Type, "Invalid modulation type");
                 }
             }
         }

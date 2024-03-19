@@ -1,8 +1,12 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using System.Collections;
 using System.Linq;
 using Tactility.Calibration;
 using UnityEngine;
 using static Tactility.Calibration.CalibrationManager;
+#endregion
 
 namespace Tactility.Modulation
 {
@@ -14,9 +18,9 @@ namespace Tactility.Modulation
         protected override IEnumerator Start()
         {
             yield return base.Start();
-            
+
             _dataProvider = GetComponent<ITactilityDataProvider>();
-            
+
             // If no ITactilityDataProvider is found, disable the modulator
             if (_dataProvider != null)
             {
@@ -25,7 +29,7 @@ namespace Tactility.Modulation
             Debug.LogWarning("No ITactilityDataProvider found. Disabling StepwiseFreqModulator.");
             enabled = false;
         }
-        
+
         public override ModulationData? GetModulationData()
         {
             if (!_dataProvider.IsActive())
@@ -34,7 +38,7 @@ namespace Tactility.Modulation
             }
 
             ref var modulationData = ref _dataProvider.GetTactilityData();
-            
+
             // Update stimuli for each touching finger bone of interest
             var valueBatch = new float[5];
             for (var i = 0; i < modulationData.BoneIds.Count; i++)
@@ -68,11 +72,11 @@ namespace Tactility.Modulation
                 > 0.25f => 0.5f,
                 _ => 0.25f
             };
-            
+
             var freqValue = DeviceConfig.baseFreq * pressureValue;
             // Debug.Log($"Pressure value: {freqValue}");
-            
-            return new ModulationData()
+
+            return new ModulationData
             {
                 Type = ModulationType.Frequency,
                 Values = new[] { freqValue }

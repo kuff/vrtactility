@@ -1,6 +1,10 @@
+// Copyright (C) 2024 Peter Leth
+
+#region
 using Tactility.Ball;
 using UnityEditor;
 using UnityEngine;
+#endregion
 
 namespace Editor
 {
