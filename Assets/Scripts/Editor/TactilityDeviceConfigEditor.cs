@@ -1,6 +1,7 @@
 // Copyright (C) 2024 Peter Leth
 
 #region
+using System.Collections.Generic;
 using Tactility.Calibration;
 using UnityEditor;
 using UnityEngine;
@@ -16,9 +17,13 @@ namespace Editor
         private static bool _showBasicInfo = true;
         private static bool _showMinMaxValues = true;
         private static bool _showSpecialAnodes = true;
+        private static bool _showMapping = true;
         private SerializedProperty _anodes;
         private SerializedProperty _baseFreq;
         private SerializedProperty _deviceName;
+        private SerializedProperty _mapping;
+
+        private bool _mappingEnabled;
         private SerializedProperty _maxAmp;
         private SerializedProperty _maxFreq;
         private SerializedProperty _maxWidth;
@@ -41,6 +46,9 @@ namespace Editor
             _maxFreq = serializedObject.FindProperty("maxFreq");
             _useSpecialAnodes = serializedObject.FindProperty("useSpecialAnodes");
             _anodes = serializedObject.FindProperty("anodes");
+            _mapping = serializedObject.FindProperty("mapping");
+
+            _mappingEnabled = serializedObject.FindProperty("mapping").arraySize > 0;
         }
 
         public override void OnInspectorGUI()
@@ -125,6 +133,66 @@ namespace Editor
                 var anode = _anodes.GetArrayElementAtIndex(i);
                 anode.intValue = Mathf.Clamp(anode.intValue, 0, _numPads.intValue - 1); // Ensure anode values are within valid range
             }
+
+            EditorGUILayout.EndFoldoutHeaderGroup();
+
+            // Mapping Configuration
+            _showMapping = EditorGUILayout.BeginFoldoutHeaderGroup(_showMapping, "Mapping Configuration");
+            if (_showMapping)
+            {
+                EditorGUI.indentLevel++;
+
+                // Toggle to enable/disable mapping
+                EditorGUI.BeginChangeCheck();
+                _mappingEnabled = EditorGUILayout.Toggle("Enable Mapping", _mappingEnabled);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    if (_mappingEnabled)
+                    {
+                        // Enable mapping: populate the array based on numPads
+                        var numPads = _numPads.intValue;
+                        _mapping.arraySize = numPads;
+                        for (var i = 0; i < numPads; i++)
+                        {
+                            _mapping.GetArrayElementAtIndex(i).intValue = i + 1; // Default mapping
+                        }
+                    }
+                    else
+                    {
+                        // Disable mapping: clear the array
+                        _mapping.arraySize = 0;
+                    }
+                }
+
+                if (_mappingEnabled && _mapping.arraySize > 0)
+                {
+                    var referencedIndices = new HashSet<int>();
+                    for (var i = 0; i < _mapping.arraySize; i++)
+                    {
+                        var mapElement = _mapping.GetArrayElementAtIndex(i);
+                        EditorGUILayout.PropertyField(mapElement, new GUIContent($"Pad {i + 1} Mapping"));
+                        referencedIndices.Add(mapElement.intValue);
+
+                        // Validate the mapping index
+                        if (mapElement.intValue <= 0 || mapElement.intValue > _numPads.intValue)
+                        {
+                            EditorGUILayout.HelpBox($"Mapping index {mapElement.intValue} for pad {i} is out of valid range [1, {_numPads.intValue}].", MessageType.Error);
+                        }
+                    }
+
+                    // Check for unreferenced indices
+                    for (var i = 1; i <= _numPads.intValue; i++)
+                    {
+                        if (!referencedIndices.Contains(i))
+                        {
+                            EditorGUILayout.HelpBox($"Pad index {i} is not referenced in the mapping. Ensure all pad indices are included.", MessageType.Warning);
+                        }
+                    }
+                }
+
+                EditorGUI.indentLevel--;
+            }
+            EditorGUILayout.EndFoldoutHeaderGroup();
 
             serializedObject.ApplyModifiedProperties();
 

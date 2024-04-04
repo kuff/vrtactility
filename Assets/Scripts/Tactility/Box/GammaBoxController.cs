@@ -26,18 +26,18 @@ namespace Tactility.Box
 
             if (connectOnAwake)
             {
-                Connect(Sc.portName);
+                Connect(Controller.portName);
             }
 
-            // Sc.SetTearDownFunction(DisableStimulation);
+            // Controller.SetTearDownFunction(DisableStimulation);
         }
 
         public override void Connect(string port)
         {
-            Sc.portName = port;
+            Controller.portName = port;
             Port = port;
 
-            Sc.enabled = true;
+            Controller.enabled = true;
             SendMany(new[]
             {
                 "iam TACTILITY",
@@ -58,7 +58,7 @@ namespace Tactility.Box
             // If the GameObject is being disabled, send the message directly
             if (!gameObject.activeInHierarchy)
             {
-                Sc.SendSerialMessage("stim off\r");
+                Controller.SendSerialMessage("stim off\r");
                 return;
             }
 
@@ -85,7 +85,7 @@ namespace Tactility.Box
             var variablePart2 = "";
             var variablePart3 = "";
 
-            for (var i = 0; i < amps.Length; i++)
+            for (var i = 0; i < DeviceConfig.numPads; i++)
             {
                 if (DeviceConfig.IsAnode(i) || pads[i] == 0)
                 {

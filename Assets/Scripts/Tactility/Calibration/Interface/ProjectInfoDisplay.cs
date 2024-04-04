@@ -8,24 +8,27 @@ using UnityEngine.UI;
 
 namespace Tactility.Calibration.Interface
 {
+    [RequireComponent(typeof(InterfaceManager))]
     public class ProjectInfoDisplay : MonoBehaviour
     {
         [SerializeField]
         [Tooltip("The text object to display the project info.")]
         private Text infoText;
-        private AbstractBoxController _boxController;
+        private InterfaceManager _interface;
+        private AbstractBoxController _controller;
 
         private void Start()
         {
-            _boxController = FindObjectOfType<AbstractBoxController>();
+            _interface = GetComponent<InterfaceManager>();
+            _controller = FindObjectOfType<AbstractBoxController>();
         }
 
         private void Update()
         {
-            if (infoText != null && _boxController != null)
+            if (infoText != null && _controller != null)
             {
                 // Format the string to display project info and box connection status
-                infoText.text = $"Version: {Application.version} | Box Connected: {(_boxController.IsConnected ? "Yes" : "No")} | Port: {_boxController.Port} | Battery: {_boxController.Battery} | Voltage: {_boxController.Voltage} | Current: {_boxController.Current} | Temperature: {_boxController.Temperature}";
+                infoText.text = $"Version: {Application.version} | Interface: {_interface.GetActiveSceneName()} | Box Connected: {(_controller.IsConnected ? "Yes" : "No")} | Port: {_controller.Port ?? "N/A"} | Battery: {_controller.Battery ?? "N/A"} | Voltage: {_controller.Voltage ?? "N/A"} | Current: {_controller.Current ?? "N/A"} | Temperature: {_controller.Temperature ?? "N/A"}";
             }
         }
     }

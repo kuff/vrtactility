@@ -27,14 +27,14 @@ namespace Tactility.Box
         [Tooltip("Controls the logging of serial messages. Outbound: Logs messages sent from the device. Inbound: Logs messages received by the device. All: Logs all messages, both inbound and outbound. Use this to debug and monitor serial communication. Only logs when running in DEBUG mode.")]
         public SerialLogMode logMode = SerialLogMode.None;
 
-        [Tooltip("The delay in milliseconds between sending messages. This is useful for devices that require a delay between sending commands. The delay is in milliseconds. The default value is 50 second.")]
+        [Tooltip("The delay in milliseconds between sending messages. This is useful for devices that require a delay between sending commands. The default value is 50 second.")]
         public float messageDelay = 50f;
         [Tooltip("The maximum number of messages that can be queued. If the queue is full, messages will be dropped.")]
         public int maxQueueSize = 10;
         protected readonly Queue<string> MessageQueue = new Queue<string>();
         protected bool IsSendingMessages;
 
-        protected SerialController Sc;
+        protected SerialController Controller;
 
         public string Port { get; protected set; }
         public string Battery { get; protected set; }
@@ -46,8 +46,8 @@ namespace Tactility.Box
 
         protected virtual void Start()
         {
-            Sc = GetComponent<SerialController>();
-            Sc.SetTearDownFunction(DisableStimulation);
+            Controller = GetComponent<SerialController>();
+            Controller.SetTearDownFunction(DisableStimulation);
 
             // DontDestroyOnLoad(this);
         }
@@ -73,7 +73,7 @@ namespace Tactility.Box
             while (MessageQueue.Count > 0)
             {
                 var message = MessageQueue.Dequeue();
-                Sc.SendSerialMessage($"{message}\r");
+                Controller.SendSerialMessage($"{message}\r");
                 yield return new WaitForSeconds(messageDelay / 1_000f);
             }
             IsSendingMessages = false;

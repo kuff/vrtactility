@@ -20,6 +20,7 @@ namespace Tactility.Box
 
         // Unix timestamp for last updated time
         [SerializeField]
+        [HideInInspector]
         private long lastUpdatedUnix;
 
         // Property to get and set the last updated time as DateTime

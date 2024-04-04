@@ -113,6 +113,7 @@ namespace Tactility.Modulation
             for (var i = 0; i < 32; i++)
             {
                 spatialValues[remap[i] - 1] = spatialLevel.Contains(i + 1)
+                //spatialValues[i] = spatialLevel.Contains(i + 1)
                     ? 1f
                     : 0f;
             }

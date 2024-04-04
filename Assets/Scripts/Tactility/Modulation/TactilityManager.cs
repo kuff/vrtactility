@@ -19,10 +19,8 @@ namespace Tactility.Modulation
         public float updateInterval = 100f;
 
         private readonly List<AbstractModulator> _modulators = new List<AbstractModulator>();
-
         private AbstractBoxController _boxController;
         private float[] _combinedAmps;
-
         private int[] _combinedPads;
         private int[] _combinedWidths;
         private int _frequency;
@@ -166,18 +164,21 @@ namespace Tactility.Modulation
                 switch (modulationData.Type)
                 {
                     case ModulationType.Pad:
-                        var value = modulationData.Values[i] > 0
+                        var value = modulationData.GetMappedValue(i) > 0
                             ? 1
                             : 0;
                         _combinedPads[i] = value;
                         break;
                     case ModulationType.Amplitude:
+                        //_combinedAmps[i] = Mathf.Max(_combinedAmps[i], modulationData.GetMappedValue(i));
                         _combinedAmps[i] = Mathf.Max(_combinedAmps[i], modulationData.Values[i]);
                         break;
                     case ModulationType.Width:
+                        //_combinedWidths[i] = Mathf.Max(_combinedWidths[i], (int)modulationData.GetMappedValue(i));
                         _combinedWidths[i] = Mathf.Max(_combinedWidths[i], (int)modulationData.Values[i]);
                         break;
                     case ModulationType.Frequency:
+                        //_frequency = (int)modulationData.GetMappedValue(i);
                         _frequency = (int)modulationData.Values[i];
                         break;
                     default:
