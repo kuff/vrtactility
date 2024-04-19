@@ -154,8 +154,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f622689fe9b50b043bf8bd6ed5856241, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cd: {fileID: 0}
-  uim: {fileID: 0}
 --- !u!114 &135643752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -678,9 +676,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81c48a60c35bae742b3cb9d8ad1c099b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceConfigInstance: {fileID: 11400000, guid: 0ec9462c633e8d54a8301d83ea24e0ef,
+  deviceConfigInstance: {fileID: 11400000, guid: 47ebc3596d249de4dac82f5735bddfd2,
     type: 2}
-  calibrationFileName: StripDebug_calibration_strip_vrt0.2
+  calibrationFileName: debug_calibration_glove_vrt0.1
 --- !u!4 &1336627976
 Transform:
   m_ObjectHideFlags: 0

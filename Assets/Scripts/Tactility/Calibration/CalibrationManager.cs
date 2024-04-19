@@ -16,7 +16,6 @@ namespace Tactility.Calibration
 {
     public class CalibrationManager : MonoBehaviour
     {
-
         private static TactilityDeviceConfig _deviceConfigStatic; // Static field to hold the instance
 
         // Calibrated "just noticeable differences" (JNDs) for the device
@@ -175,7 +174,7 @@ namespace Tactility.Calibration
             }
         }
 
-        private static void LoadCalibrationDataFromFile(string calibrationFileName)
+        public static void LoadCalibrationDataFromFile(string calibrationFileName)
         {
             var filePath = Path.Combine(Application.persistentDataPath, calibrationFileName);
 
