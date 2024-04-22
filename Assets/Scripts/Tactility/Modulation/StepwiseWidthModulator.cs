@@ -32,6 +32,8 @@ namespace Tactility.Modulation
 
         public override ModulationData? GetModulationData()
         {
+            // TODO: This one is not really used. Turn it into a varied one across all pads maybe?
+            
             if (!_dataProvider.IsActive())
             {
                 return null;

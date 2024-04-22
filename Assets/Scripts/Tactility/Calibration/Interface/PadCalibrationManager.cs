@@ -39,12 +39,14 @@ namespace Tactility.Calibration.Interface
         private List<CalibrationValues> _calibrationValues;
         private int _currentPadIndex;
         private bool _canSaveData;
+        private bool _isStimOn;
 
         private void Start()
         {
             _boxController = FindObjectOfType<AbstractBoxController>();
             _calibrationValues = new List<CalibrationValues>();
             _currentPadIndex = 0;
+            _isStimOn = false;
             
             // Initialize values array with number of pads
             for (var i = 0; i < DeviceConfig.numPads; i++)
@@ -53,7 +55,7 @@ namespace Tactility.Calibration.Interface
             }
             
             // Initialize the Input Fields to their default values
-            UpdateInputFields();
+            //UpdateInputFields();
         }
         
         public void NextPad()
@@ -113,22 +115,39 @@ namespace Tactility.Calibration.Interface
 
         public void UpdateStimulation()
         {
+            var prevStimOn = _isStimOn;
+            
             _boxController.ResetAllPads();
             if (DeviceConfig.IsAnode(_currentPadIndex) || !stimulateToggle.isOn)
             {
-                _boxController.DisableStimulation();
+                _isStimOn = false;
                 
-                // Turn the activePadText white
-                activePadText.color = Color.white;
+                // Turn the activePadText red if it's an node, otherwise white
+                activePadText.color = DeviceConfig.IsAnode(_currentPadIndex) ? Color.red : Color.white;
             }
-            else
+            else if (stimulateToggle.isOn)
             {
+                _isStimOn = true;
+                
                 // Get stim string for single pad using Text Field values
                 var stimString = GetEncodedStringForSinglePad(_currentPadIndex, float.Parse(amplitudeField.text), int.Parse(widthField.text), _boxController);
                 _boxController.Send(stimString);
                 
                 // Turn the activePadText yellow
                 activePadText.color = Color.yellow;
+            }
+            
+            // If stim changed, enable/disable it
+            if (prevStimOn != _isStimOn)
+            {
+                if (_isStimOn)
+                {
+                    _boxController.EnableStimulation();
+                }
+                else
+                {
+                    _boxController.DisableStimulation();
+                }
             }
         }
         

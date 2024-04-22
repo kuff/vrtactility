@@ -234,6 +234,7 @@ namespace Tactility.Modulation
                 _modulators.Remove(modulator);
             }
 
+            // TODO: Move this inside the above if statement
             if (_modulators.Count == 0)
             {
                 _boxController.DisableStimulation();

@@ -11,10 +11,17 @@ namespace Tactility.Modulation
     {
         public override ModulationData? GetModulationData()
         {
+            // Create a new float[] with only specific values
+            var amps = new float[DeviceConfig.numPads];
+            for (var i = 0; i < BaseAmps.Length; i++)
+            {
+                amps[i] = 4.5f;
+            }
+            
             return new ModulationData
             {
                 Type = ModulationType.Amplitude,
-                Values = BaseAmps
+                Values = amps // baseAmps
             };
         }
 

@@ -73,7 +73,7 @@ namespace Tactility.Box
             while (MessageQueue.Count > 0)
             {
                 var message = MessageQueue.Dequeue();
-                Sc.SendSerialMessage($"{message}\r");
+                Sc.SendSerialMessage($"{message}\r"); // Previously \r\n
                 yield return new WaitForSeconds(messageDelay / 1_000f);
             }
             IsSendingMessages = false;
