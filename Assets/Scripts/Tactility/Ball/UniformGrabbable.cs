@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Tactility.Ball
 {
-    [RequireComponent(typeof(SphereCollider))]
+    [RequireComponent(typeof(Collider))]
     public class UniformGrabbable : MonoBehaviour
     {
         private const float MatchingThreshold = 0.001f;
@@ -34,18 +34,22 @@ namespace Tactility.Ball
         // Managing touch
         private List<OVRBone> _bones;
 
-        private SphereCollider _sphereCollider;
+        private SphereCollider _collider;
         private List<OVRBoneCapsule> _touchingBoneCapsules;
-        private Dictionary<OVRSkeleton.BoneId, Vector3> _touchingPointVectors;
+        private Dictionary<OVRSkeleton.BoneId, Vector3> _touchingPoints;
+        private Dictionary<OVRSkeleton.BoneId, Vector3> _touchingNormals;
+        // private Renderer _renderer;
 
         private void Start()
         {
-            _sphereCollider = GetComponent<SphereCollider>();
+            _collider = GetComponent<SphereCollider>();
+            // _renderer = GetComponent<Renderer>();
 
-            // if (pressureThreshold > _sphereCollider.radius) pressureThreshold = _sphereCollider.radius;
+            // if (pressureThreshold > _collider.radius) pressureThreshold = _collider.radius;
 
             _touchingBoneCapsules = new List<OVRBoneCapsule>();
-            _touchingPointVectors = new Dictionary<OVRSkeleton.BoneId, Vector3>();
+            _touchingPoints = new Dictionary<OVRSkeleton.BoneId, Vector3>();
+            _touchingNormals = new Dictionary<OVRSkeleton.BoneId, Vector3>();
         }
 
         private void Update()
@@ -72,30 +76,75 @@ namespace Tactility.Ball
 
             // Stop updating if the applied pressure is less than would be required to grib the object
             // TODO: New pressure calculations must be reflected here...
-            if (touchingBonePressures.Count > 0 && touchingBonePressures.Max() < pressureThreshold)
+            /*if (touchingBonePressures.Count > 0 && touchingBonePressures.Max() < pressureThreshold)
             {
                 isGrabbed = false;
                 return;
-            }
+            }*/
 
-            // Calculate union of all collision point vectors to indicate grip distribution
-            var gripVector = _touchingPointVectors.Values.Aggregate(Vector3.zero, (current, vec) => current + (vec - transform.position));
-            if (gripVector == Vector3.zero)
+            try
             {
-                isGrabbed = false;
-                return;
-            }
-            gripVector /= _touchingPointVectors.Count;
-
-            // Manage FreeFloatable in accordance with grip
-            if (gripVector.magnitude < 0.014)
-            {
+                // Below here is new
+                // Get the touching point and normal from the index and thumb only
+                var indexPoint = _touchingPoints[OVRSkeleton.BoneId.Hand_Index3];
+                var thumbPoint = _touchingPoints[OVRSkeleton.BoneId.Hand_Thumb3];
+                var indexNormal = _touchingNormals[OVRSkeleton.BoneId.Hand_Index3];
+                var thumbNormal = _touchingNormals[OVRSkeleton.BoneId.Hand_Thumb3];
+                
+                // If we don't have either the index or thumb touching, we can't grab
+                // Debug.Log($"1: {indexPoint == Vector3.zero}");
+                // Debug.Log($"2: {thumbPoint == Vector3.zero}");
+                if (indexPoint == Vector3.zero || thumbPoint == Vector3.zero)
+                {
+                    isGrabbed = false;
+                    return;
+                }
+                
+                // If the normals don't cancel each other out or are equal, we can't grab
+                // Debug.Log($"3: {Vector3.Dot(indexNormal, thumbNormal) > 0.1f || indexNormal == thumbNormal}");
+                // Debug.Log($"4: {Vector3.Dot(indexNormal, thumbNormal)}");
+                if (Vector3.Dot(indexNormal, thumbNormal) > 0f || indexNormal == thumbNormal)
+                {
+                    isGrabbed = false;
+                    return;
+                }
+                
+                // If the distance between the two points is greater than the object's width plus a small buffer, we can't grab
+                var objectWidth = transform.localScale.x;
+                // Debug.Log($"5: {Vector3.Distance(indexPoint, thumbPoint)}");
+                // Debug.Log($"6: {objectWidth + 0.01f}");
+                if (Vector3.Distance(indexPoint, thumbPoint) > objectWidth + 0.01f)
+                {
+                    isGrabbed = false;
+                    return;
+                }
+                
                 isGrabbed = true;
             }
-            else if (gripVector.magnitude > 0.014)
+            catch (Exception e)
             {
                 isGrabbed = false;
             }
+            
+            // Calculate union of all collision point vectors to indicate grip distribution
+            // var gripVector = _touchingPoints.Values.Aggregate(Vector3.zero, (current, vec) => current + (vec - transform.position));
+            // if (gripVector == Vector3.zero)
+            // {
+            //     isGrabbed = false;
+            //     return;
+            // }
+            // gripVector /= _touchingPoints.Count;
+
+            // Manage FreeFloatable in accordance with grip
+            // if (gripVector.magnitude < 0.014)
+            // {
+            //     isGrabbed = true;
+            // }
+            // else if (gripVector.magnitude > 0.014)
+            // {
+            //     isGrabbed = false;
+            // }
+            // Debug.Log(gripVector.magnitude);
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -135,7 +184,8 @@ namespace Tactility.Ball
 
             try
             {
-                _touchingPointVectors.Add(boneId, collision.contacts[0].point);
+                _touchingPoints.Add(boneId, collision.contacts[0].point);
+                _touchingNormals.Add(boneId, collision.contacts[0].normal);
             }
             catch (ArgumentException)
             {
@@ -198,7 +248,8 @@ namespace Tactility.Ball
 
             // Update the contact points of each touching OVRBoneCapsule
             var boneId = GetBoneId(in closestBoneCapsule);
-            _touchingPointVectors[boneId] = collision.contacts[0].point;
+            _touchingPoints[boneId] = collision.contacts[0].point;
+            _touchingNormals[boneId] = collision.contacts[0].normal;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -220,7 +271,7 @@ namespace Tactility.Ball
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private float GetAppliedPressure(in OVRBoneCapsule boneCapsule)
         {
-            var r = _sphereCollider.transform.localScale.x;
+            var r = _collider.transform.localScale.x;
 
             // Find corresponding OVRBone (which doesn't collide with the sphere surface) and its position
             var targetBone = _bones[GetBoneIndex(in boneCapsule)];
@@ -255,7 +306,8 @@ namespace Tactility.Ball
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ClearTrackedBones()
         {
-            _touchingPointVectors.Clear();
+            _touchingPoints.Clear();
+            _touchingNormals.Clear();
             _touchingBoneCapsules.Clear();
 
             touchingBoneIds.Clear();
@@ -287,6 +339,12 @@ namespace Tactility.Ball
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private OVRBoneCapsule FindMatchingBone(in Collision collision)
         {
+            if (_boneCapsules is null)
+            {
+                // If an attempt is being made to process a collision before the OVR bones have properly initialized...
+                return null;
+            }
+            
             // Find the OVRBone that best matches the colliding object
             OVRBoneCapsule closestBone = null;
             var smallestDistance = float.MaxValue;
@@ -353,15 +411,19 @@ namespace Tactility.Ball
             _touchingBoneCapsules.RemoveAt(_touchingBoneCapsules.Count - 1);
             touchingBonePressures.RemoveAt(touchingBonePressures.Count - 1);
 
-            // For _touchingPointVectors
-            var pairAtIndex = _touchingPointVectors.ElementAt(index);
-            var lastPair = _touchingPointVectors.ElementAt(_touchingPointVectors.Count - 1);
+            // For _touchingPoints and _touchingNormals
+            var pairAtIndex = _touchingPoints.ElementAt(index);
+            var lastPair = _touchingPoints.ElementAt(_touchingPoints.Count - 1);
+            var pairAtIndexNormal = _touchingNormals.ElementAt(index);
+            var lastPairNormal = _touchingNormals.ElementAt(_touchingNormals.Count - 1);
 
-            _touchingPointVectors.Remove(lastPair.Key);
+            _touchingPoints.Remove(lastPair.Key);
+            _touchingNormals.Remove(lastPairNormal.Key);
 
             if (!EqualityComparer<OVRSkeleton.BoneId>.Default.Equals(pairAtIndex.Key, lastPair.Key))
             {
-                _touchingPointVectors[pairAtIndex.Key] = lastPair.Value;
+                _touchingPoints[pairAtIndex.Key] = lastPair.Value;
+                _touchingNormals[pairAtIndexNormal.Key] = lastPairNormal.Value;
             }
         }
     }

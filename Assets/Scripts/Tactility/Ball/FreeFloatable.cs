@@ -29,15 +29,21 @@ namespace Tactility.Ball
 
         private Rigidbody _rigidbody;
 
-        public Vector3 OriginPoint { get; private set; }
+        // ReSharper disable once MemberCanBePrivate.Global
+        public Vector3 OriginPoint { get; set; }
 
         private void Start()
         {
             _rigidbody = GetComponent<Rigidbody>();
-            OriginPoint = transform.position;
             _originDistanceFromCenter = Vector3.Distance(new Vector3(OriginPoint.x, 0, OriginPoint.z), Vector3.zero);
             _playerHeadTransform = GameObject.FindGameObjectWithTag("MainCamera")!.transform;
             _localGrabbable = GetComponent<UniformGrabbable>();
+            
+            // Set OriginPoint to the current position of the object if it is not set
+            if (OriginPoint == Vector3.zero)
+            {
+                OriginPoint = transform.position;
+            }
         }
 
         private void FixedUpdate()

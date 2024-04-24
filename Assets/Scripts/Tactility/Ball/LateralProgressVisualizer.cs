@@ -86,7 +86,7 @@ namespace Tactility.Ball
             var offset = perpendicularDirection * offsetDistance;
             var position = _scenario.grabbable.transform.position + offset;
             _visualProgressInstance.transform.position = position;
-            _targetProgressInstance.transform.position = new Vector3(position.x, _scenario.targetHeight, position.z);
+            _targetProgressInstance.transform.position = _scenario.targetPosition;
         }
 
         private void UpdateSphereScale()

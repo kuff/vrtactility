@@ -13,25 +13,25 @@ namespace Editor
     {
         private void OnSceneGUI()
         {
-            var scenario = (GrabAndMoveScenario)target;
+            /*var scenario = (GrabAndMoveScenario)target;
 
             // Draw a line at target height
             Handles.color = Color.green;
-            var startPosition = new Vector3(-5, scenario.targetHeight, 0);
-            var endPosition = new Vector3(5, scenario.targetHeight, 0);
+            var startPosition = new Vector3(-5, scenario.targetPosition.y, 0);
+            var endPosition = new Vector3(5, scenario.targetPosition.y, 0);
             Handles.DrawLine(startPosition, endPosition);
 
             // Create a slider to adjust the target height
-            scenario.targetHeight = Handles.Slider(new Vector3(0, scenario.targetHeight, 0), Vector3.up).y;
+            scenario.targetPosition = Handles.Slider(new Vector3(0f, scenario.targetPosition.y, 0f), Vector3.up);
 
             // Optionally display progress
-            Handles.Label(new Vector3(0, scenario.targetHeight + 0.5f, 0), $"Target Height: {scenario.targetHeight}");
+            Handles.Label(new Vector3(0, scenario.targetPosition.y + 0.5f, 0), $"Target Height: {scenario.targetPosition}");
 
-            // Save the changes made to the targetHeight
+            // Save the changes made to the targetPosition
             if (GUI.changed)
             {
                 EditorUtility.SetDirty(target);
-            }
+            }*/
         }
     }
 }
