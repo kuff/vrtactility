@@ -60,6 +60,8 @@ namespace Tactility.Calibration.Interface
 
             // Initialize the Input Fields to their default values
             //UpdateInputFields();
+
+            UpdateCurrentPadString();
         }
 
         private void OnDestroy()
@@ -87,6 +89,7 @@ namespace Tactility.Calibration.Interface
             {
                 _currentPadIndex++;
 
+                // Only save the calibration data to disk if we've cycled through all the pads
                 if (_currentPadIndex == DeviceConfig.numPads - 1)
                 {
                     _canSaveData = true;
@@ -117,8 +120,8 @@ namespace Tactility.Calibration.Interface
         {
             // Debug.Log($"Updating for index {_currentPadIndex}");
             // Update the text of the input fields
-            amplitudeField.text = _calibrationValues[_currentPadIndex].Amplitude.ToString(CultureInfo.CurrentCulture);
-            widthField.text = _calibrationValues[_currentPadIndex].Width.ToString(CultureInfo.CurrentCulture);
+            amplitudeField.text = _calibrationValues[_currentPadIndex].Amplitude.ToString(CultureInfo.InvariantCulture);
+            widthField.text = _calibrationValues[_currentPadIndex].Width.ToString(CultureInfo.InvariantCulture);
         }
 
         private void UpdateCurrentPadString()
@@ -144,7 +147,7 @@ namespace Tactility.Calibration.Interface
             {
                 _isStimOn = false;
 
-                // Turn the activePadText red if it's an node, otherwise white
+                // Turn the activePadText red if it's an anode, otherwise white
                 activePadText.color = DeviceConfig.IsAnode(_currentPadIndex) ? Color.red : Color.white;
             }
             else if (stimulateToggle.isOn)
