@@ -31,6 +31,12 @@ namespace Tactility.Ball
                 Destroy(_targetProgressInstance);
                 //_targetProgressInstance == null;
             }
+            
+            // Match rotation of the _scenario.grabbable.gameObject if _targetProgressInstance exists
+            if (_targetProgressInstance != null)
+            {
+                _targetProgressInstance.transform.rotation = _scenario.grabbable.gameObject.transform.rotation;
+            }
         }
 
         private GameObject CreateCube(float size)

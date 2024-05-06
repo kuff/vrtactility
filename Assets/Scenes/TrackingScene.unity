@@ -298,6 +298,7 @@ GameObject:
   - component: {fileID: 508686935}
   - component: {fileID: 508686934}
   - component: {fileID: 508686936}
+  - component: {fileID: 508686937}
   m_Layer: 0
   m_Name: ScenarioAnchor
   m_TagString: Untagged
@@ -352,6 +353,7 @@ MonoBehaviour:
   targetPosition: {x: -1, y: 1, z: 1}
   originPosition: {x: 0, y: 0, z: 0}
   grabbable: {fileID: 2053550752}
+  targetPositions: []
 --- !u!114 &508686936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -365,6 +367,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   transparentMaterial: {fileID: 0}
+--- !u!114 &508686937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508686931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c819b5fd0f9550045a4dba306b05f024, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &887201952
 GameObject:
   m_ObjectHideFlags: 0
@@ -1583,6 +1597,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Cube
+      objectReference: {fileID: 0}
+    - target: {fileID: 8314205623271440850, guid: 27c2c2fa685b5d44faecf7309bb94e37,
+        type: 3}
+      propertyPath: baseForce
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 8314205623271440851, guid: 27c2c2fa685b5d44faecf7309bb94e37,
+        type: 3}
+      propertyPath: m_Mass
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8314205623271440851, guid: 27c2c2fa685b5d44faecf7309bb94e37,
+        type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8314205623271440851, guid: 27c2c2fa685b5d44faecf7309bb94e37,
+        type: 3}
+      propertyPath: m_Constraints
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8314205623271440873, guid: 27c2c2fa685b5d44faecf7309bb94e37,
         type: 3}

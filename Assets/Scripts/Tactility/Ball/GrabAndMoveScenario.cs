@@ -15,32 +15,12 @@ namespace Tactility.Ball
         [FormerlySerializedAs("ug")]
         [Tooltip("The UniformGrabbable component of the object that is being grabbed and moved. This component is used to track the object's position and movement.")]
         public UniformGrabbable grabbable; // The sphere's UniformGrabbable component
-        private List<Vector3> _targetPositions;
-        
-        private FreeFloatable _floatable; // The sphere's FreeFloatable component
+        public List<Vector3> targetPositions;
+        public FreeFloatable floatable; // The sphere's FreeFloatable component
 
         private void Start()
         {
-            DefineTargetPositions();
-            
-            _floatable = grabbable!.gameObject.GetComponent<FreeFloatable>();
-            UpdateTargetPosition();
-
-            WhenOnSuccess += () => _floatable.ResetPosition();
-            WhenOnFailure += () => _floatable.ResetPosition();
-            WhenOnSuccess += UpdateTargetPosition;
-            WhenOnFailure += UpdateTargetPosition;
-
-#if DEBUG
-            WhenOnSuccess += () => Debug.Log($"{this} target reached!");
-            WhenOnFailure += () => Debug.Log($"{this} target failed!");
-#endif
-        }
-        
-        private void DefineTargetPositions()
-        {
-            // var initialPosition = _floatable.transform.position;
-            _targetPositions = new List<Vector3>
+            targetPositions = new List<Vector3>
             {
                 new Vector3(-0.1f, 0.9f, 0.5f),
                 new Vector3(-0.1f, 1.1f, 0.5f),
@@ -51,6 +31,19 @@ namespace Tactility.Ball
                 new Vector3(0.1f, 0.9f, 0.7f),
                 new Vector3(0.1f, 1.1f, 0.7f)
             };
+            
+            floatable = grabbable!.gameObject.GetComponent<FreeFloatable>();
+            // UpdateTargetPosition();
+
+            WhenOnSuccess += () => floatable.ResetPosition();
+            WhenOnFailure += () => floatable.ResetPosition();
+            // WhenOnSuccess += UpdateTargetPosition;
+            // WhenOnFailure += UpdateTargetPosition;
+
+#if DEBUG
+            WhenOnSuccess += () => Debug.Log($"{this} target reached!");
+            WhenOnFailure += () => Debug.Log($"{this} target failed!");
+#endif
         }
 
         private void Update()
@@ -70,9 +63,9 @@ namespace Tactility.Ball
         private void UpdateProgress()
         {
             var origin = originPosition;
-            var progress = (Vector3.Distance(origin, targetPosition) - Vector3.Distance(_floatable.transform.position, targetPosition)) / Vector3.Distance(origin, targetPosition);
+            var progress = (Vector3.Distance(origin, targetPosition) - Vector3.Distance(floatable.transform.position, targetPosition)) / Vector3.Distance(origin, targetPosition);
             Debug.Log($"1: {Vector3.Distance(origin, targetPosition)}");
-            Debug.Log($"2: {Vector3.Distance(_floatable.transform.position, targetPosition)}");
+            Debug.Log($"2: {Vector3.Distance(floatable.transform.position, targetPosition)}");
             Debug.Log($"3: {progress}");
             Progress = Mathf.Clamp01(progress); // Clamp between 0 and 1
 
@@ -84,10 +77,10 @@ namespace Tactility.Ball
         
         private void UpdateTargetPosition()
         {
-            var index = Random.Range(0, _targetPositions.Count);
-            targetPosition = _targetPositions[index];
-            originPosition = index < _targetPositions.Count / 2 ? _targetPositions[Random.Range(_targetPositions.Count / 2, _targetPositions.Count)] : _targetPositions[Random.Range(0, _targetPositions.Count / 2)];
-            _floatable.OriginPoint = originPosition;
+            var index = Random.Range(0, targetPositions.Count);
+            targetPosition = targetPositions[index];
+            originPosition = index < targetPositions.Count / 2 ? targetPositions[Random.Range(targetPositions.Count / 2, targetPositions.Count)] : targetPositions[Random.Range(0, targetPositions.Count / 2)];
+            floatable.OriginPoint = originPosition;
             
             // Print positions
             Debug.Log($"Target position: {targetPosition}");
