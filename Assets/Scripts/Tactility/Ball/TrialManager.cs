@@ -1,13 +1,17 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
+
 namespace Tactility.Ball
 {
     public class TrialManager : MonoBehaviour
     {
-        private GrabAndMoveScenario _currentScenario;
+        public int currentForceLevel;
+        [SerializeField]
+        private List<Material> materials;
         
-        private int _fileLineIndex = 0;
+        private GrabAndMoveScenario _currentScenario;
+        private int _fileLineIndex;
         private string[] _fileLines;
         
         private void Start()
@@ -16,23 +20,22 @@ namespace Tactility.Ball
 
             _currentScenario.WhenOnSuccess += SetNextPositions;
             _currentScenario.WhenOnFailure += SetNextPositions;
-            SetNextPositions();
+            // SetNextPositions();
         }
 
         private void Update()
         {
-            //var positions = GetNextPositions();
+            if (_fileLines == null)
+            {
+                _fileLines = new string[] { };
+                var textAsset = Resources.Load<TextAsset>("Tactility/TestOrder30");
+                _fileLines = textAsset.text.Split("\r\n");
+                SetNextPositions();
+            }
         }
 
         private (Vector3, Vector3) GetNextPositions()
         {
-            if (_fileLines == null)
-            {
-                _fileLines = new string[] { };
-                var textAsset = Resources.Load<TextAsset>("Tactility/TestOrder");
-                _fileLines = textAsset.text.Split('\n');
-            }
-            
             var resultString = _fileLines[_fileLineIndex];
             var targetPositions = new List<Vector3>
             {
@@ -46,6 +49,12 @@ namespace Tactility.Ball
                 new Vector3(0.1f, 1.1f, 0.7f)
             };
             _fileLineIndex++;
+            
+            // Increment currentForceLevel when modulus of 6 is 0
+            if (_fileLineIndex % 6 == 0)
+            {
+                currentForceLevel++;
+            }
 
             var originIndex = int.Parse(resultString[0].ToString());
             var targetIndex = int.Parse(resultString[2].ToString());
@@ -63,6 +72,9 @@ namespace Tactility.Ball
             Debug.Log(nextPositions.Item2);
             
             _currentScenario.floatable.OriginPoint = _currentScenario.originPosition;
+            
+            // Set currentMaterial in accordance with currentForceLevel
+            _currentScenario.floatable.GetComponent<Renderer>()!.material = materials[currentForceLevel];
         }
     }
 }
