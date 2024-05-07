@@ -33,25 +33,31 @@ namespace Tactility.Calibration.Interface
         // Invoked when the increment button is clicked
         public void IncrementValue()
         {
-            if (inputField != null && float.TryParse(inputField.text, out var currentValue))
+            if (inputField == null)
             {
-                currentValue += changeAmount;
-                Debug.Log($"{inputField.text}...{currentValue.ToString(CultureInfo.InvariantCulture)}");
-                inputField.text = currentValue.ToString(CultureInfo.InvariantCulture);
-                UpdateTextDisplay();
+                return;
             }
+            
+            var currentValue = float.Parse(inputField.text, CultureInfo.InvariantCulture);
+            currentValue += changeAmount;
+            Debug.Log($"{inputField.text}...{currentValue.ToString(CultureInfo.InvariantCulture)}");
+            inputField.text = currentValue.ToString(CultureInfo.InvariantCulture);
+            // UpdateTextDisplay();
         }
 
         // Invoked when the decrement button is clicked
         public void DecrementValue()
         {
-            if (inputField != null && float.TryParse(inputField.text, out var currentValue))
+            if (inputField == null)
             {
-                currentValue -= changeAmount;
-                Debug.Log($"{inputField.text}...{currentValue.ToString(CultureInfo.InvariantCulture)}");
-                inputField.text = currentValue.ToString(CultureInfo.InvariantCulture);
-                UpdateTextDisplay();
+                return;
             }
+            
+            var currentValue = float.Parse(inputField.text, CultureInfo.InvariantCulture);
+            currentValue -= changeAmount;
+            Debug.Log($"{inputField.text}...{currentValue.ToString(CultureInfo.InvariantCulture)}");
+            inputField.text = currentValue.ToString(CultureInfo.InvariantCulture);
+            // UpdateTextDisplay();
         }
 
         // Updates the text field to show the current value

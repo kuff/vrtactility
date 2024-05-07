@@ -155,7 +155,7 @@ namespace Tactility.Calibration.Interface
                 _isStimOn = true;
 
                 // Get stim string for single pad using Text Field values
-                var stimString = GetEncodedStringForSinglePad(_currentPadIndex, float.Parse(amplitudeField.text), int.Parse(widthField.text), _boxController);
+                var stimString = GetEncodedStringForSinglePad(_currentPadIndex, float.Parse(amplitudeField.text, CultureInfo.InvariantCulture), int.Parse(widthField.text, CultureInfo.InvariantCulture), _boxController);
                 _boxController.Send(stimString);
 
                 // Turn the activePadText yellow
