@@ -41,7 +41,7 @@ namespace Tactility.Calibration.Interface
             var currentValue = float.Parse(inputField.text, CultureInfo.InvariantCulture);
             currentValue += changeAmount;
             Debug.Log($"{inputField.text}...{currentValue.ToString(CultureInfo.InvariantCulture)}");
-            inputField.text = currentValue.ToString(CultureInfo.InvariantCulture);
+            inputField.text = FloatToText(currentValue);
             // UpdateTextDisplay();
         }
 
@@ -56,17 +56,19 @@ namespace Tactility.Calibration.Interface
             var currentValue = float.Parse(inputField.text, CultureInfo.InvariantCulture);
             currentValue -= changeAmount;
             Debug.Log($"{inputField.text}...{currentValue.ToString(CultureInfo.InvariantCulture)}");
-            inputField.text = currentValue.ToString(CultureInfo.InvariantCulture);
+            inputField.text = FloatToText(currentValue);
             // UpdateTextDisplay();
         }
 
-        // Updates the text field to show the current value
-        private void UpdateTextDisplay()
+        public static float TextToFloat(string text)
         {
-            if (inputField != null)
-            {
-                inputField.text = _currentValue.ToString(CultureInfo.InvariantCulture);
-            }
+            var normalizedString = text.Replace(",", ".");
+            return float.Parse(normalizedString, CultureInfo.InvariantCulture);
+        }
+        
+        public static string FloatToText(float value)
+        {
+            return value.ToString(CultureInfo.InvariantCulture);
         }
     }
 }

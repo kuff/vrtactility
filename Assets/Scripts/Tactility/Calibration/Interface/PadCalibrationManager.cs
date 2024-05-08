@@ -8,6 +8,7 @@ using Tactility.Box;
 using UnityEngine;
 using UnityEngine.UI;
 using static Tactility.Calibration.CalibrationManager;
+using static Tactility.Calibration.Interface.ValueChangeManager;
 #endregion
 
 namespace Tactility.Calibration.Interface
@@ -113,15 +114,15 @@ namespace Tactility.Calibration.Interface
         private void SaveCalibrationValues()
         {
             // Save the text from the text field, but if it's empty, save the placeholder text instead
-            _calibrationValues[_currentPadIndex] = new CalibrationValues(string.IsNullOrEmpty(amplitudeField.text) ? float.Parse(amplitudeField.placeholder.GetComponent<Text>().text) : float.Parse(amplitudeField.text), string.IsNullOrEmpty(widthField.text) ? float.Parse(widthField.placeholder.GetComponent<Text>().text) : float.Parse(widthField.text));
+            _calibrationValues[_currentPadIndex] = new CalibrationValues(string.IsNullOrEmpty(amplitudeField.text) ? TextToFloat(amplitudeField.placeholder.GetComponent<Text>().text) : TextToFloat(amplitudeField.text), string.IsNullOrEmpty(widthField.text) ? TextToFloat(widthField.placeholder.GetComponent<Text>().text) : TextToFloat(widthField.text));
         }
 
         private void UpdateInputFields()
         {
             // Debug.Log($"Updating for index {_currentPadIndex}");
             // Update the text of the input fields
-            amplitudeField.text = _calibrationValues[_currentPadIndex].Amplitude.ToString(CultureInfo.InvariantCulture);
-            widthField.text = _calibrationValues[_currentPadIndex].Width.ToString(CultureInfo.InvariantCulture);
+            amplitudeField.text = FloatToText(_calibrationValues[_currentPadIndex].Amplitude);
+            widthField.text = FloatToText(_calibrationValues[_currentPadIndex].Width);
         }
 
         private void UpdateCurrentPadString()
@@ -155,7 +156,7 @@ namespace Tactility.Calibration.Interface
                 _isStimOn = true;
 
                 // Get stim string for single pad using Text Field values
-                var stimString = GetEncodedStringForSinglePad(_currentPadIndex, float.Parse(amplitudeField.text, CultureInfo.InvariantCulture), int.Parse(widthField.text, CultureInfo.InvariantCulture), _boxController);
+                var stimString = GetEncodedStringForSinglePad(_currentPadIndex, TextToFloat(amplitudeField.text), int.Parse(widthField.text, CultureInfo.InvariantCulture), _boxController);
                 _boxController.Send(stimString);
 
                 // Turn the activePadText yellow
