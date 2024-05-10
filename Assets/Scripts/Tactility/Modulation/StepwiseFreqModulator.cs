@@ -2,6 +2,7 @@
 
 #region
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Tactility.Calibration;
 using UnityEngine;
@@ -39,6 +40,9 @@ namespace Tactility.Modulation
 
             ref var modulationData = ref _dataProvider.GetTactilityData();
 
+            var remap_strip = new[] { 31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18 };
+            var activePads = new List<int> { 4, 10, 1, 7 }; //we need only two pads for finger active! 
+
             // Update stimuli for each touching finger bone of interest
             var valueBatch = new float[5];
             for (var i = 0; i < modulationData.BoneIds.Count; i++)
@@ -53,24 +57,17 @@ namespace Tactility.Modulation
                     case OVRSkeleton.BoneId.Hand_Index3:
                         valueBatch[1] = pressure;
                         break;
-                    case OVRSkeleton.BoneId.Hand_Middle3:
-                        valueBatch[2] = pressure;
-                        break;
-                    case OVRSkeleton.BoneId.Hand_Ring3:
-                        valueBatch[3] = pressure;
-                        break;
-                    case OVRSkeleton.BoneId.Hand_Pinky3:
-                        valueBatch[4] = pressure;
-                        break;
                 }
             }
 
             var pressureValue = valueBatch.Max() switch
             {
-                > 0.75f => 1.0f,
-                > 0.5f => 0.75f,
-                > 0.25f => 0.5f,
-                _ => 0.25f
+                > 0.85f => 1.0f,
+                > 0.6f => 0.85f,
+                > 0.45f => 0.6f,
+                > 0.3f => 0.45f,
+                > 0.15f => 0.3f,
+                _ => 0.15f
             };
 
             var freqValue = DeviceConfig.baseFreq * pressureValue;

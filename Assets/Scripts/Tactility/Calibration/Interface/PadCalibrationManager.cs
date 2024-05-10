@@ -46,7 +46,12 @@ namespace Tactility.Calibration.Interface
         private int _currentPadIndex;
         private bool _isStimOn;
 
-        private void Start()
+        // Elements from 0-5 -> thumb (I1 of connecting board)
+        // Elements from 6-12 -> thumb (I1 of connecting board)
+        private int[] _remap_strip = new[] {31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18};    
+        private int _currentPad;
+
+    private void Start()
         {
             _boxController = FindObjectOfType<AbstractBoxController>();
             _calibrationValues = new List<CalibrationValues>();
@@ -61,7 +66,7 @@ namespace Tactility.Calibration.Interface
 
             // Initialize the Input Fields to their default values
             //UpdateInputFields();
-
+            _currentPad = _remap_strip[_currentPadIndex]-1;
             UpdateCurrentPadString();
         }
 
@@ -91,11 +96,13 @@ namespace Tactility.Calibration.Interface
                 _currentPadIndex++;
 
                 // Only save the calibration data to disk if we've cycled through all the pads
-                if (_currentPadIndex == DeviceConfig.numPads - 1)
+                if (_currentPadIndex+1 == DeviceConfig.numPads)
                 {
+                    Debug.Log(_currentPadIndex);
                     _canSaveData = true;
                 }
             }
+            _currentPad = _remap_strip[_currentPadIndex]-1;
             UpdateCurrentPadString();
             UpdateInputFields();
         }
@@ -107,6 +114,7 @@ namespace Tactility.Calibration.Interface
             {
                 _currentPadIndex--;
             }
+            _currentPad = _remap_strip[_currentPadIndex]-1;
             UpdateCurrentPadString();
             UpdateInputFields();
         }
@@ -114,26 +122,26 @@ namespace Tactility.Calibration.Interface
         private void SaveCalibrationValues()
         {
             // Save the text from the text field, but if it's empty, save the placeholder text instead
-            _calibrationValues[_currentPadIndex] = new CalibrationValues(string.IsNullOrEmpty(amplitudeField.text) ? TextToFloat(amplitudeField.placeholder.GetComponent<Text>().text) : TextToFloat(amplitudeField.text), string.IsNullOrEmpty(widthField.text) ? TextToFloat(widthField.placeholder.GetComponent<Text>().text) : TextToFloat(widthField.text));
+            _calibrationValues[_currentPad] = new CalibrationValues(string.IsNullOrEmpty(amplitudeField.text) ? TextToFloat(amplitudeField.placeholder.GetComponent<Text>().text) : TextToFloat(amplitudeField.text), string.IsNullOrEmpty(widthField.text) ? TextToFloat(widthField.placeholder.GetComponent<Text>().text) : TextToFloat(widthField.text));
         }
 
         private void UpdateInputFields()
         {
             // Debug.Log($"Updating for index {_currentPadIndex}");
             // Update the text of the input fields
-            amplitudeField.text = FloatToText(_calibrationValues[_currentPadIndex].Amplitude);
-            widthField.text = FloatToText(_calibrationValues[_currentPadIndex].Width);
+            amplitudeField.text = FloatToText(_calibrationValues[_currentPad].Amplitude);
+            widthField.text = FloatToText(_calibrationValues[_currentPad].Width);
         }
 
         private void UpdateCurrentPadString()
         {
             // If the current pad is an anode, update the text to reflect that
-            if (DeviceConfig.IsAnode(_currentPadIndex))
-            {
-                activePadText.text = "Pad is an anode";
-                activePadText.color = Color.red;
-                return;
-            }
+            //if (DeviceConfig.IsAnode(_currentPad))
+            //{
+            //    activePadText.text = "Pad is an anode";
+            //    activePadText.color = Color.red;
+            //    return;
+            //}
 
             // Update the text otherwise
             activePadText.text = "Calibrating Pad: " + (_currentPadIndex + 1);
@@ -144,19 +152,19 @@ namespace Tactility.Calibration.Interface
             var prevStimOn = _isStimOn;
 
             _boxController.ResetAllPads();
-            if (DeviceConfig.IsAnode(_currentPadIndex) || !stimulateToggle.isOn)
+            if (DeviceConfig.IsAnode(_currentPad) || !stimulateToggle.isOn)
             {
                 _isStimOn = false;
 
                 // Turn the activePadText red if it's an anode, otherwise white
-                activePadText.color = DeviceConfig.IsAnode(_currentPadIndex) ? Color.red : Color.white;
+                activePadText.color = DeviceConfig.IsAnode(_currentPad) ? Color.red : Color.white;
             }
             else if (stimulateToggle.isOn)
             {
                 _isStimOn = true;
 
                 // Get stim string for single pad using Text Field values
-                var stimString = GetEncodedStringForSinglePad(_currentPadIndex, TextToFloat(amplitudeField.text), int.Parse(widthField.text, CultureInfo.InvariantCulture), _boxController);
+                var stimString = GetEncodedStringForSinglePad(_currentPad, TextToFloat(amplitudeField.text), int.Parse(widthField.text, CultureInfo.InvariantCulture), _boxController);
                 _boxController.Send(stimString);
 
                 // Turn the activePadText yellow
