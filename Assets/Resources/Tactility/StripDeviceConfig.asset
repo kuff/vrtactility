@@ -22,4 +22,4 @@ MonoBehaviour:
   minFreq: 1
   maxFreq: 400
   useSpecialAnodes: 0
-  anodes: 00000000
+  anodes: 0000000011000000

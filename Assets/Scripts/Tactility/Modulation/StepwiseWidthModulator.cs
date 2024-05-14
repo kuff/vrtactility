@@ -40,10 +40,10 @@ namespace Tactility.Modulation
             }
 
             ref var modulationData = ref _dataProvider.GetTactilityData();
-            var remap = new[] { 30, 27, 29, 28, 25, 31, 32, 26, 17, 18, 20, 1, 2, 22, 19, 3, 23, 21, 24, 4, 5, 8, 9, 6, 7, 10, 13, 14, 11, 12, 15, 16 };
+            var remap_strip = new[] { 31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18 };
 
             // Update stimuli for each touching finger bone of interest
-            var valueBatch = new float[5];
+            var valueBatch = new float[2];
             for (var i = 0; i < modulationData.BoneIds.Count; i++)
             {
                 var pressure = modulationData.Values[i];
@@ -56,15 +56,6 @@ namespace Tactility.Modulation
                     case OVRSkeleton.BoneId.Hand_Index3:
                         valueBatch[1] = pressure;
                         break;
-                    case OVRSkeleton.BoneId.Hand_Middle3:
-                        valueBatch[2] = pressure;
-                        break;
-                    case OVRSkeleton.BoneId.Hand_Ring3:
-                        valueBatch[3] = pressure;
-                        break;
-                    case OVRSkeleton.BoneId.Hand_Pinky3:
-                        valueBatch[4] = pressure;
-                        break;
                 }
             }
 
@@ -74,20 +65,20 @@ namespace Tactility.Modulation
                 // Use remap value to determine which finger pressure value we use
                 var pressureValue = i switch
                 {
-                    < 8 => valueBatch[0],
-                    < 21 => valueBatch[1],
-                    < 26 => valueBatch[2],
-                    < 31 => valueBatch[3],
-                    _ => valueBatch[4] // == 31
+                    < 6 => valueBatch[0],
+                    < 12 => valueBatch[1],
+                    _ => 0
                 };
 
                 // Define value buckets (0.25, 0.5, 0.75, 1.0) and project pressureValue to last bucket it is greater than
                 pressureValue = pressureValue switch
                 {
-                    > 0.75f => 1.0f,
-                    > 0.5f => 0.75f,
-                    > 0.25f => 0.5f,
-                    _ => 0.25f
+                    > 0.85f => 1.0f,
+                    > 0.6f => 0.85f,
+                    > 0.45f => 0.6f,
+                    > 0.3f => 0.45f,
+                    > 0.15f => 0.3f,
+                    _ => 0.15f
                 };
                 var widthValue = BaseWidths[i] + 200f * pressureValue;
 
@@ -98,7 +89,7 @@ namespace Tactility.Modulation
                 }
 
                 // Remap widthValue using the remap array and store it in the pressureValues array
-                pressureValues[remap[i] - 1] = widthValue;
+                pressureValues[remap_strip[i] - 1] = widthValue;
             }
 
             return new ModulationData

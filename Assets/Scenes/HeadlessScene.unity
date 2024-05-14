@@ -576,7 +576,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bc5f48af2cffd747a079fe8c632e2c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  portName: COM4
+  portName: COM6
   baudRate: 115200
   messageListener: {fileID: 1249868590}
   reconnectionDelay: 1000
@@ -678,7 +678,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deviceConfigInstance: {fileID: 11400000, guid: 0ec9462c633e8d54a8301d83ea24e0ef,
     type: 2}
-  calibrationFileName: StripDebug32_calibration_strip_vrt0.2
+  calibrationFileName: 2024-05-10_13-34-54_calibration_strip_vrt0.2
 --- !u!4 &1336627976
 Transform:
   m_ObjectHideFlags: 0
@@ -748,7 +748,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1586812832}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd8bdc8a1eeb04e4b96cfa6a4bb616d2, type: 3}
+  m_Script: {fileID: 11500000, guid: 8f9cf1ba6dd45334e928cd44a1d5f254, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &1586812836
@@ -758,7 +758,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1586812832}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd4c4cf18d17d6249b3fe10930e0e0bc, type: 3}
   m_Name: 
@@ -788,9 +788,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1914520269}
   - component: {fileID: 1914520275}
-  - component: {fileID: 1914520271}
+  - component: {fileID: 1914520276}
   - component: {fileID: 1914520274}
   - component: {fileID: 1914520273}
+  - component: {fileID: 1914520277}
   m_Layer: 0
   m_Name: FreqModulator
   m_TagString: Untagged
@@ -813,18 +814,6 @@ Transform:
   m_Father: {fileID: 1249868595}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1914520271
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1914520268}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd8bdc8a1eeb04e4b96cfa6a4bb616d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1914520273
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -860,5 +849,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 29c8f8c99ad65a54e8ba5f3b46a01674, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1914520276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914520268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd8bdc8a1eeb04e4b96cfa6a4bb616d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1914520277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914520268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7358a6f5cc8cda4a9ccb55772a61760, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
