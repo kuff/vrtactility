@@ -15,22 +15,22 @@ namespace Tactility.Ball
         [FormerlySerializedAs("ug")]
         [Tooltip("The UniformGrabbable component of the object that is being grabbed and moved. This component is used to track the object's position and movement.")]
         public UniformGrabbable grabbable; // The sphere's UniformGrabbable component
-        public List<Vector3> targetPositions;
+        // public List<Vector3> targetPositions;
         public FreeFloatable floatable; // The sphere's FreeFloatable component
 
         private void Start()
         {
-            targetPositions = new List<Vector3>
-            {
-                new Vector3(-0.1f, 0.9f, 0.5f),
-                new Vector3(-0.1f, 1.1f, 0.5f),
-                new Vector3(0.1f, 0.9f, 0.5f),
-                new Vector3(0.1f, 1.1f, 0.5f),
-                new Vector3(-0.1f, 0.9f, 0.7f),
-                new Vector3(-0.1f, 1.1f, 0.7f),
-                new Vector3(0.1f, 0.9f, 0.7f),
-                new Vector3(0.1f, 1.1f, 0.7f)
-            };
+            // targetPositions = new List<Vector3>
+            // {
+            //     new Vector3(-0.1f, 0.9f, 0.5f),
+            //     new Vector3(-0.1f, 1.1f, 0.5f),
+            //     new Vector3(0.1f, 0.9f, 0.5f),
+            //     new Vector3(0.1f, 1.1f, 0.5f),
+            //     new Vector3(-0.1f, 0.9f, 0.7f),
+            //     new Vector3(-0.1f, 1.1f, 0.7f),
+            //     new Vector3(0.1f, 0.9f, 0.7f),
+            //     new Vector3(0.1f, 1.1f, 0.7f)
+            // };
             
             floatable = grabbable!.gameObject.GetComponent<FreeFloatable>();
             // UpdateTargetPosition();
@@ -69,23 +69,23 @@ namespace Tactility.Ball
             Debug.Log($"3: {progress}");
             Progress = Mathf.Clamp01(progress); // Clamp between 0 and 1
 
-            if (Progress >= 0.98f)
+            if (Progress >= 0.95f)
             {
                 WhenOnSuccess?.Invoke();
             }
         }
         
-        private void UpdateTargetPosition()
-        {
-            var index = Random.Range(0, targetPositions.Count);
-            targetPosition = targetPositions[index];
-            originPosition = index < targetPositions.Count / 2 ? targetPositions[Random.Range(targetPositions.Count / 2, targetPositions.Count)] : targetPositions[Random.Range(0, targetPositions.Count / 2)];
-            floatable.OriginPoint = originPosition;
-            
-            // Print positions
-            Debug.Log($"Target position: {targetPosition}");
-            Debug.Log($"Origin position: {originPosition}");
-        }
+        // private void UpdateTargetPosition()
+        // {
+        //     var index = Random.Range(0, targetPositions.Count);
+        //     targetPosition = targetPositions[index];
+        //     originPosition = index < targetPositions.Count / 2 ? targetPositions[Random.Range(targetPositions.Count / 2, targetPositions.Count)] : targetPositions[Random.Range(0, targetPositions.Count / 2)];
+        //     floatable.OriginPoint = originPosition;
+        //     
+        //     // Print positions
+        //     Debug.Log($"Target position: {targetPosition}");
+        //     Debug.Log($"Origin position: {originPosition}");
+        // }
 
 #pragma warning disable CS0067 // The event is never used
         public event ScenarioOnSuccess WhenOnSuccess;

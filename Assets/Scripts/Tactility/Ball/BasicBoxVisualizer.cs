@@ -9,10 +9,10 @@ namespace Tactility.Ball
     [RequireComponent(typeof(GrabAndMoveScenario))]
     public class BasicBoxVisualizer : MonoBehaviour
     {
-        [SerializeField] private Material transparentMaterial;
+        [SerializeField]
+        private Material transparentMaterial;
         private GrabAndMoveScenario _scenario;
         private GameObject _targetProgressInstance;
-        private int _visualSize;
 
         private void Start()
         {
@@ -36,6 +36,12 @@ namespace Tactility.Ball
             if (_targetProgressInstance != null)
             {
                 _targetProgressInstance.transform.rotation = _scenario.grabbable.gameObject.transform.rotation;
+            }
+            
+            // Scale the cube to match the progress of the grabbable object, starting at 0.5f and ending at 1f
+            if (_targetProgressInstance != null)
+            {
+                _targetProgressInstance.transform.localScale = Vector3.one * _scenario.grabbable.gameObject.transform.localScale.x * (0.5f + _scenario.Progress / 2f);
             }
         }
 

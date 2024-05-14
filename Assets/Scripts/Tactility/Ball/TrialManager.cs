@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Tactility.Ball
 {
@@ -54,6 +53,12 @@ namespace Tactility.Ball
             if (_fileLineIndex % 6 == 0)
             {
                 currentForceLevel++;
+                
+                // Reset currentForceLevel to 0 when it reaches 6
+                if (currentForceLevel == 6)
+                {
+                    currentForceLevel = 0;
+                }
             }
 
             var originIndex = int.Parse(resultString[0].ToString());
