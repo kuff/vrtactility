@@ -1552,7 +1552,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deviceConfigInstance: {fileID: 11400000, guid: 0ec9462c633e8d54a8301d83ea24e0ef,
     type: 2}
-  calibrationFileName: 
+  calibrationFileName: 2024-05-10_13-34-54_calibration_strip_vrt0.2
 --- !u!4 &376938859
 Transform:
   m_ObjectHideFlags: 0
