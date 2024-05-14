@@ -12,6 +12,13 @@ namespace Tactility.Modulation
     {
         public override ModulationData? GetModulationData()
         {
+            // Generate array of DeviceConfig.maxWidth values with length DeviceConfig.numPads
+            // var widths = new float[DeviceConfig.numPads];
+            // for (var i = 0; i < DeviceConfig.numPads; i++)
+            // {
+            //     widths[i] = DeviceConfig.maxWidth;
+            // }
+
             return new ModulationData
             {
                 Type = ModulationType.Width,

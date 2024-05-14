@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: StripDeviceConfig
   m_EditorClassIdentifier: 
   deviceName: strip
-  numPads: 16
+  numPads: 32
   minAmp: 0.5
   maxAmp: 9
   minWidth: 30
@@ -22,4 +22,4 @@ MonoBehaviour:
   minFreq: 1
   maxFreq: 400
   useSpecialAnodes: 0
-  anodes: 0f000000
+  anodes: 00000000

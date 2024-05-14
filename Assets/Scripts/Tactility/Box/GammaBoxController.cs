@@ -27,6 +27,10 @@ namespace Tactility.Box
             if (connectOnAwake)
             {
                 Connect(Sc.portName);
+
+                // EnableStimulation();
+                // var testString = GetStimString(new []{0}, new []{0.0f}, new []{0});
+                // Send(testString);
             }
 
             // Sc.SetTearDownFunction(DisableStimulation);
@@ -115,6 +119,8 @@ namespace Tactility.Box
 
             // Concatenate all parts to form the complete command string
             var completeString = invariablePart1 + variablePart1 + invariablePart2 + variablePart2 + invariablePart3 + variablePart3 + finalPart;
+
+            //completeString = "velec 11 *name test *elec 1 *pads 31=C,1=A, *amp 31=5, *width 31=400, *selected 1 *sync 0";
 
             return completeString;
         }
