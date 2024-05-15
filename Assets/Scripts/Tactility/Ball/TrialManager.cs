@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tactility.Ball
 {
     public class TrialManager : MonoBehaviour
     {
-        public int currentForceLevel;
+        [FormerlySerializedAs("currentForceLevel")]
+        public int targetForceLevel;
         [SerializeField]
         private List<Material> materials;
         
@@ -17,8 +19,8 @@ namespace Tactility.Ball
         {
             _currentScenario = FindObjectOfType<GrabAndMoveScenario>();
 
-            _currentScenario.WhenOnSuccess += SetNextPositions;
-            _currentScenario.WhenOnFailure += SetNextPositions;
+            _currentScenario.WhenOnSuccess += () => SetNextPositions();
+            _currentScenario.WhenOnFailure += (CauseOfFailure cause) => SetNextPositions();
             // SetNextPositions();
         }
 
@@ -49,15 +51,15 @@ namespace Tactility.Ball
             };
             _fileLineIndex++;
             
-            // Increment currentForceLevel when modulus of 6 is 0
-            if (_fileLineIndex % 6 == 0)
+            // Increment targetForceLevel when modulus of 6 is 0
+            if (_fileLineIndex % 6 == 1)
             {
-                currentForceLevel++;
+                targetForceLevel++;
                 
-                // Reset currentForceLevel to 0 when it reaches 6
-                if (currentForceLevel == 6)
+                // Reset targetForceLevel when it reaches 6
+                if (targetForceLevel == 6)
                 {
-                    currentForceLevel = 0;
+                    targetForceLevel = 1;
                 }
             }
 
@@ -78,8 +80,8 @@ namespace Tactility.Ball
             
             _currentScenario.floatable.OriginPoint = _currentScenario.originPosition;
             
-            // Set currentMaterial in accordance with currentForceLevel
-            _currentScenario.floatable.GetComponent<Renderer>()!.material = materials[currentForceLevel];
+            // Set currentMaterial in accordance with targetForceLevel
+            _currentScenario.floatable.GetComponent<Renderer>()!.material = materials[targetForceLevel - 1];
         }
     }
 }

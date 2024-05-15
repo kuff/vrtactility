@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 #endregion
@@ -60,6 +61,12 @@ namespace Tactility.Ball
                 // ...Save bone capsules
                 _boneCapsules = ovrInitializer.LeftHandBoneCapsules.Concat(ovrInitializer.RightHandBoneCapsules).ToList();
                 SetIsKinematic(false);
+                
+                // Go through each capsule and set the weight to zero
+                foreach (var boneCapsule in _boneCapsules)
+                {
+                    boneCapsule.CapsuleRigidbody.SetDensity(0f);
+                }
             }
             if (_bones is null && ovrInitializer.isInitialized)
             {
@@ -113,12 +120,13 @@ namespace Tactility.Ball
                 var objectWidth = transform.localScale.x;
                 // Debug.Log($"5: {Vector3.Distance(indexPoint, thumbPoint)}");
                 // Debug.Log($"6: {objectWidth + 0.01f}");
-                if (Vector3.Distance(indexPoint, thumbPoint) > objectWidth + 0.01f)
+                var distance = Vector3.Distance(indexPoint, thumbPoint);
+                if (distance > objectWidth + 0.01f)
                 {
                     isGrabbed = false;
                     return;
                 }
-                
+
                 isGrabbed = true;
             }
             catch (Exception e)
@@ -271,7 +279,7 @@ namespace Tactility.Ball
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private float GetAppliedPressure(in OVRBoneCapsule boneCapsule)
         {
-            var r = _collider.transform.localScale.x;
+            /*var r = _collider.transform.localScale.x;
 
             // Find corresponding OVRBone (which doesn't collide with the sphere surface) and its position
             var targetBone = _bones[GetBoneIndex(in boneCapsule)];
@@ -282,7 +290,27 @@ namespace Tactility.Ball
             var pressure = Mathf.Clamp(r - distance, 0, r) / r;
 
             // Return distance as pressure applied
-            return pressure;
+            return pressure;*/
+
+            try
+            {
+                var indexPoint = _touchingPoints[OVRSkeleton.BoneId.Hand_Index3];
+                var thumbPoint = _touchingPoints[OVRSkeleton.BoneId.Hand_Thumb3];
+
+                // The lesser the distance between the two points, the greater the pressure
+                var distance = Vector3.Distance(indexPoint, thumbPoint);
+                
+                Debug.Log("Scale: " + transform.localScale.x);
+                Debug.Log("distance: " + distance);
+                // Debug.Log("Before clamp: " + distance / transform.localScale.x);
+
+                // Project the distance into a pressure value between 0 and 1
+                return 1 - Mathf.Clamp01(distance / transform.localScale.x);
+            }
+            catch (Exception e)
+            {
+                return 0f;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

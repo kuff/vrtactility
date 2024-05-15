@@ -27,6 +27,7 @@ namespace Tactility.Modulation
         private int[] _combinedWidths;
         private int _frequency;
         private float _lastSendTime;
+        private bool _isGrabbing;
 
         protected void Start()
         {
@@ -45,9 +46,16 @@ namespace Tactility.Modulation
             var wasSuccessful = NotifyModulators();
             if (!wasSuccessful)
             {
+                if (!_isGrabbing)
+                {
+                    return;
+                }
+                
+                _isGrabbing = false;
                 _boxController.ResetAllPads();
                 return;
             }
+            _isGrabbing = true;
 
             SendCombinedModulationData();
             ResetCombinedModulationData(); // Reset for next cycle

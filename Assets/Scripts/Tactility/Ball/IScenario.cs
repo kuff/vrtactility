@@ -2,8 +2,15 @@
 
 namespace Tactility.Ball
 {
+    public enum CauseOfFailure
+    {
+        LossOfGrab,
+        TooLittlePressure,
+        TooMuchPressure,
+    }
+    
     public delegate void ScenarioOnSuccess();
-    public delegate void ScenarioOnFailure();
+    public delegate void ScenarioOnFailure(CauseOfFailure cause);
 
     public interface IScenario
     {
