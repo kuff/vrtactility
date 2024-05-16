@@ -31,7 +31,7 @@ namespace Tactility.Ball
         private TrialManager _trialManager;
 
         private string _pressureString;
-        private string _failureString;
+        private string _triggerString;
 
         private void Start()
         {
@@ -53,20 +53,20 @@ namespace Tactility.Ball
             floatable = grabbable!.gameObject.GetComponent<FreeFloatable>();
             // UpdateTargetPosition();
 
-            WhenOnSuccess += () => floatable.ResetPosition();
-            WhenOnFailure += (CauseOfFailure cause) => floatable.ResetPosition();
+            // WhenOnSuccess += () => floatable.ResetPosition();
+            // WhenOnFailure += (ScenarioTrigger cause) => floatable.ResetPosition();
             // WhenOnSuccess += UpdateTargetPosition;
             // WhenOnFailure += UpdateTargetPosition;
 
 #if DEBUG
-            WhenOnSuccess += () => Debug.Log($"{this} target reached!");
-            WhenOnFailure += (CauseOfFailure cause) => Debug.Log($"{this} target failed!");
+            WhenOnSuccess += (ScenarioTrigger cause) => Debug.Log($"{this} target reached!");
+            WhenOnFailure += (ScenarioTrigger cause) => Debug.Log($"{this} target failed!");
 #endif
         }
 
         private void Update()
         {
-            textBox.text = $"Pressure: {_pressureString}\nFailure: {_failureString}";
+            textBox.text = $"Pressure: {_pressureString}\nFailure: {_triggerString}\nTrial: {_trialManager.fileLineIndex + 1}";
             
             if (grabbable && grabbable.isGrabbed)
             {
@@ -79,7 +79,10 @@ namespace Tactility.Ball
                 
                 if (Progress >= 0.95f)
                 {
-                    WhenOnSuccess?.Invoke();
+                    WhenOnSuccess?.Invoke(ScenarioTrigger.Success);
+                    _triggerString = "Success";
+                    Progress = 0f;
+                    return;
                 }
                 
                 // Check for pressure
@@ -129,24 +132,25 @@ namespace Tactility.Ball
                 }
                 if (pressureValue > _trialManager.targetForceLevel)
                 {
-                    WhenOnFailure?.Invoke(CauseOfFailure.TooMuchPressure);
-                    _failureString = "Too much pressure";
+                    WhenOnFailure?.Invoke(ScenarioTrigger.TooMuchPressure);
+                    _triggerString = "Too much pressure";
+                    Progress = 0f;
                 }
                 else if (pressureValue < _trialManager.targetForceLevel)
                 {
-                    WhenOnFailure?.Invoke(CauseOfFailure.TooLittlePressure);
-                    _failureString = "Too little pressure";
+                    WhenOnFailure?.Invoke(ScenarioTrigger.TooLittlePressure);
+                    _triggerString = "Too little pressure";
+                    Progress = 0f;
                 }
             }
-            else
+            else if (grabbable.allowGrabbing)
             {
                 if (Progress > 0.1f)
                 {
-                    WhenOnFailure?.Invoke(CauseOfFailure.LossOfGrab);
-                    _failureString = "Loss of grab";
+                    WhenOnFailure?.Invoke(ScenarioTrigger.LossOfGrab);
+                    _triggerString = "Loss of grab";
                 }
                 Progress = 0f;
-                
             }
         }
 

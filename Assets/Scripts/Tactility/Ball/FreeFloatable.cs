@@ -97,15 +97,19 @@ namespace Tactility.Ball
             }
 
             // Add force to the ball, moving it towards the origin point
-            var distanceVector = OriginPoint - transform.position;
-            var movementVector = distanceVector * (baseForce * (1f - restriction));
-            _rigidbody.AddForce(movementVector, ForceMode.Impulse);
-            _rigidbody.velocity *= distanceVector.magnitude;
+            if (_localGrabbable.allowGrabbing)
+            {
+                var distanceVector = OriginPoint - transform.position;
+                var movementVector = distanceVector * (baseForce * (1f - restriction));
+                _rigidbody.AddForce(movementVector, ForceMode.Impulse);
+                _rigidbody.velocity *= distanceVector.magnitude;
+            }
+            
         }
 
-        public void ResetPosition()
-        {
-            transform.position = new Vector3(OriginPoint.x, resetHeight, OriginPoint.z);
-        }
+        // public void ResetPosition()
+        // {
+        //     transform.position = new Vector3(OriginPoint.x, resetHeight, OriginPoint.z);
+        // }
     }
 }

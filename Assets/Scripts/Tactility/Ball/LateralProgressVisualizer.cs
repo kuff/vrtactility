@@ -9,7 +9,7 @@ namespace Tactility.Ball
     [RequireComponent(typeof(GrabAndMoveScenario))]
     public class LateralProgressVisualizer : MonoBehaviour
     {
-        [Tooltip("Initial size of the visual sphere indicator. This determines the starting size of the sphere before any animation or scaling takes place.")]
+        [Tooltip("Idle size of the visual sphere indicator. This determines the starting size of the sphere before any animation or scaling takes place.")]
         [SerializeField] private float visualSize = .01f;
         [Tooltip("Distance from the 'UniformGrabbable' object at which the visual sphere indicator is placed. This determines how far to the side (left or right) the sphere appears from the object.")]
         [SerializeField] private float offsetDistance = .1f;

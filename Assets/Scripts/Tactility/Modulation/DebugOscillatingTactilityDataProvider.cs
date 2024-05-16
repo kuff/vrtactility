@@ -23,7 +23,7 @@ namespace Tactility.Modulation
             _tactilityData = new TactilityData
             {
                 BoneIds = new List<OVRSkeleton.BoneId>(), // Populate with all bone IDs you are interested in
-                Values = new List<float>()                // Initial values, these will be updated in GetTactilityData()
+                Values = new List<float>()                // Idle values, these will be updated in GetTactilityData()
             };
 
             // Example: Adding all finger bone IDs

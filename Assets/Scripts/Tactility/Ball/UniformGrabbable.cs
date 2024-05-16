@@ -24,6 +24,8 @@ namespace Tactility.Ball
         [SerializeField]
         private OVRInitializer ovrInitializer;
 
+        public bool allowGrabbing = true;
+
         // Exposing touch
         [HideInInspector] public List<OVRSkeleton.BoneId> touchingBoneIds;
         [HideInInspector] public List<float> touchingBonePressures;
@@ -88,6 +90,15 @@ namespace Tactility.Ball
                 isGrabbed = false;
                 return;
             }*/
+
+            if (!allowGrabbing)
+            {
+                if (isGrabbed)
+                {
+                    isGrabbed = false;
+                }
+                return;
+            }
 
             try
             {

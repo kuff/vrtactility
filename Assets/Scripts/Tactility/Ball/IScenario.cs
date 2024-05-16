@@ -2,15 +2,17 @@
 
 namespace Tactility.Ball
 {
-    public enum CauseOfFailure
+    public enum ScenarioTrigger
     {
+        Success,
+        Idle,
         LossOfGrab,
         TooLittlePressure,
         TooMuchPressure,
     }
     
-    public delegate void ScenarioOnSuccess();
-    public delegate void ScenarioOnFailure(CauseOfFailure cause);
+    public delegate void ScenarioOnSuccess(ScenarioTrigger cause);
+    public delegate void ScenarioOnFailure(ScenarioTrigger cause);
 
     public interface IScenario
     {
