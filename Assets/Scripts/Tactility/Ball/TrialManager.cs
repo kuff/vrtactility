@@ -17,7 +17,10 @@ namespace Tactility.Ball
         private GrabAndMoveScenario _currentScenario;
         [FormerlySerializedAs("_fileLineIndex")]
         private string[] _fileLines;
-        
+
+        [SerializeField]
+        private ParticleSystem _explodingParticles;
+
         private void Start()
         {
             _currentScenario = FindObjectOfType<GrabAndMoveScenario>();
@@ -94,6 +97,9 @@ namespace Tactility.Ball
                     break;
                 case ScenarioTrigger.TooMuchPressure:
                     _currentScenario.grabbable.allowGrabbing = false;
+                    _explodingParticles.transform.position = _currentScenario.floatable.transform.position;
+                    _currentScenario.floatable.GetComponent<Renderer>()!.enabled = false;
+                    _explodingParticles.Play();
                     break;
                 case ScenarioTrigger.Idle:
                     SetNextPosition();
@@ -115,6 +121,7 @@ namespace Tactility.Ball
             yield return new WaitForSeconds(1f);
 
             SetNextPosition();
+            _currentScenario.floatable.GetComponent<Renderer>()!.enabled = true;
         }
         
         private void SetNextPosition()
