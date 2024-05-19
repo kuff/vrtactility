@@ -12,7 +12,6 @@ using static Tactility.Calibration.CalibrationManager;
 
 namespace Tactility.Modulation
 {
-    [RequireComponent(typeof(AbstractBoxController))]
     public class TactilityManager : MonoBehaviour
     {
         [Tooltip("The time interval in milliseconds at which to send modulation data to the device. This value should be greater than the device's minimum update interval.")]
@@ -31,7 +30,7 @@ namespace Tactility.Modulation
 
         protected void Start()
         {
-            _boxController = GetComponent<AbstractBoxController>();
+            _boxController = FindObjectOfType<AbstractBoxController>();
             _lastSendTime = Time.time * 1000; // Convert to milliseconds
             InitializeModulationDataArrays();
         }

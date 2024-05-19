@@ -48,7 +48,7 @@ namespace Tactility.Calibration.Interface
 
         // Elements from 0-5 -> thumb (I1 of connecting board)
         // Elements from 6-12 -> thumb (I1 of connecting board)
-        private int[] _remap_strip = new[] {31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18};    
+        private readonly int[] _remapStrip = {31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18};    
         private int _currentPad;
 
     private void Start()
@@ -66,7 +66,7 @@ namespace Tactility.Calibration.Interface
 
             // Initialize the Input Fields to their default values
             //UpdateInputFields();
-            _currentPad = _remap_strip[_currentPadIndex]-1;
+            _currentPad = _remapStrip[_currentPadIndex]-1;
             UpdateCurrentPadString();
         }
 
@@ -84,6 +84,8 @@ namespace Tactility.Calibration.Interface
             // Save the calibration data to a file with a timestamp name
             if (_canSaveData)
             {
+                // var calibrationFilePath = SaveCalibrationDataToFile(DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+                // LoadCalibrationDataFromFile(calibrationFilePath);
                 SaveCalibrationDataToFile(DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
             }
         }
@@ -98,11 +100,10 @@ namespace Tactility.Calibration.Interface
                 // Only save the calibration data to disk if we've cycled through all the pads
                 if (_currentPadIndex+1 == DeviceConfig.numPads)
                 {
-                    Debug.Log(_currentPadIndex);
                     _canSaveData = true;
                 }
             }
-            _currentPad = _remap_strip[_currentPadIndex]-1;
+            _currentPad = _remapStrip[_currentPadIndex]-1;
             UpdateCurrentPadString();
             UpdateInputFields();
         }
@@ -114,7 +115,7 @@ namespace Tactility.Calibration.Interface
             {
                 _currentPadIndex--;
             }
-            _currentPad = _remap_strip[_currentPadIndex]-1;
+            _currentPad = _remapStrip[_currentPadIndex]-1;
             UpdateCurrentPadString();
             UpdateInputFields();
         }

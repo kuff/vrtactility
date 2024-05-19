@@ -174,18 +174,25 @@ namespace Tactility.Calibration
             }
         }
 
-        public static void LoadCalibrationDataFromFile(string calibrationFileName)
+        public static void LoadCalibrationDataFromFile(string calibrationFilePath)
         {
-            var filePath = Path.Combine(Application.persistentDataPath, calibrationFileName);
+            var filePath = calibrationFilePath;
 
-            // Try opening the file, if it doesn't work, try appending ".txt" to it
+            // First, try if the provided calibrationFilePath is a complete path
             if (!File.Exists(filePath))
             {
-                filePath = Path.Combine(Application.persistentDataPath, $"{calibrationFileName}.txt");
+                // If it fails, assume calibrationFilePath is a subpath within the persistent data path
+                filePath = Path.Combine(Application.persistentDataPath, calibrationFilePath);
+
                 if (!File.Exists(filePath))
                 {
-                    Debug.LogError($"Calibration file not found: {filePath}");
-                    return;
+                    // Try appending ".txt" to the filename
+                    filePath = Path.Combine(Application.persistentDataPath, $"{calibrationFilePath}.txt");
+                    if (!File.Exists(filePath))
+                    {
+                        Debug.LogError($"Calibration file not found: {filePath}");
+                        return;
+                    }
                 }
             }
 

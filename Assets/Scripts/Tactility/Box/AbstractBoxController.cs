@@ -35,6 +35,7 @@ namespace Tactility.Box
         protected bool IsSendingMessages;
 
         protected SerialController Sc;
+        private static AbstractBoxController _instance;
 
         public string Port { get; protected set; }
         public string Battery { get; protected set; }
@@ -43,6 +44,18 @@ namespace Tactility.Box
         public string Temperature { get; protected set; }
         public bool IsConnected { get; protected set; }
 
+        private void Awake()
+        {
+            if (_instance != null && _instance != this)
+            {
+                // If another instance already exists, destroy this one
+                Destroy(gameObject);
+            }
+            else
+            {
+                _instance = this;
+            }
+        }
 
         protected virtual void Start()
         {

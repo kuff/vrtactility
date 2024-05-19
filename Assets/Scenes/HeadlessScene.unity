@@ -389,6 +389,72 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29c8f8c99ad65a54e8ba5f3b46a01674, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &418494157
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 418494160}
+  - component: {fileID: 418494159}
+  - component: {fileID: 418494158}
+  m_Layer: 0
+  m_Name: GammaBoxController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &418494158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418494157}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bc5f48af2cffd747a079fe8c632e2c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  portName: COM1
+  baudRate: 115200
+  messageListener: {fileID: 418494157}
+  reconnectionDelay: 1000
+  maxUnreadMessages: 10
+--- !u!114 &418494159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418494157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e29581f8a236704bb6667a5b7de5f13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  logMode: 2
+  messageDelay: 50
+  maxQueueSize: 20
+  connectOnAwake: 1
+--- !u!4 &418494160
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418494157}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 473.375, y: 416.35547, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &701926599
 GameObject:
   m_ObjectHideFlags: 0
@@ -555,8 +621,6 @@ GameObject:
   - component: {fileID: 1249868595}
   - component: {fileID: 1249868596}
   - component: {fileID: 1249868594}
-  - component: {fileID: 1249868593}
-  - component: {fileID: 1249868591}
   m_Layer: 0
   m_Name: TactilityManager
   m_TagString: Untagged
@@ -564,39 +628,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1249868591
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249868590}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8bc5f48af2cffd747a079fe8c632e2c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  portName: COM4
-  baudRate: 115200
-  messageListener: {fileID: 1249868590}
-  reconnectionDelay: 1000
-  maxUnreadMessages: 10
---- !u!114 &1249868593
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249868590}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e29581f8a236704bb6667a5b7de5f13, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  logMode: 2
-  messageDelay: 50
-  maxQueueSize: 20
-  connectOnAwake: 1
 --- !u!114 &1249868594
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -627,7 +658,7 @@ Transform:
   - {fileID: 356980530}
   - {fileID: 701926603}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1249868596
 MonoBehaviour:

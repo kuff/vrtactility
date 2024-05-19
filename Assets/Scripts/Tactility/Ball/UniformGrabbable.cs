@@ -140,7 +140,9 @@ namespace Tactility.Ball
 
                 isGrabbed = true;
             }
+#pragma warning disable CS0168 // Variable is declared but never used
             catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
             {
                 isGrabbed = false;
             }
@@ -318,7 +320,9 @@ namespace Tactility.Ball
                 // Project the distance into a pressure value between 0 and 1
                 return 1 - Mathf.Clamp01(distance / transform.localScale.x);
             }
+#pragma warning disable CS0168 // Variable is declared but never used
             catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
             {
                 return 0f;
             }
