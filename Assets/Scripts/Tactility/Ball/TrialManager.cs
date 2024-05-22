@@ -11,8 +11,7 @@ namespace Tactility.Ball
         [FormerlySerializedAs("currentForceLevel")]
         public int targetForceLevel;
         public int fileLineIndex;
-        [SerializeField]
-        private List<Material> materials;
+        public List<Material> materials;
         
         private GrabAndMoveScenario _currentScenario;
         [FormerlySerializedAs("_fileLineIndex")]
@@ -20,6 +19,9 @@ namespace Tactility.Ball
 
         [SerializeField]
         private ParticleSystem _explodingParticles;
+        private Renderer _renderer;
+
+        private Material _defaultMaterial;
 
         private void Start()
         {
@@ -28,6 +30,8 @@ namespace Tactility.Ball
             _currentScenario.WhenOnSuccess += HandleTaskComplete;
             _currentScenario.WhenOnFailure += HandleTaskComplete;
             // HandleTaskComplete();
+            _renderer = _currentScenario.floatable.GetComponent<Renderer>();
+            _defaultMaterial = _renderer.material;
         }
 
         private void Update()
@@ -38,6 +42,17 @@ namespace Tactility.Ball
                 var textAsset = Resources.Load<TextAsset>("Tactility/TestOrder30");
                 _fileLines = textAsset.text.Split("\r\n");
                 HandleTaskComplete(ScenarioTrigger.Idle);
+            }
+            else
+            {
+                if (_currentScenario.grabbable.isGrabbed)
+                {
+                    _renderer.material = materials[_currentScenario.currentForceLevel - 1];
+                }
+                else
+                {
+                    _renderer.material = _defaultMaterial;
+                }
             }
         }
 
@@ -69,8 +84,8 @@ namespace Tactility.Ball
                 }
             }
             
-            Debug.Log("Origin position: " + resultString[0]);
-            Debug.Log("Target position: " + resultString[2]);
+            // Debug.Log("Origin position: " + resultString[0]);
+            // Debug.Log("Target position: " + resultString[2]);
 
             var originIndex = int.Parse(resultString[0].ToString());
             var targetIndex = int.Parse(resultString[2].ToString());
@@ -131,15 +146,15 @@ namespace Tactility.Ball
             _currentScenario.targetPosition = nextPositions.Item2;
             
             // Print item1 and 2
-            Debug.Log(nextPositions.Item1);
-            Debug.Log(nextPositions.Item2);
+            // Debug.Log(nextPositions.Item1);
+            // Debug.Log(nextPositions.Item2);
             
             _currentScenario.floatable.OriginPoint = _currentScenario.originPosition;
             _currentScenario.grabbable.allowGrabbing = true;
             
             // Set currentMaterial in accordance with targetForceLevel
             _currentScenario.floatable.GetComponent<Renderer>()!.enabled = true;
-            _currentScenario.floatable.GetComponent<Renderer>()!.material = materials[targetForceLevel - 1];
+            // _currentScenario.floatable.GetComponent<Renderer>()!.material = materials[targetForceLevel - 1];
         }
     }
 }

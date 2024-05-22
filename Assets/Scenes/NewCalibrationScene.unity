@@ -1231,7 +1231,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &252474342
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1764,7 +1764,7 @@ MonoBehaviour:
   m_Interactable: 1
   m_TargetGraphic: {fileID: 398974687}
   m_TextComponent: {fileID: 1027692708}
-  m_Placeholder: {fileID: 252474343}
+  m_Placeholder: {fileID: 0}
   m_ContentType: 0
   m_InputType: 0
   m_AsteriskChar: 42
@@ -2692,7 +2692,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &593634221
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3754,6 +3754,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inputField: {fileID: 1256871737}
   changeAmount: 10
+  defaultValue: 100
 --- !u!114 &666963515
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3768,6 +3769,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inputField: {fileID: 398974686}
   changeAmount: 0.1
+  defaultValue: 0.5
 --- !u!1 &696171405
 GameObject:
   m_ObjectHideFlags: 0
@@ -6365,7 +6367,7 @@ MonoBehaviour:
   m_Interactable: 1
   m_TargetGraphic: {fileID: 1256871738}
   m_TextComponent: {fileID: 1526744237}
-  m_Placeholder: {fileID: 593634222}
+  m_Placeholder: {fileID: 0}
   m_ContentType: 0
   m_InputType: 0
   m_AsteriskChar: 42

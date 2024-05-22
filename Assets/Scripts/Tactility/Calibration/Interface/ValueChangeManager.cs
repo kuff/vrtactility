@@ -1,6 +1,7 @@
 // Copyright (C) 2024 Peter Leth
 
 #region
+using System;
 using System.Globalization;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,6 +17,8 @@ namespace Tactility.Calibration.Interface
         [SerializeField]
         [Tooltip("The amount to increment or decrement")]
         private float changeAmount = 1;
+        [SerializeField]
+        private float defaultValue;
 
         private float _currentValue; // Internal value to keep track of the current number
 
@@ -24,10 +27,23 @@ namespace Tactility.Calibration.Interface
             // UpdateTextDisplay();
 
             // Set the current value to the value in the input field placeholder
-            if (inputField != null && float.TryParse(inputField.placeholder.GetComponent<Text>().text, out var placeholderValue))
+            // if (inputField != null && float.TryParse(inputField.placeholder.GetComponent<Text>().text, out var placeholderValue))
+            // {
+            //     _currentValue = placeholderValue;
+            // }
+            try
             {
-                _currentValue = placeholderValue;
+                _currentValue = defaultValue;
+                inputField.text = FloatToText(_currentValue);
             }
+#pragma warning disable CS0168 // Variable is declared but never used
+            catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
+            {
+                // Do nothing...
+            }
+            // _currentValue = defaultValue - changeAmount;
+            // IncrementValue();
         }
 
         // Invoked when the increment button is clicked

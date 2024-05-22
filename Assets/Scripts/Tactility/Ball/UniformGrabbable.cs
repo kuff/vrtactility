@@ -313,8 +313,8 @@ namespace Tactility.Ball
                 // The lesser the distance between the two points, the greater the pressure
                 var distance = Vector3.Distance(indexPoint, thumbPoint);
                 
-                Debug.Log("Scale: " + transform.localScale.x);
-                Debug.Log("distance: " + distance);
+                // Debug.Log("Scale: " + transform.localScale.x);
+                // Debug.Log("distance: " + distance);
                 // Debug.Log("Before clamp: " + distance / transform.localScale.x);
 
                 // Project the distance into a pressure value between 0 and 1

@@ -23,6 +23,7 @@ namespace Tactility.Ball
         public FreeFloatable floatable; // The sphere's FreeFloatable component
         [Tooltip("The radius around the target position that is considered safe. Pressure will only start to be evaluated when the object is moved outside the radius.")]
         public float safeRadius = 0.1f;
+        public int currentForceLevel;
 
         public Text textBox;
         
@@ -32,6 +33,9 @@ namespace Tactility.Ball
 
         private string _pressureString;
         private string _triggerString;
+        
+        private float _pressureOutsideTime;
+        private const float AllowedOutsideTime = 1.0f;  // 1 second
 
         private void Start()
         {
@@ -66,29 +70,24 @@ namespace Tactility.Ball
 
         private void Update()
         {
-            textBox.text = $"Pressure: {_pressureString}\nFailure: {_triggerString}\nTrial: {_trialManager.fileLineIndex + 1}";
-            
+            textBox.text = $"Pressure: {_pressureString}\nScenario: {_triggerString}\nTrial: {_trialManager.fileLineIndex + 1}";
+
             if (grabbable && grabbable.isGrabbed)
             {
                 var origin = originPosition;
                 var progress = (Vector3.Distance(origin, targetPosition) - Vector3.Distance(floatable.transform.position, targetPosition)) / Vector3.Distance(origin, targetPosition);
-                // Debug.Log($"1: {Vector3.Distance(origin, targetPosition)}");
-                // Debug.Log($"2: {Vector3.Distance(floatable.transform.position, targetPosition)}");
-                // Debug.Log($"3: {progress}");
-                Progress = Mathf.Clamp01(progress); // Clamp between 0 and 1
-                
-                if (Progress >= 0.95f)
+                Progress = Mathf.Clamp01(progress);
+
+                if (Progress >= 0.95f && currentForceLevel == _trialManager.targetForceLevel)
                 {
                     WhenOnSuccess?.Invoke(ScenarioTrigger.Success);
                     _triggerString = "Success";
                     Progress = 0f;
                     return;
                 }
-                
-                // Check for pressure
+
                 ref var modulationData = ref _dataProvider.GetTactilityData();
-                
-                // Update stimuli for each touching finger bone of interest
+
                 var valueBatch = new float[2];
                 for (var i = 0; i < modulationData.BoneIds.Count; i++)
                 {
@@ -104,13 +103,9 @@ namespace Tactility.Ball
                             break;
                     }
                 }
-                
-                // Get the largest pressure value
+
                 var maxPressure = Mathf.Max(valueBatch);
-                
-                // Debug.Log("max pressure: " + maxPressure);
-                
-                var pressureValue = maxPressure switch
+                currentForceLevel = maxPressure switch
                 {
                     > 0.85f => 6,
                     > 0.6f => 5,
@@ -119,28 +114,39 @@ namespace Tactility.Ball
                     > 0.15f => 2,
                     _ => 1
                 };
-                
-                // Debug.Log(pressureValue);
-                _pressureString = pressureValue.ToString();
-                
-                // Debug.Log("Target force level: " + _trialManager.targetForceLevel);
-                
-                // Invoke failure if pressure level is different from current force level
+
+                _pressureString = currentForceLevel.ToString();
+
                 if (Progress <= safeRadius)
                 {
                     return;
                 }
-                if (pressureValue > _trialManager.targetForceLevel)
+
+                var isPressureOutside = currentForceLevel != _trialManager.targetForceLevel;
+
+                if (isPressureOutside)
                 {
-                    WhenOnFailure?.Invoke(ScenarioTrigger.TooMuchPressure);
-                    _triggerString = "Too much pressure";
-                    Progress = 0f;
+                    _pressureOutsideTime += Time.deltaTime;
+
+                    if (_pressureOutsideTime >= AllowedOutsideTime)
+                    {
+                        if (currentForceLevel > _trialManager.targetForceLevel)
+                        {
+                            WhenOnFailure?.Invoke(ScenarioTrigger.TooMuchPressure);
+                            _triggerString = "Too much pressure";
+                        }
+                        else if (currentForceLevel < _trialManager.targetForceLevel)
+                        {
+                            WhenOnFailure?.Invoke(ScenarioTrigger.TooLittlePressure);
+                            _triggerString = "Too little pressure";
+                        }
+                        Progress = 0f;
+                        _pressureOutsideTime = 0f; // Reset the timer
+                    }
                 }
-                else if (pressureValue < _trialManager.targetForceLevel)
+                else
                 {
-                    WhenOnFailure?.Invoke(ScenarioTrigger.TooLittlePressure);
-                    _triggerString = "Too little pressure";
-                    Progress = 0f;
+                    _pressureOutsideTime = 0f; // Reset the timer if pressure is back within range
                 }
             }
             else if (grabbable.allowGrabbing)

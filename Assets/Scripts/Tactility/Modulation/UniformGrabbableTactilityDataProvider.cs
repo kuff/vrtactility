@@ -41,7 +41,7 @@ namespace Tactility.Modulation
 
         public bool IsActive()
         {
-            return grabbable.touchingBonePressures.Count > 0;
+            return grabbable.touchingBonePressures.Count > 0 && grabbable.isGrabbed;
         }
     }
 }

@@ -61,7 +61,7 @@ namespace Tactility.Calibration.Interface
             // Initialize values array with number of pads
             for (var i = 0; i < DeviceConfig.numPads; i++)
             {
-                _calibrationValues.Add(new CalibrationValues(DeviceConfig.minAmp, DeviceConfig.minWidth));
+                _calibrationValues.Add(new CalibrationValues(0.5f, 100));
             }
 
             // Initialize the Input Fields to their default values
