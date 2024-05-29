@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.UI;
 #endregion
 
 namespace Tactility.Ball
@@ -43,6 +44,7 @@ namespace Tactility.Ball
         private Dictionary<OVRSkeleton.BoneId, Vector3> _touchingNormals;
         // private Renderer _renderer;
 
+
         private void Start()
         {
             _collider = GetComponent<SphereCollider>();
@@ -57,6 +59,7 @@ namespace Tactility.Ball
 
         private void Update()
         {
+            
             // Wait for OVR to initialize bones
             if (_boneCapsules is null && ovrInitializer.isInitialized)
             {
@@ -119,9 +122,9 @@ namespace Tactility.Ball
                 }
                 
                 // If the normals don't cancel each other out or are equal, we can't grab
-                // Debug.Log($"3: {Vector3.Dot(indexNormal, thumbNormal) > 0.1f || indexNormal == thumbNormal}");
-                // Debug.Log($"4: {Vector3.Dot(indexNormal, thumbNormal)}");
-                if (Vector3.Dot(indexNormal, thumbNormal) > 0f || indexNormal == thumbNormal)
+                //Debug.Log($"3: {Vector3.Dot(indexNormal, thumbNormal) > 0.1f || indexNormal == thumbNormal}");
+                //Debug.Log($"4: {Vector3.Dot(indexNormal, thumbNormal)}");
+                if (Vector3.Dot(indexNormal, thumbNormal) > -0.9f || indexNormal == thumbNormal)
                 {
                     isGrabbed = false;
                     return;
@@ -132,7 +135,7 @@ namespace Tactility.Ball
                 // Debug.Log($"5: {Vector3.Distance(indexPoint, thumbPoint)}");
                 // Debug.Log($"6: {objectWidth + 0.01f}");
                 var distance = Vector3.Distance(indexPoint, thumbPoint);
-                if (distance > objectWidth + 0.01f)
+                if (distance > objectWidth + 0.005f)
                 {
                     isGrabbed = false;
                     return;
@@ -312,13 +315,18 @@ namespace Tactility.Ball
 
                 // The lesser the distance between the two points, the greater the pressure
                 var distance = Vector3.Distance(indexPoint, thumbPoint);
-                
-                // Debug.Log("Scale: " + transform.localScale.x);
-                // Debug.Log("distance: " + distance);
-                // Debug.Log("Before clamp: " + distance / transform.localScale.x);
-
                 // Project the distance into a pressure value between 0 and 1
-                return 1 - Mathf.Clamp01(distance / transform.localScale.x);
+                var force = 1 - Mathf.Clamp01((distance-0.01f) / (transform.localScale.x-0.01f));
+
+                // Distance over one axis
+                //float deltaX = Mathf.Abs(indexPoint.x - thumbPoint.x);
+                //float deltaY = Mathf.Abs(indexPoint.y - thumbPoint.y);
+                //float deltaZ = Mathf.Abs(indexPoint.z - thumbPoint.z);
+
+                //var distance = Mathf.Max(deltaX, deltaY, deltaZ);
+                //var force = 1 - Mathf.Clamp01((distance) / (transform.localScale.x));
+
+                return force;
             }
 #pragma warning disable CS0168 // Variable is declared but never used
             catch (Exception e)

@@ -73,12 +73,12 @@ namespace Tactility.Ball
             fileLineIndex++;
             
             // Increment targetForceLevel when modulus of 6 is 0
-            if (fileLineIndex % 6 == 1)
+            if (fileLineIndex % 5 == 1)
             {
                 targetForceLevel++;
                 
                 // Reset targetForceLevel when it reaches 6
-                if (targetForceLevel == 6)
+                if (targetForceLevel == 7)
                 {
                     targetForceLevel = 1;
                 }

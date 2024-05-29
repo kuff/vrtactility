@@ -1,6 +1,7 @@
 // Copyright (C) 2024 Peter Leth
 
 #region
+using System;
 using System.Collections.Generic;
 using Tactility.Modulation;
 using UnityEngine;
@@ -37,6 +38,22 @@ namespace Tactility.Ball
         private float _pressureOutsideTime;
         private const float AllowedOutsideTime = 1.0f;  // 1 second
 
+        private float dwellTime = 1f; // Time to stay close to the target before succeeding
+
+        private bool isDwellTimeCounting = false; // Flag to check if dwell time is being counted
+        private float dwellTimer = 0f; // Timer for dwell time
+
+        //dynamic ranges to stabilize the force level
+
+        private float _level6Threshold = 0.75f;
+        private float _level5Threshold = 0.6f;
+        private float _level4Threshold = 0.45f;
+        private float _level3Threshold = 0.3f;
+        private float _level2Threshold = 0.15f;
+        private float _toleranceThr = 0.05f;
+        private bool _outOfForceLevel = false;
+        
+
         private void Start()
         {
             // targetPositions = new List<Vector3>
@@ -70,7 +87,7 @@ namespace Tactility.Ball
 
         private void Update()
         {
-            textBox.text = $"Pressure: {_pressureString}\nScenario: {_triggerString}\nTrial: {_trialManager.fileLineIndex + 1}";
+            textBox.text = $"Pressure: {_pressureString}\nScenario: {_triggerString}\nTrial: {_trialManager.fileLineIndex}";
 
             if (grabbable && grabbable.isGrabbed)
             {
@@ -78,12 +95,29 @@ namespace Tactility.Ball
                 var progress = (Vector3.Distance(origin, targetPosition) - Vector3.Distance(floatable.transform.position, targetPosition)) / Vector3.Distance(origin, targetPosition);
                 Progress = Mathf.Clamp01(progress);
 
-                if (Progress >= 0.95f && currentForceLevel == _trialManager.targetForceLevel)
+                if (Progress >= 0.9f && currentForceLevel == _trialManager.targetForceLevel)
                 {
-                    WhenOnSuccess?.Invoke(ScenarioTrigger.Success);
-                    _triggerString = "Success";
-                    Progress = 0f;
-                    return;
+                    if (!isDwellTimeCounting)
+                    {
+                        isDwellTimeCounting = true;
+                        dwellTimer = 0f;
+                    }
+                    else
+                    {
+                        dwellTimer += Time.deltaTime;
+                        if (dwellTimer >= dwellTime)
+                        {
+                            WhenOnSuccess?.Invoke(ScenarioTrigger.Success);
+                            _triggerString = "Success";
+                            Progress = 0f;
+                            return;
+                        }
+                    }                    
+                }
+                else
+                {
+                    isDwellTimeCounting = false;
+                    dwellTimer = 0f;
                 }
 
                 ref var modulationData = ref _dataProvider.GetTactilityData();
@@ -105,17 +139,88 @@ namespace Tactility.Ball
                 }
 
                 var maxPressure = Mathf.Max(valueBatch);
-                currentForceLevel = maxPressure switch
-                {
-                    > 0.85f => 6,
-                    > 0.6f => 5,
-                    > 0.45f => 4,
-                    > 0.3f => 3,
-                    > 0.15f => 2,
-                    _ => 1
-                };
 
+                //currentForceLevel = maxPressure switch
+                //{
+                //    > 0.75f => 6,
+                //    > 0.6f => 5,
+                //    > 0.45f => 4,
+                //    > 0.3f => 3,
+                //    > 0.15f => 2,
+                //    _ => 1
+                //};
+
+                if (currentForceLevel != _trialManager.targetForceLevel)
+                {
+                    _level6Threshold = 0.75f;
+                    _level5Threshold = 0.6f;
+                    _level4Threshold = 0.45f;
+                    _level3Threshold = 0.3f;
+                    _level2Threshold = 0.15f;
+
+                    _outOfForceLevel = true;
+                }
+
+                // Adjust thresholds to make the current level more tolerant
+                else if (currentForceLevel == _trialManager.targetForceLevel && _outOfForceLevel)
+                {
+                    _outOfForceLevel = false;
+
+                    switch (_trialManager.targetForceLevel)
+                    {
+                        case 6:
+                            _level5Threshold -= _toleranceThr;
+                            break;
+                        case 5:
+                            _level6Threshold += _toleranceThr;
+                            _level5Threshold -= _toleranceThr;
+                            break;
+                        case 4:
+                            _level5Threshold += _toleranceThr;
+                            _level4Threshold -= _toleranceThr;
+                            break;
+                        case 3:
+                            _level4Threshold += _toleranceThr;
+                            _level3Threshold -= _toleranceThr;
+                            break;
+                        case 2:
+                            _level3Threshold += _toleranceThr;
+                            _level2Threshold -= _toleranceThr;
+                            break;
+                        case 1:
+                            _level2Threshold += _toleranceThr;
+                            break;
+                    }
+                }
+
+                // Calculate the current force level with the adjusted (more tolerant) thresholds
+                if (maxPressure > _level6Threshold)
+                {
+                    currentForceLevel = 6;
+                }
+                else if (maxPressure > _level5Threshold)
+                {
+                    currentForceLevel = 5;
+                }
+                else if (maxPressure > _level4Threshold)
+                {
+                    currentForceLevel = 4;
+                }
+                else if (maxPressure > _level3Threshold)
+                {
+                    currentForceLevel = 3;
+                }
+                else if (maxPressure > _level2Threshold)
+                {
+                    currentForceLevel = 2;
+                }
+                else
+                {
+                    currentForceLevel = 1;
+                }
+                
                 _pressureString = currentForceLevel.ToString();
+
 
                 if (Progress <= safeRadius)
                 {
@@ -159,6 +264,7 @@ namespace Tactility.Ball
                 Progress = 0f;
             }
         }
+
 
         public float Progress { get; private set; }
         
