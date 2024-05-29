@@ -1,0 +1,335 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEngine;
+
+public class Logger : MonoBehaviour
+{
+    private const bool DO_LOGGING = true;
+    private const int LOGGING_FREQUENCY = 2;    //(?)
+
+    private static readonly List<IEnumerable> _logQueue = new List<IEnumerable>();
+    private static readonly IList[] _previousLogs = new IList[8];
+
+    //private OVRPlugin.HandState _handState = new OVRPlugin.HandState();
+
+    private static readonly string _logFileName = $"/LOG_MOVE_ME_{System.DateTime.Now:HHmmss-ffff}.csv";
+    private static float _pointOfLastWrite = -1f;
+    private static bool _fileSystemOperationInProgress = false;
+    private static int _frameCounter = 0;
+    private static float _frameCountTimestamp = -1f;
+    private static int _invokesSinceLastWrite = LOGGING_FREQUENCY - 1;
+
+    private OVRPlugin.HandState _hsLeft = new OVRPlugin.HandState();
+    private OVRPlugin.HandState _hsRight = new OVRPlugin.HandState();
+    private Transform _mainCameraTransform;
+
+
+    public enum LogType
+    {
+        // Continuous/Event/Static
+        //Overall
+        FPS,                  //  0 C
+        LowMemory,            //  1 E
+        QuitApp,              //  2 E
+        HeadPos,              //  3 C
+        HandPos,              //  4 C - dominant hand? Maybe select R/L in the calibration
+        Focus,                //  5 E
+        //Grabbing
+        FingersDistance,      //  6 C
+        GraspForce,           //  7 C
+        NormalVectorHand,     //  8 C!!!
+        //Trial
+        ForceLevel,           //  8 S
+        TrialIndex,           //  9 S
+        StartPos,             //  10 S
+        TargetPos,            // S
+        Time,                 // 10 E   //start->0 //isGrasped->1 //isReleased->2 //isDestroyed->3 //end->4
+        Progress,             // 11 C
+        Drops,                // 11 S
+        Destroys,             // 12 S
+        //Stimulation
+        Amplitude,            // 13 C
+        Frequency,            // 14 C
+        ActivePads,           // 15 C
+    }
+
+    protected void Start()
+    {
+        //Log(LogType.Time);  //(?)
+
+    }
+
+    protected void Update()
+    {
+#pragma warning disable CS0162
+        if (!DO_LOGGING) return;
+#pragma warning restore CS0162
+
+        // Update OVR Hand States
+        //OVRPlugin.GetHandState(OVRPlugin.Step.Render, OVRPlugin.Hand.HandLeft, ref _hsLeft);
+        //OVRPlugin.GetHandState(OVRPlugin.Step.Render, OVRPlugin.Hand.HandRight, ref _hsRight);
+        ////
+        //// Log player hands- and head data
+        ////Log(LogType.LeftHand, listData: GetSortedValues(_hsLeft));
+        //Log(LogType.HandPos, listData: GetSortedValues(_hsRight));
+        //Log(LogType.HeadPos, listData: GetSortedValues(_mainCameraTransform));
+
+        // Determine if FPS is to be logged in this frame
+        _frameCounter++;
+        _frameCountTimestamp += Time.deltaTime;
+        if (_frameCountTimestamp is -1 or > 1)
+        {
+            // Log FPS count and reset
+            Log(LogType.FPS, listData: new List<int> { _frameCounter }, ignorePrevious: true);
+
+            _frameCounter = 0;
+            _frameCountTimestamp = 0;
+
+            // Write data to disc after x seconds
+            _invokesSinceLastWrite++;
+            if (_invokesSinceLastWrite >= LOGGING_FREQUENCY && !_fileSystemOperationInProgress)
+            {
+                WriteToDisc();
+                _invokesSinceLastWrite = 0;
+            }
+        }
+    }
+
+    private static IEnumerable<object> GetSortedValues(OVRPlugin.HandState inputHandState)
+    {
+        // Hardcoded value return for HandState objects
+        var result = new List<object>
+        {
+            inputHandState.Status,
+            inputHandState.HandConfidence,
+            inputHandState.FingerConfidences,
+            inputHandState.RootPose,
+            inputHandState.PointerPose,
+            inputHandState.BoneRotations,
+            inputHandState.HandScale,
+            inputHandState.Pinches,
+            inputHandState.PinchStrength,
+            inputHandState.RequestedTimeStamp,
+            inputHandState.SampleTimeStamp
+        };
+
+        return result;
+    }
+
+    private static IEnumerable<object> GetSortedValues(Transform inputTransform)
+    {
+        // Hardcoded value return for Transform objects
+        var result = new List<object>
+        {
+            inputTransform.position,
+            inputTransform.rotation,
+            inputTransform.forward
+        };
+        return result;
+    }
+
+    protected void OnEnable()
+    {
+        Application.lowMemory += LogLowMemory;
+        Application.quitting += OnApplicationQuit;
+    }
+
+
+    private static void LogLowMemory()
+    {
+        Log(LogType.LowMemory);
+    }
+
+
+    private void OnApplicationQuit()
+    {
+        OnApplicationFocus(true);
+    }
+
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        Log(LogType.Focus, listData: new List<bool> { hasFocus });
+    }
+
+    private void OnApplicationPause(bool pauseStatus)   //(?)
+    {
+        // Provide end-of-file signifier and log the remaining data from memory before quitting
+        // NOTE: We do this in the pause event because the quit event on Android is unreliable
+        Log(LogType.QuitApp, ignorePrevious: true);
+        WriteToDisc();
+    }
+
+    public static void LogSceneChange(int SceneIndex, int ExpectedForce)   //to call when the next cube appears
+    {
+        Log(LogType.TrialIndex, new int[] { SceneIndex }, true);
+        Log(LogType.ForceLevel, new int[] { ExpectedForce }, true);
+    }
+
+    public static void LogForce(float graspForce, float fingersDistance)   //to call Continuosly
+    {
+        Log(LogType.GraspForce, new float[] { graspForce }, true);
+        Log(LogType.FingersDistance, new float[] { fingersDistance }, true);
+    }
+
+    public static void LogMetrics(int drops, int destroys)   //to call Continuosly
+    {
+        Log(LogType.Drops, new int[] { drops }, true);
+        Log(LogType.Destroys, new int[] { destroys }, true);
+    }
+
+    public static void LogTimeEvent(int taskEvent)   //to call Continuosly
+    {
+        Log(LogType.Time, new int[] { taskEvent }, true);
+    }
+
+
+    public static void Log(LogType type, IEnumerable listData = default, bool ignorePrevious = false)
+    {
+        var data = listData?.Cast<object>().ToList();  // Cast input data to list
+
+        // Check to make sure provided data is unique from previous log
+        if (!ignorePrevious && _previousLogs[(int)type] is not null && data is not null && data.Count == _previousLogs[(int)type].Count)
+        {
+            try
+            {
+                //if (type is LogType.HandPos)
+                //{
+                //    // Handle hand comparisons differently from other data by looking at orientation specifically
+                //    var compDataNew = (OVRPlugin.Posef)data[3];
+                //    var compDataOld = (OVRPlugin.Posef)_previousLogs[(int)type][3];
+                //    var orientation1 = compDataNew.Orientation;
+                //    var orientation2 = compDataOld.Orientation;
+                //    if (orientation1.Equals(orientation2)) return;
+                //}
+                //else
+                //{
+                //    // Compare other objects by turning them to json and comparing the strings
+                //    // TODO: Come up with a more performant approach to this
+                //    var obj1 = JsonUtility.ToJson(data);
+                //    var obj2 = JsonUtility.ToJson(_previousLogs[(int)type]);
+                //    if (obj1 == obj2) return;
+                //}
+            }
+            catch
+            {
+                // Ignored...
+            }
+        }
+
+        // Define the beginning of the log string with LogType and timestamp
+        var baseString = "" + (int)(Time.realtimeSinceStartup * 10000) + " " + (int)type + " ";
+
+        // Parse log command
+        switch (type)
+        {
+            case LogType.FPS:
+                _logQueue.Add(baseString + data![0]);
+                break;
+            case LogType.Focus:
+                _logQueue.Add(baseString + ((bool)data![0] ? 1 : 0));
+                break;
+            case LogType.LowMemory:
+                _logQueue.Add(baseString);
+                break;
+            case LogType.QuitApp:
+                _logQueue.Add(baseString);
+                break;
+            case LogType.FingersDistance:
+                _logQueue.Add(baseString + data![0]);
+                break;
+            case LogType.GraspForce:
+                _logQueue.Add(baseString + (float)data![0]);
+                break;
+            case LogType.Time:
+                _logQueue.Add(baseString + data![0]);// + "," + DateTime.Now.ToString("HH:mm:ss:fff"));
+                break;
+            case LogType.ForceLevel:
+                _logQueue.Add(baseString + data![0]);   //here we can save also the spawning position of the cube and the target point
+                break;
+            case LogType.TrialIndex:
+                _logQueue.Add(baseString + data![0]);
+                break;
+            case LogType.Drops:
+                _logQueue.Add(baseString + data![0]);
+                break;
+            case LogType.Destroys:
+                _logQueue.Add(baseString + data![0]);
+                break;
+            //default:
+            //    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+        }
+
+        string BuildRecursively(IEnumerable input)
+        {
+            var result = "";  // What will become the end result string
+            var e = input.GetEnumerator();
+            while (e.MoveNext())
+            {
+                var elem = e.Current;
+
+                // Handle predictable values of elem
+                switch (elem)
+                {
+
+                    case null:
+                        elem = "n";
+                        break;
+                }
+
+                // Parse and save elem
+                if (elem is ICollection or IList) result += "< " + BuildRecursively((IEnumerable)elem) + "> ";
+                else result += "" + elem + " ";
+            }
+
+            return result;
+        }
+    }
+
+    private static bool WriteToDisc()
+    {
+        _fileSystemOperationInProgress = true;
+#if UNITY_EDITOR
+        var path = "C:\\Users\\Eleonora Vendrame\\OneDrive - Scuola Superiore Sant'Anna\\Aalborg\\AAU Working folder\\VR\\Game1\\HandGame\\LogginData" + _logFileName;  //Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + _logFileName;
+#else  // NOTE: ASSUMING RELEASE BUILDS RUN ON DEVICE
+        var path = Application.persistentDataPath + _logFileName;
+#endif
+        try
+        {
+            // Open log file or create one and write log entries as lines
+            using (var sw = File.AppendText(path))
+            {
+                foreach (var list in _logQueue)
+                    sw.WriteLine(list.ToString());
+            }
+
+            // Clear log queue and return
+            _logQueue.Clear();
+            _fileSystemOperationInProgress = false;
+            _pointOfLastWrite = Time.realtimeSinceStartup;
+            return true;
+        }
+        // NOTE: Currently errors are not handled beyond this
+        catch (InvalidDataException e)
+        {
+            Debug.LogError("Target log path exists but is read-only\n" + e);
+        }
+        catch (PathTooLongException e)
+        {
+            Debug.LogError("Target log path name may be too long\n" + e);
+        }
+        catch (IOException e)
+        {
+            Debug.LogError("The disk may be full\n" + e);
+        }
+
+        // TODO: revert log file if write operations fail...
+
+        _fileSystemOperationInProgress = false;
+        _pointOfLastWrite = Time.realtimeSinceStartup;
+        return false;
+    }
+}
