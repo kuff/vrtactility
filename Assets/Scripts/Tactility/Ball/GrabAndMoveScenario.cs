@@ -27,6 +27,8 @@ namespace Tactility.Ball
         public int currentForceLevel;
 
         public Text textBox;
+
+        public LoadingIndicator loadingIndicator;
         
         private bool _wasGrabbed;
         private ITactilityDataProvider _dataProvider;
@@ -50,8 +52,12 @@ namespace Tactility.Ball
         private float _level4Threshold = 0.45f;
         private float _level3Threshold = 0.3f;
         private float _level2Threshold = 0.15f;
-        private float _toleranceThr = 0.05f;
+        private float _toleranceThr = 0.07f;
+        private float[] forceThresholds = new float [4];
+
         private bool _outOfForceLevel = false;
+
+        private int _currentState = 0;  //to log time events
         
 
         private void Start()
@@ -72,6 +78,8 @@ namespace Tactility.Ball
             _trialManager = GetComponent<TrialManager>();
             
             floatable = grabbable!.gameObject.GetComponent<FreeFloatable>();
+            loadingIndicator = GetComponent<LoadingIndicator>();
+
             // UpdateTargetPosition();
 
             // WhenOnSuccess += () => floatable.ResetPosition();
@@ -89,11 +97,18 @@ namespace Tactility.Ball
         {
             textBox.text = $"Pressure: {_pressureString}\nScenario: {_triggerString}\nTrial: {_trialManager.fileLineIndex}";
 
+
             if (grabbable && grabbable.isGrabbed)
             {
                 var origin = originPosition;
                 var progress = (Vector3.Distance(origin, targetPosition) - Vector3.Distance(floatable.transform.position, targetPosition)) / Vector3.Distance(origin, targetPosition);
                 Progress = Mathf.Clamp01(progress);
+
+                if (_currentState != 1)
+                {
+                    _currentState = 1; //object grasped
+                    Logger.LogTimeEvent(_currentState);
+                }
 
                 if (Progress >= 0.9f && currentForceLevel == _trialManager.targetForceLevel)
                 {
@@ -101,15 +116,21 @@ namespace Tactility.Ball
                     {
                         isDwellTimeCounting = true;
                         dwellTimer = 0f;
+                        loadingIndicator.HideLoadingIndicator();
                     }
                     else
                     {
                         dwellTimer += Time.deltaTime;
+                        loadingIndicator.ShowLoadingIndicator(targetPosition);
+                        loadingIndicator.UpdateProgress(dwellTimer);
                         if (dwellTimer >= dwellTime)
                         {
+                            loadingIndicator.HideLoadingIndicator();
                             WhenOnSuccess?.Invoke(ScenarioTrigger.Success);
                             _triggerString = "Success";
+                            _currentState = 0;
                             Progress = 0f;
+                            Logger.LogScenarioState(0);
                             return;
                         }
                     }                    
@@ -118,6 +139,7 @@ namespace Tactility.Ball
                 {
                     isDwellTimeCounting = false;
                     dwellTimer = 0f;
+                    loadingIndicator.HideLoadingIndicator();
                 }
 
                 ref var modulationData = ref _dataProvider.GetTactilityData();
@@ -139,6 +161,7 @@ namespace Tactility.Ball
                 }
 
                 var maxPressure = Mathf.Max(valueBatch);
+                
 
                 //currentForceLevel = maxPressure switch
                 //{
@@ -169,26 +192,36 @@ namespace Tactility.Ball
                     switch (_trialManager.targetForceLevel)
                     {
                         case 6:
-                            _level5Threshold -= _toleranceThr;
+                            _level5Threshold -= _toleranceThr * 1.5f;
+                            _level4Threshold -= _toleranceThr;
+                            _level3Threshold += _toleranceThr / 2;
                             break;
                         case 5:
                             _level6Threshold += _toleranceThr;
                             _level5Threshold -= _toleranceThr;
+                            _level4Threshold -= _toleranceThr / 2;
                             break;
                         case 4:
+                            _level6Threshold += _toleranceThr / 2;
                             _level5Threshold += _toleranceThr;
                             _level4Threshold -= _toleranceThr;
+                            _level3Threshold -= _toleranceThr / 2;
                             break;
                         case 3:
+                            _level5Threshold += _toleranceThr / 2;
                             _level4Threshold += _toleranceThr;
                             _level3Threshold -= _toleranceThr;
+                            _level2Threshold -= _toleranceThr / 2;
                             break;
                         case 2:
+                            _level4Threshold += _toleranceThr / 2;
                             _level3Threshold += _toleranceThr;
                             _level2Threshold -= _toleranceThr;
                             break;
                         case 1:
-                            _level2Threshold += _toleranceThr;
+                            _level4Threshold += _toleranceThr / 2;
+                            _level3Threshold += _toleranceThr;
+                            _level2Threshold += _toleranceThr * 1.5f;
                             break;
                     }
                 }
@@ -214,13 +247,25 @@ namespace Tactility.Ball
                 {
                     currentForceLevel = 2;
                 }
+                else if (maxPressure == 0)
+                {
+                    currentForceLevel = 0;
+                }
                 else
                 {
                     currentForceLevel = 1;
                 }
-                
+
+                Logger.LogForce(maxPressure, progress, currentForceLevel);
+
                 _pressureString = currentForceLevel.ToString();
 
+                forceThresholds[0] = _level2Threshold;
+                forceThresholds[1] = _level3Threshold;
+                forceThresholds[2] = _level4Threshold;
+                forceThresholds[3] = _level5Threshold;
+
+                Logger.LogForceThresholds(forceThresholds);
 
                 if (Progress <= safeRadius)
                 {
@@ -237,13 +282,17 @@ namespace Tactility.Ball
                     {
                         if (currentForceLevel > _trialManager.targetForceLevel)
                         {
+                            Logger.LogScenarioState(2);
                             WhenOnFailure?.Invoke(ScenarioTrigger.TooMuchPressure);
                             _triggerString = "Too much pressure";
+                            _currentState = 0;
                         }
                         else if (currentForceLevel < _trialManager.targetForceLevel)
                         {
+                            Logger.LogScenarioState(1);
                             WhenOnFailure?.Invoke(ScenarioTrigger.TooLittlePressure);
                             _triggerString = "Too little pressure";
+                            _currentState = 0;
                         }
                         Progress = 0f;
                         _pressureOutsideTime = 0f; // Reset the timer
@@ -256,10 +305,13 @@ namespace Tactility.Ball
             }
             else if (grabbable.allowGrabbing)
             {
+                loadingIndicator.HideLoadingIndicator();
                 if (Progress > 0.1f)
                 {
+                    Logger.LogScenarioState(3);
                     WhenOnFailure?.Invoke(ScenarioTrigger.LossOfGrab);
                     _triggerString = "Loss of grab";
+                    _currentState = 0;
                 }
                 Progress = 0f;
             }

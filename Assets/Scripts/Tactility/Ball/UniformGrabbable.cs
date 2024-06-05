@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 #endregion
 
@@ -44,7 +45,7 @@ namespace Tactility.Ball
         private Dictionary<OVRSkeleton.BoneId, Vector3> _touchingNormals;
         // private Renderer _renderer;
 
-
+        private bool isForce = false;
         private void Start()
         {
             _collider = GetComponent<SphereCollider>();
@@ -59,7 +60,6 @@ namespace Tactility.Ball
 
         private void Update()
         {
-            
             // Wait for OVR to initialize bones
             if (_boneCapsules is null && ovrInitializer.isInitialized)
             {
@@ -124,7 +124,7 @@ namespace Tactility.Ball
                 // If the normals don't cancel each other out or are equal, we can't grab
                 //Debug.Log($"3: {Vector3.Dot(indexNormal, thumbNormal) > 0.1f || indexNormal == thumbNormal}");
                 //Debug.Log($"4: {Vector3.Dot(indexNormal, thumbNormal)}");
-                if (Vector3.Dot(indexNormal, thumbNormal) > -0.9f || indexNormal == thumbNormal)
+                if ((Vector3.Dot(indexNormal, thumbNormal) > -0.9f || indexNormal == thumbNormal) && !isForce)
                 {
                     isGrabbed = false;
                     return;
@@ -135,6 +135,7 @@ namespace Tactility.Ball
                 // Debug.Log($"5: {Vector3.Distance(indexPoint, thumbPoint)}");
                 // Debug.Log($"6: {objectWidth + 0.01f}");
                 var distance = Vector3.Distance(indexPoint, thumbPoint);
+
                 if (distance > objectWidth + 0.005f)
                 {
                     isGrabbed = false;
@@ -318,6 +319,16 @@ namespace Tactility.Ball
                 // Project the distance into a pressure value between 0 and 1
                 var force = 1 - Mathf.Clamp01((distance-0.01f) / (transform.localScale.x-0.01f));
 
+                if (force>0.74)
+                { 
+                    isForce = true; 
+                }
+                else
+                {
+                    isForce= false;
+                }
+
+                //Logger.LogForce(force, distance);
                 // Distance over one axis
                 //float deltaX = Mathf.Abs(indexPoint.x - thumbPoint.x);
                 //float deltaY = Mathf.Abs(indexPoint.y - thumbPoint.y);
