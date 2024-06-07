@@ -49,7 +49,7 @@ namespace Tactility.Ball
                 
                 // var targetForceLevel = _trialManager.targetForceLevel;
                 var targetForceLevel = _trialManager.targetForceLevel;
-                var currentMaterial = _trialManager.materials[targetForceLevel - 1];
+                var currentMaterial = _trialManager.materials[targetForceLevel];
                 _renderer.material = currentMaterial;
                 
                 if (_scenario.currentForceLevel != targetForceLevel)

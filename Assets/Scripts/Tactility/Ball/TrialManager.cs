@@ -47,7 +47,7 @@ namespace Tactility.Ball
             {
                 if (_currentScenario.grabbable.isGrabbed)
                 {
-                    _renderer.material = materials[_currentScenario.currentForceLevel - 1];
+                    _renderer.material = materials[_currentScenario.currentForceLevel];
                 }
                 else
                 {
@@ -71,7 +71,8 @@ namespace Tactility.Ball
                 new Vector3(0.1f, 1.1f, 0.7f)
             };
             fileLineIndex++;
-            
+            Logger.LogSceneChange(fileLineIndex, targetForceLevel);
+
             // Increment targetForceLevel when modulus of 6 is 0
             if (fileLineIndex % 5 == 1)
             {
@@ -100,29 +101,30 @@ namespace Tactility.Ball
                 case ScenarioTrigger.LossOfGrab:
                 case ScenarioTrigger.TooLittlePressure:
                     _currentScenario.grabbable.allowGrabbing = false;
-
                     // Simulate gravity for but a moment
                     var cubeRigidbody = _currentScenario.floatable.GetComponent<Rigidbody>();
                     cubeRigidbody.useGravity = true;
-
                     // var tempOriginPosition = _currentScenario.floatable.transform.position;
                     // tempOriginPosition.y = 0.25f;
-                    // _currentScenario.floatable.OriginPoint = tempOriginPosition;
-                    
+                    // _currentScenario.floatable.OriginPoint = tempOriginPosition;                   
                     break;
+
                 case ScenarioTrigger.TooMuchPressure:
                     _currentScenario.grabbable.allowGrabbing = false;
                     _explodingParticles.transform.position = _currentScenario.floatable.transform.position;
                     _currentScenario.floatable.GetComponent<Renderer>()!.enabled = false;
                     _explodingParticles.Play();
                     break;
+
                 case ScenarioTrigger.Idle:
                     SetNextPosition();
                     return;
+
                 case ScenarioTrigger.Success:
                     _currentScenario.grabbable.allowGrabbing = false;
                     _currentScenario.floatable.GetComponent<Renderer>()!.enabled = false;
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(cause), cause, null);
             }
@@ -154,6 +156,8 @@ namespace Tactility.Ball
             
             // Set currentMaterial in accordance with targetForceLevel
             _currentScenario.floatable.GetComponent<Renderer>()!.enabled = true;
+
+            // Logger.LogPositions(_currentScenario.originPosition, _currentScenario.targetPosition);
             // _currentScenario.floatable.GetComponent<Renderer>()!.material = materials[targetForceLevel - 1];
         }
     }

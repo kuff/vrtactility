@@ -30,36 +30,36 @@ public class Logger : MonoBehaviour
     public enum LogType
     {
         // Continuous/Event/Static
-        //Overall
+        // Overall
         FPS,                  //  0 C
         LowMemory,            //  1 E
         QuitApp,              //  2 E
         HeadPos,              //  3 C
         HandPos,              //  4 C - dominant hand? Maybe select R/L in the calibration
         Focus,                //  5 E
-        //Grabbing
-        FingersDistance,      //  6 C
+        // Grabbing
+        ForceThresholds,      //  6 C
         GraspForce,           //  7 C
-        NormalVectorHand,     //  8 C!!!
-        //Trial
-        ForceLevel,           //  8 S
-        TrialIndex,           //  9 S
-        StartPos,             //  10 S
-        TargetPos,            // S
-        Time,                 // 10 E   //start->0 //isGrasped->1 //isReleased->2 //isDestroyed->3 //end->4
-        Progress,             // 11 C
-        Drops,                // 11 S
-        Destroys,             // 12 S
-        //Stimulation
-        Amplitude,            // 13 C
-        Frequency,            // 14 C
-        ActivePads,           // 15 C
+        CurrentForceLevel,    //  8
+        NormalVectorHand,     //  9 C!!!
+        // Trial
+        TargetForceLevel,     //  10 S
+        TrialIndex,           //  11 S
+        CubePositions,        //  12 S
+        Time,                 //  13 E   // start->0 //isGrasped->1 //isReleased->2 //isDestroyed->3 //end->4    (THIS IS MORE IMPORTANT IN THE VALIDATION)
+        Progress,             //  14 C
+        ScenarioStatus,       //  15 E   // success -> 0 // drop -> 1 // destroy -> 2 // lossOfGrab -> 3
+        // Stimulation
+        Amplitude,            //  16 C
+        Frequency,            //  17 C
+        ActivePads,           //  18 C
+        // LoadScene
+        SceneIndex            //  19 E
     }
 
     protected void Start()
     {
         //Log(LogType.Time);  //(?)
-
     }
 
     protected void Update()
@@ -115,7 +115,6 @@ public class Logger : MonoBehaviour
             inputHandState.RequestedTimeStamp,
             inputHandState.SampleTimeStamp
         };
-
         return result;
     }
 
@@ -137,12 +136,10 @@ public class Logger : MonoBehaviour
         Application.quitting += OnApplicationQuit;
     }
 
-
     private static void LogLowMemory()
     {
         Log(LogType.LowMemory);
     }
-
 
     private void OnApplicationQuit()
     {
@@ -163,22 +160,27 @@ public class Logger : MonoBehaviour
         WriteToDisc();
     }
 
-    public static void LogSceneChange(int SceneIndex, int ExpectedForce)   //to call when the next cube appears
+    public static void LogSceneChange(int SceneIndex, int TargetForceLevel)   //to call when the next cube appears
     {
         Log(LogType.TrialIndex, new int[] { SceneIndex }, true);
-        Log(LogType.ForceLevel, new int[] { ExpectedForce }, true);
+        Log(LogType.TargetForceLevel, new int[] { TargetForceLevel }, true);
     }
 
-    public static void LogForce(float graspForce, float fingersDistance)   //to call Continuosly
+    public static void LogForceThresholds(float[] forceThrs)   //to call when the next cube appears
+    {
+        Log(LogType.ForceThresholds, new float[] { forceThrs[0], forceThrs[1], forceThrs[2], forceThrs[3] }, true);
+    }
+
+    public static void LogForce(float graspForce, float progress, int currentForceLevel)   //to call Continuosly
     {
         Log(LogType.GraspForce, new float[] { graspForce }, true);
-        Log(LogType.FingersDistance, new float[] { fingersDistance }, true);
+        Log(LogType.Progress, new float[] { progress }, true);
+        Log(LogType.CurrentForceLevel, new int[] { currentForceLevel }, true);
     }
 
-    public static void LogMetrics(int drops, int destroys)   //to call Continuosly
+    public static void LogScenarioState(int scenarioState)   
     {
-        Log(LogType.Drops, new int[] { drops }, true);
-        Log(LogType.Destroys, new int[] { destroys }, true);
+        Log(LogType.ScenarioStatus, new int[] { scenarioState }, true);
     }
 
     public static void LogTimeEvent(int taskEvent)   //to call Continuosly
@@ -186,6 +188,15 @@ public class Logger : MonoBehaviour
         Log(LogType.Time, new int[] { taskEvent }, true);
     }
 
+    public static void SceneIndex(int currentSceneIndex)   //to call Continuosly
+    {
+        Log(LogType.SceneIndex, new int[] { currentSceneIndex }, true);
+    }
+
+    public static void LogPositions(Vector3 startPos, Vector3 endPos)   //to call Continuosly
+    {
+        Log(LogType.CubePositions, new Vector3[] { startPos, endPos }, true);
+    }
 
     public static void Log(LogType type, IEnumerable listData = default, bool ignorePrevious = false)
     {
@@ -238,25 +249,37 @@ public class Logger : MonoBehaviour
             case LogType.QuitApp:
                 _logQueue.Add(baseString);
                 break;
-            case LogType.FingersDistance:
+            case LogType.ForceThresholds:
                 _logQueue.Add(baseString + data![0]);
+                _logQueue.Add(baseString + data![1]);
+                _logQueue.Add(baseString + data![2]);
+                _logQueue.Add(baseString + data![3]);
                 break;
             case LogType.GraspForce:
+                _logQueue.Add(baseString + (float)data![0]);
+                break;
+            case LogType.CurrentForceLevel:
+                _logQueue.Add(baseString + data![0]);
+                break;
+            case LogType.Progress:
                 _logQueue.Add(baseString + (float)data![0]);
                 break;
             case LogType.Time:
                 _logQueue.Add(baseString + data![0]);// + "," + DateTime.Now.ToString("HH:mm:ss:fff"));
                 break;
-            case LogType.ForceLevel:
-                _logQueue.Add(baseString + data![0]);   //here we can save also the spawning position of the cube and the target point
+            case LogType.TargetForceLevel:
+                _logQueue.Add(baseString + data![0]);   
                 break;
             case LogType.TrialIndex:
                 _logQueue.Add(baseString + data![0]);
                 break;
-            case LogType.Drops:
+            case LogType.CubePositions:
+                _logQueue.Add(baseString + data![0] + data![1]);
+                break;
+            case LogType.ScenarioStatus:
                 _logQueue.Add(baseString + data![0]);
                 break;
-            case LogType.Destroys:
+            case LogType.SceneIndex:
                 _logQueue.Add(baseString + data![0]);
                 break;
             //default:
@@ -293,7 +316,7 @@ public class Logger : MonoBehaviour
     {
         _fileSystemOperationInProgress = true;
 #if UNITY_EDITOR
-        var path = "C:\\Users\\Eleonora Vendrame\\OneDrive - Scuola Superiore Sant'Anna\\Aalborg\\AAU Working folder\\VR\\Game1\\HandGame\\LogginData" + _logFileName;  //Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + _logFileName;
+        var path = "C:\\Users\\Eleonora Vendrame\\OneDrive - Scuola Superiore Sant'Anna\\Aalborg\\AAU Working folder\\Exp1_VirtualReality\\RecordedData" + _logFileName;  //Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + _logFileName;
 #else  // NOTE: ASSUMING RELEASE BUILDS RUN ON DEVICE
         var path = Application.persistentDataPath + _logFileName;
 #endif
