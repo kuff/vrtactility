@@ -15,7 +15,10 @@ namespace Tactility.Calibration.Interface
     public class BoxConnectionManager : MonoBehaviour
     {
         [SerializeField]
+        protected Dropdown calibrationDropdown;
+        [SerializeField]
         private InputField portField;
+        
         private AbstractBoxController _boxController;
         private InterfaceManager _interface;
 
@@ -25,6 +28,24 @@ namespace Tactility.Calibration.Interface
         {
             _boxController = FindObjectOfType<AbstractBoxController>();
             _interface = FindObjectOfType<InterfaceManager>();
+            
+            _boxController.OnConnectionStateChangedEvent += ChangeSceneOnConnect;
+        }
+        
+        private void ChangeSceneOnConnect(bool isConnected)
+        {
+            if (!isConnected)
+            {
+                return;
+            }
+            
+            // If anything other than "New Calibration" is selected, load the "Calibration" scene, else load the "Demo" scene
+            var sceneToLoad = "Calibration";
+            if (calibrationDropdown.options[calibrationDropdown.value].text != "New Calibration")
+            {
+                sceneToLoad = "Demo";
+            }
+            _interface.SetActiveScene(sceneToLoad);
         }
 
         private void Update()
@@ -35,7 +56,6 @@ namespace Tactility.Calibration.Interface
             }
 
             _waitingForConnection = false;
-            _interface.SetActiveScene("Calibration");
             DontDestroyOnLoad(_boxController.gameObject); // The box doesn't prevent its own destruction
         }
 

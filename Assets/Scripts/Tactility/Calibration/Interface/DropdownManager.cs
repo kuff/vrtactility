@@ -2,6 +2,7 @@
 
 #region
 using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +23,15 @@ namespace Tactility.Calibration.Interface
 
         protected virtual void Start()
         {
+            UpdateItems();
+        }
+
+        protected abstract List<T> GetAllItems();
+        protected abstract void SetSelectedItem(T item);
+        protected abstract string GetItemName(T item);
+
+        public void UpdateItems()
+        {
             dropdown.ClearOptions();
             var items = GetAllItems();
 
@@ -31,16 +41,25 @@ namespace Tactility.Calibration.Interface
                 items.Remove(defaultItem); // Prevent adding it twice
             }
 
+            // Get the items
             foreach (var item in items)
             {
                 dropdown.options.Add(new Dropdown.OptionData(GetItemName(item)));
             }
+
+            try
+            {
+                // Use either the default item or the first item in the list for the dropdown label
+                var itemText = string.IsNullOrEmpty(GetItemName(defaultItem)) ? GetItemName(items[0]) : GetItemName(defaultItem);
+                dropdown.GetComponentInChildren<Text>()!.text = itemText;
+            }
+            catch (IndexOutOfRangeException e)
+            {
+                // Notify that no items were found
+                Debug.LogError(e.Message);
+            }
         }
-
-        protected abstract List<T> GetAllItems();
-        protected abstract void SetSelectedItem(T item);
-        protected abstract string GetItemName(T item);
-
+        
         public virtual void UpdateSelectedItem()
         {
             if (dropdown.options.Count <= dropdown.value)
@@ -48,7 +67,8 @@ namespace Tactility.Calibration.Interface
                 return;
             }
 
-            var selectedItem = dropdown.options[dropdown.value].text;
+            // If no explicit item was selected yet, use the dropdown label
+            var selectedItem = string.IsNullOrEmpty(dropdown.options[dropdown.value]!.text) ? dropdown.GetComponentInChildren<Text>()!.text : dropdown.options[dropdown.value]!.text;
             var item = GetAllItems().Find(i => GetItemName(i) == selectedItem);
             SetSelectedItem(item);
         }

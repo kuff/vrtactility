@@ -6,27 +6,31 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using static Tactility.Calibration.CalibrationManager;
 #endregion
 
 namespace Tactility.Calibration.Interface
 {
     public class CalibrationSelectionManager : DropdownManager<string>
     {
-
-        // Add a constant for the 'Start New Calibration' option
-        private const string StartNewCalibrationOption = "Start New Calibration";
-        [Tooltip("Indicates if the 'Start New Calibration' option is selected.")]
+        [HideInInspector]
         public bool isNewCalibrationSelected;
+        
+        private const string StartNewCalibrationOption = "New Calibration";
 
         protected override void Start()
         {
+            if (string.IsNullOrEmpty(defaultItem))
+            {
+                defaultItem = StartNewCalibrationOption;
+            }
             base.Start();
             // Check if there's a default value set, if not, make 'Start New Calibration' the default
-            if (string.IsNullOrEmpty(defaultItem) || dropdown.options.All(opt => opt.text != defaultItem))
-            {
-                dropdown.value = dropdown.options.FindIndex(opt => opt.text == StartNewCalibrationOption);
-                UpdateSelectedItem();
-            }
+            // if (string.IsNullOrEmpty(defaultItem) || dropdown.options.All(opt => opt.text != defaultItem))
+            // {
+            //     dropdown.value = dropdown.options.FindIndex(opt => opt.text == StartNewCalibrationOption);
+            //     UpdateSelectedItem();
+            // }
         }
 
         protected override List<string> GetAllItems()
@@ -36,7 +40,8 @@ namespace Tactility.Calibration.Interface
             var fileInfo = new DirectoryInfo(directoryPath).GetFiles();
 
             // Pattern to identify calibration files
-            const string pattern = @"^[a-zA-Z0-9]+_calibration_vrt\d+\.\d+.*\.txt$";
+            var deviceName = DeviceConfig.deviceName;
+            var pattern = @"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_calibration_" + Regex.Escape(deviceName) + @"_vrt\d+\.\d+\.txt$";
 
             // Filtering files according to the regex pattern
             var calibrationFiles = fileInfo.Where(file => Regex.IsMatch(file.Name, pattern))
@@ -45,7 +50,7 @@ namespace Tactility.Calibration.Interface
 
             // Add the option for starting new calibration at the beginning of the list
             calibrationFiles.Insert(0, StartNewCalibrationOption);
-
+            
             return calibrationFiles;
         }
 
@@ -73,7 +78,7 @@ namespace Tactility.Calibration.Interface
         protected override void SetSelectedItem(string fileName)
         {
             // Load the selected calibration file
-            CalibrationManager.LoadCalibrationDataFromFile(fileName);
+            LoadCalibrationDataFromFile(fileName);
         }
 
         protected override string GetItemName(string item)
