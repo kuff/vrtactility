@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 namespace Tactility.Ball
@@ -22,6 +23,7 @@ namespace Tactility.Ball
         private Renderer _renderer;
 
         private Material _defaultMaterial;
+        
 
         private void Start()
         {
@@ -45,7 +47,7 @@ namespace Tactility.Ball
             }
             else
             {
-                if (_currentScenario.grabbable.isGrabbed)
+                if (_currentScenario.grabbable.isGrabbed && !(SceneManager.GetActiveScene().buildIndex==3 || SceneManager.GetActiveScene().buildIndex == 4))
                 {
                     _renderer.material = materials[_currentScenario.currentForceLevel];
                 }
@@ -59,6 +61,8 @@ namespace Tactility.Ball
         private (Vector3, Vector3) GetNextPositions()
         {
             var resultString = _fileLines[fileLineIndex];
+            var targetForceLevels = new int[] { 1, 3, 6, 5, 2, 4, 2, 1, 5, 6, 4, 3, 3, 1, 5, 6, 4, 2, 5, 1, 4, 2, 3, 6, 2, 4, 3, 5, 6, 1 };
+
             var targetPositions = new List<Vector3>
             {
                 new Vector3(-0.1f, 0.9f, 0.5f),
@@ -73,20 +77,33 @@ namespace Tactility.Ball
             fileLineIndex++;
             Logger.LogSceneChange(fileLineIndex, targetForceLevel);
 
-            // Increment targetForceLevel when modulus of 6 is 0
-            if (fileLineIndex % 5 == 1)
+            if (SceneManager.GetActiveScene().buildIndex != 1)
             {
-                targetForceLevel++;
-                
+                // Increment targetForceLevel when modulus of 6 is 0
+                //if (fileLineIndex % 5 == 1)
+                //{
+                targetForceLevel = targetForceLevels[fileLineIndex-1];
+                Debug.Log("FileIndex: " + fileLineIndex);
+
                 // Reset targetForceLevel when it reaches 6
-                if (targetForceLevel == 7)
+                if (fileLineIndex == 29)
                 {
-                    targetForceLevel = 1;
+                    Debug.Log("I'm finished, fileIndex: " + fileLineIndex);
+                    Invoke("LoadNextScene", 0.5f);
+                }
+                //}
+            }
+            else
+            {
+                if (fileLineIndex < 13)
+                {
+                    targetForceLevel = targetForceLevels[fileLineIndex-1];
+                }
+                else
+                {
+                    Invoke("LoadNextScene", 0.5f);                    
                 }
             }
-            
-            // Debug.Log("Origin position: " + resultString[0]);
-            // Debug.Log("Target position: " + resultString[2]);
 
             var originIndex = int.Parse(resultString[0].ToString());
             var targetIndex = int.Parse(resultString[2].ToString());
@@ -159,6 +176,11 @@ namespace Tactility.Ball
 
             // Logger.LogPositions(_currentScenario.originPosition, _currentScenario.targetPosition);
             // _currentScenario.floatable.GetComponent<Renderer>()!.material = materials[targetForceLevel - 1];
+        }
+
+        private void LoadNextScene()
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
     }
 }

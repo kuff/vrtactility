@@ -319,7 +319,7 @@ namespace Tactility.Ball
                 // Project the distance into a pressure value between 0 and 1
                 var force = 1 - Mathf.Clamp01((distance-0.01f) / (transform.localScale.x-0.01f));
 
-                if (force>0.74)
+                if (force>0.60 && isGrabbed)
                 { 
                     isForce = true; 
                 }

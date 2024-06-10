@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Tactility.Modulation;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 #endregion
@@ -52,7 +53,7 @@ namespace Tactility.Ball
         private float _level4Threshold = 0.45f;
         private float _level3Threshold = 0.3f;
         private float _level2Threshold = 0.15f;
-        private float _toleranceThr = 0.07f;
+        private float _toleranceThr = 0.1f;
         private float[] forceThresholds = new float [4];
 
         private bool _outOfForceLevel = false;
@@ -61,19 +62,7 @@ namespace Tactility.Ball
         
 
         private void Start()
-        {
-            // targetPositions = new List<Vector3>
-            // {
-            //     new Vector3(-0.1f, 0.9f, 0.5f),
-            //     new Vector3(-0.1f, 1.1f, 0.5f),
-            //     new Vector3(0.1f, 0.9f, 0.5f),
-            //     new Vector3(0.1f, 1.1f, 0.5f),
-            //     new Vector3(-0.1f, 0.9f, 0.7f),
-            //     new Vector3(-0.1f, 1.1f, 0.7f),
-            //     new Vector3(0.1f, 0.9f, 0.7f),
-            //     new Vector3(0.1f, 1.1f, 0.7f)
-            // };
-            
+        {            
             _dataProvider = GetComponent<ITactilityDataProvider>();
             _trialManager = GetComponent<TrialManager>();
             
@@ -96,7 +85,7 @@ namespace Tactility.Ball
         private void Update()
         {
             textBox.text = $"Pressure: {_pressureString}\nScenario: {_triggerString}\nTrial: {_trialManager.fileLineIndex}";
-
+            _triggerString = SceneManager.GetActiveScene().name;
 
             if (grabbable && grabbable.isGrabbed)
             {
@@ -110,37 +99,75 @@ namespace Tactility.Ball
                     Logger.LogTimeEvent(_currentState);
                 }
 
-                if (Progress >= 0.9f && currentForceLevel == _trialManager.targetForceLevel)
+                if (SceneManager.GetActiveScene().buildIndex != 4)
                 {
-                    if (!isDwellTimeCounting)
+                    if (Progress >= 0.9f && currentForceLevel == _trialManager.targetForceLevel)
                     {
-                        isDwellTimeCounting = true;
-                        dwellTimer = 0f;
-                        loadingIndicator.HideLoadingIndicator();
+                        if (!isDwellTimeCounting)
+                        {
+                            isDwellTimeCounting = true;
+                            dwellTimer = 0f;
+                            loadingIndicator.HideLoadingIndicator();
+                        }
+                        else
+                        {
+                            dwellTimer += Time.deltaTime;
+                            loadingIndicator.ShowLoadingIndicator(targetPosition);
+                            loadingIndicator.UpdateProgress(dwellTimer);
+                            if (dwellTimer >= dwellTime)
+                            {
+                                loadingIndicator.HideLoadingIndicator();
+                                WhenOnSuccess?.Invoke(ScenarioTrigger.Success);
+                                _triggerString = "Success";
+                                _currentState = 0;
+                                Progress = 0f;
+                                Logger.LogScenarioState(0);
+                                return;
+                            }
+                        }
                     }
                     else
                     {
-                        dwellTimer += Time.deltaTime;
-                        loadingIndicator.ShowLoadingIndicator(targetPosition);
-                        loadingIndicator.UpdateProgress(dwellTimer);
-                        if (dwellTimer >= dwellTime)
-                        {
-                            loadingIndicator.HideLoadingIndicator();
-                            WhenOnSuccess?.Invoke(ScenarioTrigger.Success);
-                            _triggerString = "Success";
-                            _currentState = 0;
-                            Progress = 0f;
-                            Logger.LogScenarioState(0);
-                            return;
-                        }
-                    }                    
+                        isDwellTimeCounting = false;
+                        dwellTimer = 0f;
+                        loadingIndicator.HideLoadingIndicator();
+                    }
                 }
                 else
                 {
-                    isDwellTimeCounting = false;
-                    dwellTimer = 0f;
-                    loadingIndicator.HideLoadingIndicator();
+                    if (Progress >= 0.9f)
+                    {
+                        if (!isDwellTimeCounting)
+                        {
+                            isDwellTimeCounting = true;
+                            dwellTimer = 0f;
+                            loadingIndicator.HideLoadingIndicator();
+                        }
+                        else
+                        {
+                            dwellTimer += Time.deltaTime;
+                            loadingIndicator.ShowLoadingIndicator(targetPosition);
+                            loadingIndicator.UpdateProgress(dwellTimer);
+                            if (dwellTimer >= dwellTime)
+                            {
+                                loadingIndicator.HideLoadingIndicator();
+                                WhenOnSuccess?.Invoke(ScenarioTrigger.Success);
+                                _triggerString = "Success";
+                                _currentState = 0;
+                                Progress = 0f;
+                                Logger.LogScenarioState(0);
+                                return;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        isDwellTimeCounting = false;
+                        dwellTimer = 0f;
+                        loadingIndicator.HideLoadingIndicator();
+                    }
                 }
+                
 
                 ref var modulationData = ref _dataProvider.GetTactilityData();
 
@@ -161,17 +188,6 @@ namespace Tactility.Ball
                 }
 
                 var maxPressure = Mathf.Max(valueBatch);
-                
-
-                //currentForceLevel = maxPressure switch
-                //{
-                //    > 0.75f => 6,
-                //    > 0.6f => 5,
-                //    > 0.45f => 4,
-                //    > 0.3f => 3,
-                //    > 0.15f => 2,
-                //    _ => 1
-                //};
 
                 if (currentForceLevel != _trialManager.targetForceLevel)
                 {
@@ -272,35 +288,38 @@ namespace Tactility.Ball
                     return;
                 }
 
-                var isPressureOutside = currentForceLevel != _trialManager.targetForceLevel;
-
-                if (isPressureOutside)
+                if (SceneManager.GetActiveScene().buildIndex != 1 && SceneManager.GetActiveScene().buildIndex != 4)
                 {
-                    _pressureOutsideTime += Time.deltaTime;
+                    var isPressureOutside = currentForceLevel != _trialManager.targetForceLevel;
 
-                    if (_pressureOutsideTime >= AllowedOutsideTime)
+                    if (isPressureOutside)
                     {
-                        if (currentForceLevel > _trialManager.targetForceLevel)
+                        _pressureOutsideTime += Time.deltaTime;
+
+                        if (_pressureOutsideTime >= AllowedOutsideTime)
                         {
-                            Logger.LogScenarioState(2);
-                            WhenOnFailure?.Invoke(ScenarioTrigger.TooMuchPressure);
-                            _triggerString = "Too much pressure";
-                            _currentState = 0;
+                            if (currentForceLevel > _trialManager.targetForceLevel)
+                            {
+                                Logger.LogScenarioState(2);
+                                WhenOnFailure?.Invoke(ScenarioTrigger.TooMuchPressure);
+                                _triggerString = "Too much pressure";
+                                _currentState = 0;
+                            }
+                            else if (currentForceLevel < _trialManager.targetForceLevel)
+                            {
+                                Logger.LogScenarioState(1);
+                                WhenOnFailure?.Invoke(ScenarioTrigger.TooLittlePressure);
+                                _triggerString = "Too little pressure";
+                                _currentState = 0;
+                            }
+                            Progress = 0f;
+                            _pressureOutsideTime = 0f; // Reset the timer
                         }
-                        else if (currentForceLevel < _trialManager.targetForceLevel)
-                        {
-                            Logger.LogScenarioState(1);
-                            WhenOnFailure?.Invoke(ScenarioTrigger.TooLittlePressure);
-                            _triggerString = "Too little pressure";
-                            _currentState = 0;
-                        }
-                        Progress = 0f;
-                        _pressureOutsideTime = 0f; // Reset the timer
                     }
-                }
-                else
-                {
-                    _pressureOutsideTime = 0f; // Reset the timer if pressure is back within range
+                    else
+                    {
+                        _pressureOutsideTime = 0f; // Reset the timer if pressure is back within range
+                    }
                 }
             }
             else if (grabbable.allowGrabbing)
@@ -309,8 +328,8 @@ namespace Tactility.Ball
                 if (Progress > 0.1f)
                 {
                     Logger.LogScenarioState(3);
-                    WhenOnFailure?.Invoke(ScenarioTrigger.LossOfGrab);
-                    _triggerString = "Loss of grab";
+                    //WhenOnFailure?.Invoke(ScenarioTrigger.LossOfGrab);
+                    //_triggerString = "Loss of grab";
                     _currentState = 0;
                 }
                 Progress = 0f;

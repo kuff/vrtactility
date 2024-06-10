@@ -2,6 +2,7 @@
 
 #region
 using UnityEngine;
+using UnityEngine.SceneManagement;
 #endregion
 
 namespace Tactility.Ball
@@ -52,7 +53,7 @@ namespace Tactility.Ball
                 var currentMaterial = _trialManager.materials[targetForceLevel];
                 _renderer.material = currentMaterial;
                 
-                if (_scenario.currentForceLevel != targetForceLevel)
+                if (_scenario.currentForceLevel != targetForceLevel && SceneManager.GetActiveScene().buildIndex != 4)
                 {
                     // Apply subtle wobble effect
                     var wobble = Mathf.Sin(Time.time * wobbleFrequency) * wobbleAmplitude;
