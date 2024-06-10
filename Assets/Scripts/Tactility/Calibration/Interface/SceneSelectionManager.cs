@@ -39,6 +39,7 @@ namespace Tactility.Calibration.Interface
 
         public void LoadSelectedScene()
         {
+            UpdateSelectedItem();
             if (!string.IsNullOrEmpty(_selectedSceneName))
             {
                 SceneManager.LoadScene(_selectedSceneName);

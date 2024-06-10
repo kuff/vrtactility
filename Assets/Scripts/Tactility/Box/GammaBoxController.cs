@@ -141,6 +141,10 @@ namespace Tactility.Box
             {
                 _receivedValidGreeting = message is "Re:[] new connection" or "Re:[] re-connection" or "Re:[] ok";
                 IsConnected = _receivedValidGreeting;
+                if (_receivedValidGreeting)
+                {
+                    base.OnConnectionEvent(true);
+                }
             }
 
             base.OnMessageArrived(message);
@@ -197,7 +201,10 @@ namespace Tactility.Box
                 _receivedValidGreeting = false;
             }
 
-            base.OnConnectionEvent(wasSuccessful);
+            if (!wasSuccessful)
+            {
+                base.OnConnectionEvent(false);
+            }
         }
     }
 }

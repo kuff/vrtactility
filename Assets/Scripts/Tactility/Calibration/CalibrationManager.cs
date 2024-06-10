@@ -18,7 +18,7 @@ namespace Tactility.Calibration
     {
         private static TactilityDeviceConfig _deviceConfigStatic; // Static field to hold the instance
 
-        // Calibrated "just noticeable differences" (JNDs) for the device
+        // Calibrated values for the device
         public static float[] BaseAmps;
         public static int[] BaseWidths;
         [Tooltip("The configuration settings for the connected tactility device. This includes device-specific parameters such as number of pads, use of implicit anodes, and other configurable properties.Note: This selection may be overruled at runtime by the LoadDeviceConfigByName method.")]
@@ -181,7 +181,7 @@ namespace Tactility.Calibration
             // First, try if the provided calibrationFilePath is a complete path
             if (!File.Exists(filePath))
             {
-                // If it fails, assume calibrationFilePath is a subpath within the persistent data path
+                // If it fails, assume calibrationFilePath is a sub-path within the persistent data path
                 filePath = Path.Combine(Application.persistentDataPath, calibrationFilePath);
 
                 if (!File.Exists(filePath))

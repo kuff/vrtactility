@@ -27,6 +27,9 @@ namespace Tactility.Calibration.Interface
 
     public class PadCalibrationManager : MonoBehaviour
     {
+        public int currentPadIndex;
+        public bool isStimOn;
+        
         [SerializeField]
         private InputField amplitudeField;
         [SerializeField]
@@ -42,9 +45,7 @@ namespace Tactility.Calibration.Interface
 
         private AbstractBoxController _boxController;
         private List<CalibrationValues> _calibrationValues;
-        private bool _canSaveData;
-        private int _currentPadIndex;
-        private bool _isStimOn;
+        // private bool _canSaveData;
 
         // Elements from 0-5 -> thumb (I1 of connecting board)
         // Elements from 6-12 -> thumb (I1 of connecting board)
@@ -55,8 +56,8 @@ namespace Tactility.Calibration.Interface
         {
             _boxController = FindObjectOfType<AbstractBoxController>();
             _calibrationValues = new List<CalibrationValues>();
-            _currentPadIndex = 0;
-            _isStimOn = false;
+            currentPadIndex = 0;
+            isStimOn = false;
 
             // Initialize values array with number of pads
             for (var i = 0; i < DeviceConfig.numPads; i++)
@@ -66,7 +67,7 @@ namespace Tactility.Calibration.Interface
 
             // Initialize the Input Fields to their default values
             //UpdateInputFields();
-            _currentPad = _remapStrip[_currentPadIndex]-1;
+            _currentPad = _remapStrip[currentPadIndex]-1;
             UpdateCurrentPadString();
         }
 
@@ -80,30 +81,26 @@ namespace Tactility.Calibration.Interface
                 BaseAmps[i] = _calibrationValues[i].Amplitude;
                 BaseWidths[i] = (int)_calibrationValues[i].Width;
             }
-
-            // Save the calibration data to a file with a timestamp name
-            if (_canSaveData)
-            {
-                // var calibrationFilePath = SaveCalibrationDataToFile(DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
-                // LoadCalibrationDataFromFile(calibrationFilePath);
-                SaveCalibrationDataToFile(DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
-            }
+            
+            // var calibrationFilePath = SaveCalibrationDataToFile(DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+            // LoadCalibrationDataFromFile(calibrationFilePath);
+            SaveCalibrationDataToFile(DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
         }
 
         public void NextPad()
         {
             SaveCalibrationValues();
-            if (_currentPadIndex < DeviceConfig.numPads - 1)
+            if (currentPadIndex < DeviceConfig.numPads - 1)
             {
-                _currentPadIndex++;
+                currentPadIndex++;
 
                 // Only save the calibration data to disk if we've cycled through all the pads
-                if (_currentPadIndex+1 == DeviceConfig.numPads)
-                {
-                    _canSaveData = true;
-                }
+                // if (currentPadIndex+1 == DeviceConfig.numPads)
+                // {
+                //     _canSaveData = true;
+                // }
             }
-            _currentPad = _remapStrip[_currentPadIndex]-1;
+            _currentPad = _remapStrip[currentPadIndex]-1;
             UpdateCurrentPadString();
             UpdateInputFields();
         }
@@ -111,11 +108,11 @@ namespace Tactility.Calibration.Interface
         public void PreviousPad()
         {
             SaveCalibrationValues();
-            if (_currentPadIndex > 0)
+            if (currentPadIndex > 0)
             {
-                _currentPadIndex--;
+                currentPadIndex--;
             }
-            _currentPad = _remapStrip[_currentPadIndex]-1;
+            _currentPad = _remapStrip[currentPadIndex]-1;
             UpdateCurrentPadString();
             UpdateInputFields();
         }
@@ -145,24 +142,24 @@ namespace Tactility.Calibration.Interface
             //}
 
             // Update the text otherwise
-            activePadText.text = "Calibrating Pad: " + (_currentPadIndex + 1);
+            activePadText.text = "Calibrating Pad: " + (currentPadIndex + 1);
         }
 
         public void UpdateStimulation()
         {
-            var prevStimOn = _isStimOn;
+            var prevStimOn = isStimOn;
 
             _boxController.ResetAllPads();
             if (DeviceConfig.IsAnode(_currentPad) || !stimulateToggle.isOn)
             {
-                _isStimOn = false;
+                isStimOn = false;
 
                 // Turn the activePadText red if it's an anode, otherwise white
                 activePadText.color = DeviceConfig.IsAnode(_currentPad) ? Color.red : Color.white;
             }
             else if (stimulateToggle.isOn)
             {
-                _isStimOn = true;
+                isStimOn = true;
 
                 // Get stim string for single pad using Text Field values
                 var stimString = GetEncodedStringForSinglePad(_currentPad, TextToFloat(amplitudeField.text), int.Parse(widthField.text, CultureInfo.InvariantCulture), _boxController);
@@ -173,9 +170,9 @@ namespace Tactility.Calibration.Interface
             }
 
             // If stim changed, enable/disable it
-            if (prevStimOn != _isStimOn)
+            if (prevStimOn != isStimOn)
             {
-                if (_isStimOn)
+                if (isStimOn)
                 {
                     _boxController.EnableStimulation();
                 }

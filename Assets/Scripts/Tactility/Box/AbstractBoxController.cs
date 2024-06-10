@@ -44,6 +44,16 @@ namespace Tactility.Box
         public string Temperature { get; protected set; }
         public bool IsConnected { get; protected set; }
 
+        // Define delegates for the events
+        public delegate void MessageArrivedEventHandler(string message);
+        public delegate void MessageSentEventHandler(string message);
+        public delegate void ConnectionStateChangedEventHandler(bool isConnected);
+
+        // Define events based on the delegates
+        public event MessageArrivedEventHandler OnMessageArrivedEvent;
+        public event MessageSentEventHandler OnMessageSentEvent;
+        public event ConnectionStateChangedEventHandler OnConnectionStateChangedEvent;
+
         private void Awake()
         {
             if (_instance != null && _instance != this)
@@ -86,7 +96,8 @@ namespace Tactility.Box
             while (MessageQueue.Count > 0)
             {
                 var message = MessageQueue.Dequeue();
-                Sc.SendSerialMessage($"{message}\r"); // Previously \r\n
+                Sc.SendSerialMessage($"{message}\r"); // NOTE: Was previously \r\n
+                OnMessageSent(message); // Raise the message sent event
                 yield return new WaitForSeconds(messageDelay / 1_000f);
             }
             IsSendingMessages = false;
@@ -147,6 +158,20 @@ namespace Tactility.Box
                 Debug.Log($"{this} Inbound message received: {message}");
             }
 #endif
+            // Raise the event if there are any subscribers
+            OnMessageArrivedEvent?.Invoke(message);
+        }
+
+        protected virtual void OnMessageSent(string message)
+        {
+#if DEBUG
+            if (logMode is SerialLogMode.Outbound or SerialLogMode.All)
+            {
+                Debug.Log($"{this} Outbound message sent: {message}");
+            }
+#endif
+            // Raise the event if there are any subscribers
+            OnMessageSentEvent?.Invoke(message);
         }
 
         protected virtual void OnConnectionEvent(bool wasSuccessful)
@@ -156,6 +181,10 @@ namespace Tactility.Box
                 ? ": Connection established"
                 : ": Connection attempt failed or disconnection detected"));
 #endif
+            IsConnected = wasSuccessful;
+            // Raise the event if there are any subscribers
+            OnConnectionStateChangedEvent?.Invoke(IsConnected);
+            // NOTE: This is really only a preliminary connection, and the actual connection may be determined by the greeting message, as is the case with the GammaBoxController
         }
     }
 }
