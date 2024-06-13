@@ -8,6 +8,7 @@ using System.Linq;
 using Tactility.Box;
 using UnityEngine;
 using static Tactility.Calibration.CalibrationManager;
+using static UnityEditor.ShaderData;
 #endregion
 
 namespace Tactility.Modulation
@@ -28,6 +29,11 @@ namespace Tactility.Modulation
         private float _lastSendTime;
         private bool _isGrabbing;
 
+        private int[] _prevPads;
+        private float[] _prevAmps;
+        private int[] _prevWidths;
+        private int _prevFrequency;
+
         protected void Start()
         {
             _boxController = FindObjectOfType<AbstractBoxController>();
@@ -45,6 +51,7 @@ namespace Tactility.Modulation
             var wasSuccessful = NotifyModulators();
             if (!wasSuccessful)
             {
+                Debug.Log("No modulation");
                 if (!_isGrabbing)
                 {
                     return;
@@ -200,10 +207,23 @@ namespace Tactility.Modulation
                 return;
             }
 
-            var encodedString = _boxController.GetStimString(_combinedPads, _combinedAmps, _combinedWidths);
-            var freqString = _boxController.GetFreqString(_frequency);
-            _boxController.Send(encodedString);
-            _boxController.Send(freqString);
+            var freqString = _boxController.GetFreqString(_frequency, _prevFrequency);
+            var isFreqNew = !string.IsNullOrEmpty(freqString);
+
+            // Send the stim string if frequency has changed regardless of if the values are new or not
+            var encodedString = _boxController.GetStimString(_combinedPads, _combinedAmps, _combinedWidths, isFreqNew ? null : _prevPads, isFreqNew ? null : _prevAmps, isFreqNew ? null : _prevWidths);
+            if (isFreqNew)
+            {
+                //Debug.Log(encodedString);
+            }
+
+            if (!string.IsNullOrEmpty(encodedString)) _boxController.Send(encodedString);
+            if (isFreqNew) _boxController.Send(freqString);
+
+            _prevPads = (int[])_combinedPads.Clone();
+            _prevAmps = (float[])_combinedAmps.Clone();
+            _prevWidths = (int[])_combinedWidths.Clone();
+            _prevFrequency = _frequency;
         }
 
         private void ResetCombinedModulationData()

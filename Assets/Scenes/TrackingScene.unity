@@ -925,7 +925,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e29581f8a236704bb6667a5b7de5f13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  logMode: 3
+  logMode: 1
   messageDelay: 50
   maxQueueSize: 10
   connectOnAwake: 1

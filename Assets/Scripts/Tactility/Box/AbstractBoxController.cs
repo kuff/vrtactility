@@ -87,8 +87,8 @@ namespace Tactility.Box
         public abstract void EnableStimulation();
         public abstract void DisableStimulation();
         public abstract void ResetAllPads();
-        public abstract string GetStimString(int[] pads, float[] amps, int[] widths);
-        public abstract string GetFreqString(int frequency);
+        public abstract string GetStimString(int[] pads, float[] amps, int[] widths, int[] prevPads = null, float[] prevAmps = null, int[] prevWidths = null);
+        public abstract string GetFreqString(int frequency, int prevFrequency = -1);
 
         private IEnumerator SendMessagesFromQueue()
         {

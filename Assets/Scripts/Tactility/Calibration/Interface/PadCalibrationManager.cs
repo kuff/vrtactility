@@ -149,7 +149,7 @@ namespace Tactility.Calibration.Interface
         {
             var prevStimOn = isStimOn;
 
-            _boxController.ResetAllPads();
+            _boxController.ResetAllPads(); // TODO: We should try to remove this
             if (DeviceConfig.IsAnode(_currentPad) || !stimulateToggle.isOn)
             {
                 isStimOn = false;
