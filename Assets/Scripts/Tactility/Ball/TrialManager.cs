@@ -41,7 +41,7 @@ namespace Tactility.Ball
             if (_fileLines == null)
             {
                 _fileLines = new string[] { };
-                var textAsset = Resources.Load<TextAsset>("Tactility/TestOrder30");
+                var textAsset = Resources.Load<TextAsset>("Tactility/TestOrder_fixedPos");
                 _fileLines = textAsset.text.Split("\r\n");
                 HandleTaskComplete(ScenarioTrigger.Idle);
             }
@@ -65,7 +65,7 @@ namespace Tactility.Ball
 
             var targetPositions = new List<Vector3>
             {
-                new Vector3(-0.1f, 0.9f, 0.5f),
+                new Vector3(-0.25f, 0.9f, 0.5f),
                 new Vector3(-0.1f, 1.1f, 0.5f),
                 new Vector3(0.1f, 0.9f, 0.5f),
                 new Vector3(0.1f, 1.1f, 0.5f),

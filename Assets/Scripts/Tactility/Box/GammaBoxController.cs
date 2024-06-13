@@ -91,7 +91,7 @@ namespace Tactility.Box
 
             for (var i = 0; i < amps.Length; i++)
             {
-                if (DeviceConfig.IsAnode(i) || pads[i] == 0)
+                if (DeviceConfig.IsAnode(i) /*|| pads[i] == 0*/)
                 {
                     if (DeviceConfig.useSpecialAnodes)
                     {

@@ -63,11 +63,12 @@ namespace Tactility.Modulation
             var pressureValue = valueBatch.Max() switch
             {
                 > 0.85f => 1.0f,
-                > 0.6f => 0.85f,
-                > 0.45f => 0.6f,
-                > 0.3f => 0.45f,
-                > 0.15f => 0.3f,
-                _ => 0.15f
+                > 0.6f => 0.7f,
+                > 0.45f => 0.4f,
+                > 0.3f => 0.26f,
+                > 0.15f => 0.15f,
+                > 0f => 0.8f,
+                _ => 0f
             };
 
             var freqValue = DeviceConfig.baseFreq * pressureValue;

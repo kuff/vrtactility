@@ -47,8 +47,8 @@ namespace Tactility.Calibration.Interface
         private List<CalibrationValues> _calibrationValues;
         // private bool _canSaveData;
 
-        // Elements from 0-5 -> thumb (I1 of connecting board)
-        // Elements from 6-12 -> thumb (I1 of connecting board)
+        // Elements from 0-5 -> index (I1 of connecting board)
+        // Elements from 6-12 -> thumb (I2 of connecting board)
         private readonly int[] _remapStrip = {31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18};    
         private int _currentPad;
 
