@@ -27,7 +27,7 @@ namespace Tactility.Modulation
         private int[] _combinedWidths;
         private int _frequency;
         private float _lastSendTime;
-        private bool _isGrabbing;
+        private bool _hasNoData;
 
         private int[] _prevPads;
         private float[] _prevAmps;
@@ -47,25 +47,26 @@ namespace Tactility.Modulation
             {
                 return;
             }
-
-            var wasSuccessful = NotifyModulators();
-            if (!wasSuccessful)
+            
+            var wasDataRetrieved = NotifyModulators();
+            if (!wasDataRetrieved)
             {
-                Debug.Log("No modulation");
-                if (!_isGrabbing)
+                if (_hasNoData)
                 {
                     return;
                 }
                 
-                _isGrabbing = false;
+                _hasNoData = true;
                 _boxController.ResetAllPads();
-                return;
             }
-            _isGrabbing = true;
+            else
+            {
+                _hasNoData = false;
+                SendCombinedModulationData();
+                _lastSendTime = Time.time * 1000;
+            }
 
-            SendCombinedModulationData();
             ResetCombinedModulationData(); // Reset for next cycle
-            _lastSendTime = Time.time * 1000;
         }
 
         private void InitializeModulationDataArrays()

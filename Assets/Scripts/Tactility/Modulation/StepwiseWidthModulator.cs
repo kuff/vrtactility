@@ -40,7 +40,7 @@ namespace Tactility.Modulation
             }
 
             ref var modulationData = ref _dataProvider.GetTactilityData();
-            var remap_strip = new[] { 31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18 };
+            var remapStrip = new[] { 31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18 };
 
             // Update stimuli for each touching finger bone of interest
             var valueBatch = new float[2];
@@ -89,7 +89,7 @@ namespace Tactility.Modulation
                 }
 
                 // Remap widthValue using the remap array and store it in the pressureValues array
-                pressureValues[remap_strip[i] - 1] = widthValue;
+                pressureValues[remapStrip[i] - 1] = widthValue;
             }
 
             return new ModulationData

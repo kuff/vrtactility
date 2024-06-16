@@ -72,7 +72,7 @@ namespace Tactility.Box
 
         public override void ResetAllPads()
         {
-            // NOTE: This was done in the previous implementation but may not be the best approach or even needed
+            // Circumvent the queue size check by not going through Send()
             QueueMessage("velec 11 *selected 0", true);
         }
 

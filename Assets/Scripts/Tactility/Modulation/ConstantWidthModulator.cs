@@ -28,19 +28,25 @@ namespace Tactility.Modulation
             // {
             //     widths[i] = DeviceConfig.maxWidth;
             // }
-            Debug.Log(_dataProvider.IsActive());
+            //Debug.Log(_dataProvider.IsActive());
+            if (!_dataProvider.IsActive())
+            {
+                return null;
+            }
+            
             return new ModulationData
             {
                 Type = ModulationType.Width,
                 // Case CalibrationManager.BaseWidths to floats
-                Values = _dataProvider.IsActive() ? BaseWidths.Select(x => (float)x).ToArray() : null,
+                Values = BaseWidths.Select(x => (float)x).ToArray(),
+                //Values = _dataProvider.IsActive() ? BaseWidths.Select(x => (float)x).ToArray() : null,
             };
         }
 
         public override bool IsCompatibleWithDevice(TactilityDeviceConfig deviceConfig)
         {
             // This should always be true, as the base widths should always be compatible with the device
-            // Otherwise, this is a problem elsewhere.
+            // Otherwise, this is a problem in the device config.
             return true;
         }
     }

@@ -16,6 +16,7 @@ namespace Tactility.Modulation
 
         // This is a placeholder for the TactilityData that will be updated and returned by GetTactilityData()
         private TactilityData _tactilityData;
+        private float _lastOscillationValue;
 
         private void Start()
         {
@@ -46,13 +47,18 @@ namespace Tactility.Modulation
                 _tactilityData.Values[i] = oscillation;
             }
 
+            // Store the current oscillation value for use in IsActive()
+            _lastOscillationValue = oscillation;
+
             // Return the reference to the updated TactilityData
             return ref _tactilityData;
         }
 
         public bool IsActive()
         {
-            return true; // Always active
+            // Return false if the oscillation value is at or very close to 0 or 1
+            // return _lastOscillationValue is > 0.01f and < 0.99f;
+            return true;
         }
     }
 }
