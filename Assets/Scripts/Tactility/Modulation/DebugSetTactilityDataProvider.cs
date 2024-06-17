@@ -11,7 +11,6 @@ namespace Tactility.Modulation
     public class DebugSetTactilityDataProvider : MonoBehaviour, ITactilityDataProvider
     {
         private TactilityData _tactilityData;
-        private float _continuousForceLevel;
 
         private void Start()
         {
@@ -30,25 +29,32 @@ namespace Tactility.Modulation
         
         public void SetForceLevel(int forceLevel)
         {
-            _continuousForceLevel = forceLevel switch
+            try
             {
-                6 => 1.0f,
-                5 => 0.85f,
-                4 => 0.6f,
-                3 => 0.45f,
-                2 => 0.3f,
-                1 => 0.15f,
-                _ => throw new ArgumentOutOfRangeException(nameof(forceLevel), forceLevel, null)
-            };
+                var continuousForceLevel = forceLevel switch
+                {
+                    6 => 1.0f,
+                    5 => 0.85f,
+                    4 => 0.6f,
+                    3 => 0.45f,
+                    2 => 0.3f,
+                    1 => 0.15f,
+                    _ => throw new ArgumentOutOfRangeException(nameof(forceLevel), forceLevel, null)
+                };
+            
+                for (var i = 0; i < _tactilityData.Values.Count; i++)
+                {
+                    _tactilityData.Values[i] = continuousForceLevel;
+                }
+            }
+            catch (Exception)
+            {
+                // Do nothing...
+            }
         }
 
         public ref TactilityData GetTactilityData()
         {
-            for (var i = 0; i < _tactilityData.Values.Count; i++)
-            {
-                _tactilityData.Values[i] = _continuousForceLevel;
-            }
-
             return ref _tactilityData;
         }
 

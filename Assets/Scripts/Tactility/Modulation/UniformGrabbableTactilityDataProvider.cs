@@ -13,23 +13,18 @@ namespace Tactility.Modulation
         [SerializeField]
         [Tooltip("The UniformGrabbable component to provide tactility data from.")]
         private UniformGrabbable grabbable;
-        private TactilityData _tactilityData;
+        private TactilityData _tactilityData = new TactilityData
+        {
+            BoneIds = new List<OVRSkeleton.BoneId>(),
+            Values = new List<float>()
+        };
 
         public ref TactilityData GetTactilityData()
         {
-            // Initialize new TactilityData
-            _tactilityData = new TactilityData
-            {
-                BoneIds = new List<OVRSkeleton.BoneId>(),
-                Values = new List<float>()
-            };
-
             if (grabbable.isGrabbed)
             {
-                var bonePressures = grabbable.touchingBonePressures;
-                var boneIds = grabbable.touchingBoneIds;
-                _tactilityData.Values = bonePressures;
-                _tactilityData.BoneIds = boneIds;
+                _tactilityData.Values = grabbable.touchingBonePressures;
+                _tactilityData.BoneIds = grabbable.touchingBoneIds;
             }
             else
             {
@@ -41,7 +36,7 @@ namespace Tactility.Modulation
 
         public bool IsActive()
         {
-            return grabbable.touchingBonePressures.Count > 0 && grabbable.isGrabbed;
+            return grabbable.isGrabbed && grabbable.touchingBonePressures.Count > 0;
         }
     }
 }

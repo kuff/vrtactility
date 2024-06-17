@@ -94,7 +94,7 @@ namespace Editor
 
         private void DrawSaveData()
         {
-            var filePath = SaveCalibrationDataToFile(_customFileName);
+            var filePath = SaveCalibrationDataToFile();
             EditorGUIUtility.systemCopyBuffer = filePath; // Copy the file path to the clipboard
             EditorUtility.DisplayDialog("Calibration Saved", $"Calibration saved to {filePath}. Path copied to clipboard.", "OK");
             _calibrationState = 0;

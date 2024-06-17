@@ -57,7 +57,11 @@ namespace Tactility.Modulation
                 }
                 
                 _hasNoData = true;
-                _boxController.ResetAllPads();
+
+                if (_boxController.IsStimEnabled())
+                {
+                    _boxController.ResetAllPads();
+                }
             }
             else
             {
@@ -75,8 +79,12 @@ namespace Tactility.Modulation
             _combinedAmps = new float[padCount];
             _combinedWidths = new int[padCount];
             _frequency = DeviceConfig.baseFreq;
-
-            // Initialize _combinedPads with all 1s to default them on
+            SetDefaultPadValues();
+        }
+        
+        private void SetDefaultPadValues()
+        {
+            var padCount = DeviceConfig.numPads;
             _combinedPads = new int[padCount];
             for (var i = 0; i < padCount; i++)
             {
@@ -92,12 +100,23 @@ namespace Tactility.Modulation
                 { ModulationType.Amplitude, false },
                 { ModulationType.Width, false }
             };
+            var wasPadDataSupplied = false;
 
             // Notify each modulator to get its modulation data
             foreach (var modulationData in _modulators.Select(modulator => modulator.GetModulationData()).Where(modulationData => modulationData.HasValue))
             {
                 CombineModulationData(modulationData.Value);
                 suppliedData[modulationData.Value.Type] = true;
+                if (modulationData.Value.Type == ModulationType.Pad)
+                {
+                    wasPadDataSupplied = true;
+                }
+            }
+
+            // Pad modulator is not required, but if it's not supplied, we need to set default values
+            if (!wasPadDataSupplied)
+            {
+                SetDefaultPadValues();
             }
 
             // Return false if any required data was not supplied
@@ -213,13 +232,15 @@ namespace Tactility.Modulation
 
             // Send the stim string if frequency has changed regardless of if the values are new or not
             var encodedString = _boxController.GetStimString(_combinedPads, _combinedAmps, _combinedWidths, isFreqNew ? null : _prevPads, isFreqNew ? null : _prevAmps, isFreqNew ? null : _prevWidths);
+
+            if (!string.IsNullOrEmpty(encodedString))
+            {
+                _boxController.Send(encodedString);
+            }
             if (isFreqNew)
             {
-                //Debug.Log(encodedString);
+                _boxController.Send(freqString);
             }
-
-            if (!string.IsNullOrEmpty(encodedString)) _boxController.Send(encodedString);
-            if (isFreqNew) _boxController.Send(freqString);
 
             _prevPads = (int[])_combinedPads.Clone();
             _prevAmps = (float[])_combinedAmps.Clone();

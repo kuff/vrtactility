@@ -2,6 +2,7 @@
 
 #region
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using static Tactility.Calibration.CalibrationManager;
@@ -19,6 +20,7 @@ namespace Tactility.Box
 
         private bool _isSuccessfullyConnected;
         private bool _receivedValidGreeting;
+        private bool _stimEnabled;
 
         protected override void Start()
         {
@@ -55,6 +57,8 @@ namespace Tactility.Box
         {
             // Circumvent the queue size check by not going through Send()
             QueueMessage("stim on", true);
+            
+            _stimEnabled = true;
         }
 
         public override void DisableStimulation()
@@ -68,6 +72,13 @@ namespace Tactility.Box
 
             // Circumvent the queue size check by not going through Send()
             QueueMessage("stim off", true);
+            
+            _stimEnabled = false;
+        }
+        
+        public override bool IsStimEnabled()
+        {
+            return _stimEnabled;
         }
 
         public override void ResetAllPads()
@@ -88,8 +99,9 @@ namespace Tactility.Box
             var variablePart1 = "";
             var variablePart2 = "";
             var variablePart3 = "";
-
-            var wasValueChanged = false;
+            
+            var wasValueChanged = pads.Where((t, i) => !t.Equals(prevPads?[i])).Any();
+            
             for (var i = 0; i < amps.Length; i++)
             {
                 if (DeviceConfig.IsAnode(i) /*|| pads[i] == 0*/)
@@ -108,15 +120,20 @@ namespace Tactility.Box
                 var amplitudeValue = amps[i];
                 var widthValue = widths[i];
 
-                if (pads[i] == 0) continue;
-
+                if (padValue == 0)
+                {
+                    continue;
+                }
+                // Debug.Log($"state: {i}, {(prevPads == null || prevPads[i] == 1)}");
+                
                 // Check if this pad has new values and only update if it does
-                if (prevAmps != null)
+                if (prevAmps != null && !wasValueChanged)
                 {
                     //Debug.Log(_prevPads[i] + ", " + _prevAmps[i] + ", " + _prevWidths[i]);
                     //Debug.Log(amplitudeValue + ", " + prevAmps[i]);
-                    if (amplitudeValue == prevAmps[i] && widthValue == prevWidths[i])
+                    if (amplitudeValue == prevAmps[i] && widthValue == prevWidths[i]/* && (prevPads == null || prevPads[i] == 1)*/)
                     {
+                        // Skip if the values are the same and the pad was already selected
                         continue;
                     }
                     wasValueChanged = true;
@@ -130,7 +147,10 @@ namespace Tactility.Box
 
             //Debug.Log(_prevAmps != null);
 
-            if (!wasValueChanged && prevAmps != null) return "";
+            if (!wasValueChanged && prevAmps != null)
+            {
+                return "";
+            }
 
             // Trim the trailing commas from each part
             variablePart1 = variablePart1.TrimEnd(',');
@@ -147,8 +167,10 @@ namespace Tactility.Box
 
         public override string GetFreqString(int frequency, int prevFrequency = -1)
         {
-            if (prevFrequency != -1 && prevFrequency == frequency) return "";
-            prevFrequency = frequency;
+            if (prevFrequency != -1 && prevFrequency == frequency)
+            {
+                return "";
+            }
             return $"freq {frequency}";
         }
 

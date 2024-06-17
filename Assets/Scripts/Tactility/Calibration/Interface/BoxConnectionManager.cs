@@ -30,6 +30,7 @@ namespace Tactility.Calibration.Interface
             _interface = FindObjectOfType<InterfaceManager>();
             
             _boxController.OnConnectionStateChangedEvent += ChangeSceneOnConnect;
+            _interface.OnSceneChanged += (_, _) => _boxController.DisableStimulation();
         }
         
         private void ChangeSceneOnConnect(bool isConnected)
@@ -54,7 +55,7 @@ namespace Tactility.Calibration.Interface
             {
                 return;
             }
-
+            
             _waitingForConnection = false;
             DontDestroyOnLoad(_boxController.gameObject); // The box doesn't prevent its own destruction
         }

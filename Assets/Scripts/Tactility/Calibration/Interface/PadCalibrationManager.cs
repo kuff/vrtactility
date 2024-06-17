@@ -13,22 +13,26 @@ using static Tactility.Calibration.Interface.ValueChangeManager;
 
 namespace Tactility.Calibration.Interface
 {
-    public struct CalibrationValues
-    {
-        public readonly float Amplitude;
-        public readonly float Width;
-
-        public CalibrationValues(float amplitude, float width)
-        {
-            Amplitude = amplitude;
-            Width = width;
-        }
-    }
+    // public struct CalibrationValues
+    // {
+    //     public readonly float Amplitude;
+    //     public readonly float Width;
+    //
+    //     public CalibrationValues(float amplitude, float width)
+    //     {
+    //         Amplitude = amplitude;
+    //         Width = width;
+    //     }
+    // }
 
     public class PadCalibrationManager : MonoBehaviour
     {
+        [HideInInspector]
         public int currentPadIndex;
+        [HideInInspector]
         public bool isStimOn;
+        [HideInInspector]
+        public string fileName;
         
         [SerializeField]
         private InputField amplitudeField;
@@ -38,13 +42,15 @@ namespace Tactility.Calibration.Interface
         private Toggle stimulateToggle;
         [SerializeField]
         private Text activePadText;
+        [SerializeField]
+        private InputField participantField;
         // [SerializeField]
         // private Button nextButton;
         // [SerializeField]
         // private Button prevButton;
 
         private AbstractBoxController _boxController;
-        private List<CalibrationValues> _calibrationValues;
+        // private List<CalibrationValues> _calibrationValues;
         // private bool _canSaveData;
 
         // Elements from 0-5 -> index (I1 of connecting board)
@@ -52,26 +58,51 @@ namespace Tactility.Calibration.Interface
         private readonly int[] _remapStrip = {31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18};    
         private int _currentPad;
 
-    private void Start()
+        private void OnEnable()
+        {
+            FindObjectOfType<InterfaceManager>()!.OnSceneChanged += UpdateInputFieldsOnSceneChanged;
+            FindObjectOfType<InterfaceManager>()!.OnSceneChanged += ((_, _) =>
+            {
+                stimulateToggle.isOn = false;
+                UpdateStimulation();
+            });
+        }
+        
+        private void OnDisable()
+        {
+            try
+            {
+                FindObjectOfType<InterfaceManager>()!.OnSceneChanged -= UpdateInputFieldsOnSceneChanged;
+            }
+#pragma warning disable CS0168 // Variable is declared but never used
+            catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
+            {
+                // Do nothing...
+            }
+        }
+
+        private void Start()
         {
             _boxController = FindObjectOfType<AbstractBoxController>();
-            _calibrationValues = new List<CalibrationValues>();
+            // _calibrationValues = new List<CalibrationValues>();
             currentPadIndex = 0;
             isStimOn = false;
 
             // Initialize values array with number of pads
-            for (var i = 0; i < DeviceConfig.numPads; i++)
-            {
-                _calibrationValues.Add(new CalibrationValues(0.5f, 100));
-            }
+            // for (var i = 0; i < DeviceConfig.numPads; i++)
+            // {
+            //     _calibrationValues.Add(new CalibrationValues(0.5f, 100));
+            // }
 
             // Initialize the Input Fields to their default values
             //UpdateInputFields();
             _currentPad = _remapStrip[currentPadIndex]-1;
             UpdateCurrentPadString();
+            SetCalibrationFileName();
         }
 
-        private void OnDestroy()
+        /*private void OnDestroy()
         {
             // Save the calibration values to the CalibrationManager when the object (scene) is destroyed
             BaseAmps = new float[DeviceConfig.numPads];
@@ -84,7 +115,35 @@ namespace Tactility.Calibration.Interface
             
             // var calibrationFilePath = SaveCalibrationDataToFile(DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
             // LoadCalibrationDataFromFile(calibrationFilePath);
-            SaveCalibrationDataToFile(DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+            SaveCalibrationDataToFile(fileName);
+        }*/
+        
+        private void UpdateInputFieldsOnSceneChanged(GameObject oldScene, GameObject newScene)
+        {
+            if (newScene.name == "Calibration")
+            {
+                UpdateInputFields();
+            }
+        }
+
+        public void SetCalibrationFileName()
+        {
+            var newFileName = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+            
+            // if participantField.text is not empty, prepend it to the filename
+            var participantString = participantField?.text;
+            if (!string.IsNullOrEmpty(participantString))
+            {
+                newFileName = participantString + "_" + newFileName;
+            }
+            
+            fileName = newFileName;
+        }
+
+        public void SaveCalibrationDataToFileVoid()
+        {
+            SetCalibrationFileName();
+            SaveCalibrationDataToFile(fileName);
         }
 
         public void NextPad()
@@ -103,6 +162,7 @@ namespace Tactility.Calibration.Interface
             _currentPad = _remapStrip[currentPadIndex]-1;
             UpdateCurrentPadString();
             UpdateInputFields();
+            UpdateStimulation();
         }
 
         public void PreviousPad()
@@ -115,20 +175,27 @@ namespace Tactility.Calibration.Interface
             _currentPad = _remapStrip[currentPadIndex]-1;
             UpdateCurrentPadString();
             UpdateInputFields();
+            UpdateStimulation();
         }
 
         private void SaveCalibrationValues()
         {
             // Save the text from the text field, but if it's empty, save the placeholder text instead
-            _calibrationValues[_currentPad] = new CalibrationValues(string.IsNullOrEmpty(amplitudeField.text) ? TextToFloat(amplitudeField.placeholder.GetComponent<Text>().text) : TextToFloat(amplitudeField.text), string.IsNullOrEmpty(widthField.text) ? TextToFloat(widthField.placeholder.GetComponent<Text>().text) : TextToFloat(widthField.text));
+            // _calibrationValues[_currentPad] = new CalibrationValues(string.IsNullOrEmpty(amplitudeField.text) ? TextToFloat(amplitudeField.placeholder.GetComponent<Text>().text) : TextToFloat(amplitudeField.text), string.IsNullOrEmpty(widthField.text) ? TextToFloat(widthField.placeholder.GetComponent<Text>().text) : TextToFloat(widthField.text));
+            // Use CalibrationManager.baseAmps and baseWidths instead of _calibrationValues
+            BaseAmps[_currentPad] = string.IsNullOrEmpty(amplitudeField.text) ? TextToFloat(amplitudeField.placeholder.GetComponent<Text>().text) : TextToFloat(amplitudeField.text);
+            BaseWidths[_currentPad] = string.IsNullOrEmpty(widthField.text) ? int.Parse(widthField.placeholder.GetComponent<Text>().text, CultureInfo.InvariantCulture) : int.Parse(widthField.text, CultureInfo.InvariantCulture);
         }
 
-        private void UpdateInputFields()
+        public void UpdateInputFields()
         {
             // Debug.Log($"Updating for index {_currentPadIndex}");
             // Update the text of the input fields
-            amplitudeField.text = FloatToText(_calibrationValues[_currentPad].Amplitude);
-            widthField.text = FloatToText(_calibrationValues[_currentPad].Width);
+            // amplitudeField.text = FloatToText(_calibrationValues[_currentPad].Amplitude);
+            // widthField.text = FloatToText(_calibrationValues[_currentPad].Width);
+            // Use CalibrationManager.baseAmps and baseWidths instead of _calibrationValues
+            amplitudeField.text = FloatToText(BaseAmps[_currentPad]);
+            widthField.text = BaseWidths[_currentPad].ToString();
         }
 
         private void UpdateCurrentPadString()
@@ -149,7 +216,7 @@ namespace Tactility.Calibration.Interface
         {
             var prevStimOn = isStimOn;
 
-            _boxController.ResetAllPads(); // TODO: We should try to remove this
+            //_boxController.ResetAllPads();
             if (DeviceConfig.IsAnode(_currentPad) || !stimulateToggle.isOn)
             {
                 isStimOn = false;

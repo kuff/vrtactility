@@ -6,25 +6,25 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/NewCalibrationScene.unity
+    path: Assets/Scenes/1_CalibrationScene.unity
     guid: ffd5fa821bf256a4c8e87636bba832b8
   - enabled: 1
-    path: Assets/Scenes/FamiliarizationScene.unity
+    path: Assets/Scenes/2_FamiliarizationScene.unity
     guid: eef15d5c89692fd40b8f2ea1a6d1bff4
   - enabled: 1
-    path: Assets/Scenes/TrackingScene.unity
+    path: Assets/Scenes/3_TrackingScene.unity
     guid: d117e3247aa83f1478e770e4a613e4d7
   - enabled: 1
-    path: Assets/Scenes/TrackingScene#2.unity
+    path: Assets/Scenes/4_TrainingScene.unity
     guid: da2791e54fed9644288f81e4c285dbb4
   - enabled: 1
-    path: Assets/Scenes/Validation.unity
+    path: Assets/Scenes/5_ValidationScene.unity
     guid: 64f8a974a501b974ab9fe791b245f25e
-  - enabled: 1
-    path: Assets/Scenes/HeadlessScene.unity
+  - enabled: 0
+    path: Assets/Scenes/Debug/DebugHeadlessScene.unity
     guid: a1fd0d9bbe847ca40a41c235736ba367
-  - enabled: 1
-    path: Assets/Scenes/DebugBackToCalibrationScene.unity
+  - enabled: 0
+    path: Assets/Scenes/Debug/DebugBackToCalibrationScene.unity
     guid: 7fbf993deb5f6284784a2674b6312e8d
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: bfa1182bd221b4ca89619141f66f1260,

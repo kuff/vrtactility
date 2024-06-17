@@ -21,6 +21,7 @@ namespace Tactility.Calibration
         // Calibrated values for the device
         public static float[] BaseAmps;
         public static int[] BaseWidths;
+        
         [Tooltip("The configuration settings for the connected tactility device. This includes device-specific parameters such as number of pads, use of implicit anodes, and other configurable properties.Note: This selection may be overruled at runtime by the LoadDeviceConfigByName method.")]
         [SerializeField]
         private TactilityDeviceConfig deviceConfigInstance; // Non-static, serialized field
@@ -71,6 +72,17 @@ namespace Tactility.Calibration
             {
                 LoadCalibrationDataFromFile(calibrationFileName);
             }
+            else
+            {
+                // Initialize the BaseAmps and BaseWidths arrays with min values
+                BaseAmps = new float[_deviceConfigStatic.numPads];
+                BaseWidths = new int[_deviceConfigStatic.numPads];
+                for (var i = 0; i < BaseAmps.Length; i++)
+                {
+                    BaseAmps[i] = _deviceConfigStatic.minAmp;
+                    BaseWidths[i] = (int)_deviceConfigStatic.minWidth;
+                }
+            }
         }
 
         public static void SetDeviceConfig(string deviceName = null)
@@ -84,8 +96,6 @@ namespace Tactility.Calibration
             else
             {
                 Debug.LogWarning($"Device configuration for {deviceName ?? "default"} set.");
-                BaseAmps = new float[_deviceConfigStatic.numPads];
-                BaseWidths = new int[_deviceConfigStatic.numPads];
             }
         }
 
@@ -145,13 +155,13 @@ namespace Tactility.Calibration
         }
 
         [CanBeNull]
-        public static string SaveCalibrationDataToFile(string dataName = null)
+        public static string SaveCalibrationDataToFile(string optionalFileName = null)
         {
-            var prefix = string.IsNullOrEmpty(dataName)
+            var prefix = string.IsNullOrEmpty(optionalFileName)
                 ? ""
-                : $"{dataName}_";
-            var fileName = $"{prefix}calibration_{_deviceConfigStatic.deviceName}_vrt{Application.version}.txt";
-            var filePath = Path.Combine(Application.persistentDataPath, fileName);
+                : $"{optionalFileName}_";
+            var fullFileName = $"{prefix}calibration_{_deviceConfigStatic.deviceName}_vrt{Application.version}.txt";
+            var filePath = Path.Combine(Application.persistentDataPath, fullFileName);
 
             try
             {

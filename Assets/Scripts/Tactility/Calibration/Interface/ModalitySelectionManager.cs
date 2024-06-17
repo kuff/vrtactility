@@ -19,6 +19,9 @@ namespace Tactility.Calibration.Interface
 
         [SerializeField]
         private Toggle stimulationToggle;
+        
+        [SerializeField]
+        private Toggle oscillationToggle;
 
         [SerializeField]
         [Tooltip("List of force level UI Buttons to manage.")]
@@ -30,6 +33,7 @@ namespace Tactility.Calibration.Interface
 
         private int _currentSelectedIndex;
         private int _currentForceLevelIndex;
+        private InterfaceManager _interfaceManager;
 
         // Define a delegate for the modality changed event
         public delegate void ModalityChangedEventHandler(string modality, bool isActive, bool isOscillating, string forceLevel);
@@ -39,6 +43,24 @@ namespace Tactility.Calibration.Interface
 
         private void Start()
         {
+            _interfaceManager = FindObjectOfType<InterfaceManager>();
+            _interfaceManager.OnSceneChanged += (_, _) =>
+            {
+                // Reset the selected buttons when the scene changes
+                SelectButton(defaultSelectedIndex);
+                SelectForceLevelButton(defaultForceLevelIndex);
+                
+                // Reset toggles
+                if (doOscillation)
+                {
+                    oscillationToggle.isOn = false;
+                }
+                if (isModalityActivated)
+                {
+                    stimulationToggle.isOn = false;
+                }
+            };
+            
             if (uiButtons.Count == 0)
             {
                 Debug.LogWarning("No UI buttons specified.");
@@ -76,7 +98,7 @@ namespace Tactility.Calibration.Interface
 
             // Select the new button
             _currentSelectedIndex = index;
-            UpdateButtonColor(uiButtons[_currentSelectedIndex], isModalityActivated);
+            UpdateComponentColor(uiButtons[_currentSelectedIndex], isModalityActivated);
 
             // Raise the event
             RaiseModalityChangedEvent();
@@ -98,13 +120,13 @@ namespace Tactility.Calibration.Interface
 
             // Select the new force level button
             _currentForceLevelIndex = index;
-            UpdateButtonColor(forceLevelButtons[_currentForceLevelIndex], isModalityActivated);
+            UpdateComponentColor(forceLevelButtons[_currentForceLevelIndex], isModalityActivated);
 
             // Raise the event
             RaiseModalityChangedEvent();
         }
 
-        private static void UpdateButtonColor(Button button, bool isActive)
+        private static void UpdateComponentColor(Component button, bool isActive)
         {
             button.GetComponent<Image>().color = isActive ? Color.yellow : Color.green;
         }
@@ -156,12 +178,12 @@ namespace Tactility.Calibration.Interface
             isModalityActivated = !isModalityActivated;
 
             // Change the color of the selected modality button based on the activation state
-            UpdateButtonColor(uiButtons[_currentSelectedIndex], isModalityActivated);
+            UpdateComponentColor(uiButtons[_currentSelectedIndex], isModalityActivated);
 
             if (!doOscillation)
             {
                 // Change the color of the selected force level button based on the activation state
-                UpdateButtonColor(forceLevelButtons[_currentForceLevelIndex], isModalityActivated);
+                UpdateComponentColor(forceLevelButtons[_currentForceLevelIndex], isModalityActivated);
             }
 
             // Raise the event
@@ -176,8 +198,14 @@ namespace Tactility.Calibration.Interface
             if (doOscillation)
             {
                 // Enable the stimulation toggle and disable its interactability
+                var wasAlreadyStimulating = stimulationToggle.isOn;
                 stimulationToggle.isOn = true;
                 stimulationToggle.interactable = false;
+
+                if (wasAlreadyStimulating)
+                {
+                    RaiseModalityChangedEvent();
+                }
 
                 // Disable the force level buttons
                 foreach (var button in forceLevelButtons)
@@ -199,7 +227,7 @@ namespace Tactility.Calibration.Interface
                 }
 
                 // Restore color for the currently selected force level button
-                UpdateButtonColor(forceLevelButtons[_currentForceLevelIndex], isModalityActivated);
+                UpdateComponentColor(forceLevelButtons[_currentForceLevelIndex], isModalityActivated);
             }
 
             // NOTE: stimulationToggle.isOn will invoke ToggleSelectedButtonActivation and handle button color change and event raising

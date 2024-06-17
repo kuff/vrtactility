@@ -1,15 +1,8 @@
-// Copyright (C) 2024 Peter Leth
-
-#region
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-#endregion
-
-// ReSharper disable UnusedMemberHierarchy.Global
-// ReSharper disable MemberCanBeProtected.Global
-// ReSharper disable MemberCanBePrivate.Global
+using UnityEngine.SceneManagement; // Import the necessary namespace
 
 namespace Tactility.Box
 {
@@ -75,9 +68,27 @@ namespace Tactility.Box
             // DontDestroyOnLoad(this);
         }
 
+        private void OnEnable()
+        {
+            // Subscribe to the sceneUnloading event
+            SceneManager.sceneUnloaded += OnSceneUnloading;
+        }
+
+        private void OnDisable()
+        {
+            // Unsubscribe from the sceneUnloading event
+            SceneManager.sceneUnloaded -= OnSceneUnloading;
+        }
+
+        private void OnSceneUnloading(Scene current)
+        {
+            // Call DisableStimulation before the scene is unloaded
+            DisableStimulation();
+        }
+
         protected virtual void Update()
         {
-            if (!IsSendingMessages && MessageQueue.Count > 0)
+            if (!IsSendingMessages && MessageQueue.Count > 0 && Sc.enabled)
             {
                 StartCoroutine(SendMessagesFromQueue());
             }
@@ -86,6 +97,7 @@ namespace Tactility.Box
         public abstract void Connect(string port);
         public abstract void EnableStimulation();
         public abstract void DisableStimulation();
+        public abstract bool IsStimEnabled();
         public abstract void ResetAllPads();
         public abstract string GetStimString(int[] pads, float[] amps, int[] widths, int[] prevPads = null, float[] prevAmps = null, int[] prevWidths = null);
         public abstract string GetFreqString(int frequency, int prevFrequency = -1);

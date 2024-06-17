@@ -22,8 +22,8 @@ public class Logger : MonoBehaviour
     private static float _frameCountTimestamp = -1f;
     private static int _invokesSinceLastWrite = LOGGING_FREQUENCY - 1;
 
-    private OVRPlugin.HandState _hsLeft = new OVRPlugin.HandState();
-    private OVRPlugin.HandState _hsRight = new OVRPlugin.HandState();
+    // private OVRPlugin.HandState _hsLeft = new OVRPlugin.HandState();
+    // private OVRPlugin.HandState _hsRight = new OVRPlugin.HandState();
     private Transform _mainCameraTransform;
 
 

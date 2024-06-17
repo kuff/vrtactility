@@ -56,7 +56,7 @@ namespace Tactility.Calibration.Interface
             
             var currentValue = float.Parse(inputField.text, CultureInfo.InvariantCulture);
             currentValue += changeAmount;
-            Debug.Log($"{inputField.text}...{currentValue.ToString(CultureInfo.InvariantCulture)}");
+            //Debug.Log($"{inputField.text}...{currentValue.ToString(CultureInfo.InvariantCulture)}");
             inputField.text = FloatToText(currentValue);
             // UpdateTextDisplay();
         }
