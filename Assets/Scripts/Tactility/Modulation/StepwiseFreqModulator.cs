@@ -40,8 +40,8 @@ namespace Tactility.Modulation
 
             ref var modulationData = ref _dataProvider.GetTactilityData();
 
-            var remap_strip = new[] { 31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18 };
-            var activePads = new List<int> { 4, 10, 1, 7 }; //we need only two pads for finger active! 
+            //var remapStrip = new[] { 31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18 };
+            //var activePads = new List<int> { 4, 10, 1, 7 }; //we need only two pads for finger active! 
 
             // Update stimuli for each touching finger bone of interest
             var valueBatch = new float[5];
@@ -67,7 +67,7 @@ namespace Tactility.Modulation
                 > 0.45f => 0.4f,
                 > 0.3f => 0.26f,
                 > 0.15f => 0.15f,
-                > 0f => 0.8f,
+                > 0f => 0.08f,
                 _ => 0f
             };
 

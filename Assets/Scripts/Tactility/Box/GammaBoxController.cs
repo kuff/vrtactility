@@ -72,11 +72,11 @@ namespace Tactility.Box
 
         public override void ResetAllPads()
         {
-            // NOTE: This was done in the previous implementation but may not be the best approach or even needed
+            // Circumvent the queue size check by not going through Send()
             QueueMessage("velec 11 *selected 0", true);
         }
 
-        public override string GetStimString(int[] pads, float[] amps, int[] widths)
+        public override string GetStimString(int[] pads, float[] amps, int[] widths, int[] prevPads = null, float[] prevAmps = null, int[] prevWidths = null)
         {
             // Define invariable parts of the command string
             var invariablePart1 = $"velec 11 {(DeviceConfig.useSpecialAnodes ? "*special_anodes 1 " : "")}*name test *elec 1 *pads "; // Set special_anodes according to _config.useSpecialAnodes
@@ -89,6 +89,7 @@ namespace Tactility.Box
             var variablePart2 = "";
             var variablePart3 = "";
 
+            var wasValueChanged = false;
             for (var i = 0; i < amps.Length; i++)
             {
                 if (DeviceConfig.IsAnode(i) /*|| pads[i] == 0*/)
@@ -103,14 +104,33 @@ namespace Tactility.Box
                     continue;
                 }
 
+                var padValue = pads[i];
                 var amplitudeValue = amps[i];
                 var widthValue = widths[i];
+
+                if (pads[i] == 0) continue;
+
+                // Check if this pad has new values and only update if it does
+                if (prevAmps != null)
+                {
+                    //Debug.Log(_prevPads[i] + ", " + _prevAmps[i] + ", " + _prevWidths[i]);
+                    //Debug.Log(amplitudeValue + ", " + prevAmps[i]);
+                    if (amplitudeValue == prevAmps[i] && widthValue == prevWidths[i])
+                    {
+                        continue;
+                    }
+                    wasValueChanged = true;
+                }
 
                 // Building each part of the command string, parsing floats with "." and not ","
                 variablePart1 += $"{i + 1}=C,";
                 variablePart2 += $"{i + 1}={amplitudeValue.ToString(CultureInfo.InvariantCulture)},";
                 variablePart3 += $"{i + 1}={widthValue.ToString(CultureInfo.InvariantCulture)},";
             }
+
+            //Debug.Log(_prevAmps != null);
+
+            if (!wasValueChanged && prevAmps != null) return "";
 
             // Trim the trailing commas from each part
             variablePart1 = variablePart1.TrimEnd(',');
@@ -125,8 +145,10 @@ namespace Tactility.Box
             return completeString;
         }
 
-        public override string GetFreqString(int frequency)
+        public override string GetFreqString(int frequency, int prevFrequency = -1)
         {
+            if (prevFrequency != -1 && prevFrequency == frequency) return "";
+            prevFrequency = frequency;
             return $"freq {frequency}";
         }
 

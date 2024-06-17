@@ -36,7 +36,7 @@ public class SpatialAmpModulator : AbstractModulator
 
         ref var modulationData = ref _dataProvider.GetTactilityData();
 
-        var remap_strip = new[] { 31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18 };
+        var remapStrip = new[] { 31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18 };
 
         // Define spatial levels (values require remapping)
         var level0 = new List<int>();
@@ -108,13 +108,13 @@ public class SpatialAmpModulator : AbstractModulator
         {
             if (spatialLevel == level3 || spatialLevel == level4)
             {
-                ampValues[remap_strip[i] - 1] = 0.95f * BaseAmps[remap_strip[i] - 1];
+                ampValues[remapStrip[i] - 1] = 0.95f * BaseAmps[remapStrip[i] - 1];
             }
             else if (spatialLevel == level5 || spatialLevel == level6)
             {
-                ampValues[remap_strip[i] - 1] = 0.9f * BaseAmps[remap_strip[i] - 1];
+                ampValues[remapStrip[i] - 1] = 0.9f * BaseAmps[remapStrip[i] - 1];
             }
-            else ampValues[remap_strip[i] - 1] = 1f * BaseAmps[remap_strip[i] - 1];
+            else ampValues[remapStrip[i] - 1] = 1f * BaseAmps[remapStrip[i] - 1];
         }
 
         return new ModulationData

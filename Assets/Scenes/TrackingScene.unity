@@ -533,7 +533,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deviceConfigInstance: {fileID: 11400000, guid: 0ec9462c633e8d54a8301d83ea24e0ef,
     type: 2}
-  calibrationFileName: 2024-06-11_09-37-44_calibration_strip_vrt0.2
+  calibrationFileName: 2024-06-16_20-34-11_calibration_strip_vrt0.2
 --- !u!4 &250799597
 Transform:
   m_ObjectHideFlags: 0
@@ -908,7 +908,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bc5f48af2cffd747a079fe8c632e2c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  portName: COM6
+  portName: COM1
   baudRate: 115200
   messageListener: {fileID: 544216744}
   reconnectionDelay: 1000
@@ -925,7 +925,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e29581f8a236704bb6667a5b7de5f13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  logMode: 3
+  logMode: 1
   messageDelay: 50
   maxQueueSize: 10
   connectOnAwake: 1

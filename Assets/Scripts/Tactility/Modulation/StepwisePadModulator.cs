@@ -39,7 +39,7 @@ namespace Tactility.Modulation
 
             ref var modulationData = ref _dataProvider.GetTactilityData();
 
-            var remap_strip = new[] {31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18};
+            var remapStrip = new[] {31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18};
 
             // Define spatial levels (values require remapping)
             var level0 = new List<int>();
@@ -109,7 +109,7 @@ namespace Tactility.Modulation
             var spatialValues = new float[32];
             for (var i = 0; i < 32; i++)
             {
-                spatialValues[remap_strip[i] - 1] = spatialLevel.Contains(i + 1)
+                spatialValues[remapStrip[i] - 1] = spatialLevel.Contains(i + 1)
                     ? 1f
                     : 0f;
             }

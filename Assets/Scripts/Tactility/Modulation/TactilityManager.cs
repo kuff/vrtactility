@@ -8,6 +8,7 @@ using System.Linq;
 using Tactility.Box;
 using UnityEngine;
 using static Tactility.Calibration.CalibrationManager;
+using static UnityEditor.ShaderData;
 #endregion
 
 namespace Tactility.Modulation
@@ -26,7 +27,12 @@ namespace Tactility.Modulation
         private int[] _combinedWidths;
         private int _frequency;
         private float _lastSendTime;
-        private bool _isGrabbing;
+        private bool _hasNoData;
+
+        private int[] _prevPads;
+        private float[] _prevAmps;
+        private int[] _prevWidths;
+        private int _prevFrequency;
 
         protected void Start()
         {
@@ -41,24 +47,26 @@ namespace Tactility.Modulation
             {
                 return;
             }
-
-            var wasSuccessful = NotifyModulators();
-            if (!wasSuccessful)
+            
+            var wasDataRetrieved = NotifyModulators();
+            if (!wasDataRetrieved)
             {
-                if (!_isGrabbing)
+                if (_hasNoData)
                 {
                     return;
                 }
                 
-                _isGrabbing = false;
+                _hasNoData = true;
                 _boxController.ResetAllPads();
-                return;
             }
-            _isGrabbing = true;
+            else
+            {
+                _hasNoData = false;
+                SendCombinedModulationData();
+                _lastSendTime = Time.time * 1000;
+            }
 
-            SendCombinedModulationData();
             ResetCombinedModulationData(); // Reset for next cycle
-            _lastSendTime = Time.time * 1000;
         }
 
         private void InitializeModulationDataArrays()
@@ -200,10 +208,23 @@ namespace Tactility.Modulation
                 return;
             }
 
-            var encodedString = _boxController.GetStimString(_combinedPads, _combinedAmps, _combinedWidths);
-            var freqString = _boxController.GetFreqString(_frequency);
-            _boxController.Send(encodedString);
-            _boxController.Send(freqString);
+            var freqString = _boxController.GetFreqString(_frequency, _prevFrequency);
+            var isFreqNew = !string.IsNullOrEmpty(freqString);
+
+            // Send the stim string if frequency has changed regardless of if the values are new or not
+            var encodedString = _boxController.GetStimString(_combinedPads, _combinedAmps, _combinedWidths, isFreqNew ? null : _prevPads, isFreqNew ? null : _prevAmps, isFreqNew ? null : _prevWidths);
+            if (isFreqNew)
+            {
+                //Debug.Log(encodedString);
+            }
+
+            if (!string.IsNullOrEmpty(encodedString)) _boxController.Send(encodedString);
+            if (isFreqNew) _boxController.Send(freqString);
+
+            _prevPads = (int[])_combinedPads.Clone();
+            _prevAmps = (float[])_combinedAmps.Clone();
+            _prevWidths = (int[])_combinedWidths.Clone();
+            _prevFrequency = _frequency;
         }
 
         private void ResetCombinedModulationData()
