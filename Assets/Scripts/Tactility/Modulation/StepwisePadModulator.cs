@@ -109,9 +109,10 @@ namespace Tactility.Modulation
             var spatialValues = new float[32];
             for (var i = 0; i < 32; i++)
             {
-                spatialValues[remapStrip[i] - 1] = spatialLevel.Contains(i + 1)
+                spatialValues[remapStrip[i] - 1] = spatialLevel.Contains(i)
                     ? 1f
                     : 0f;
+                // Debug.Log($"{i}: {spatialValues[remapStrip[i] - 1]}");
             }
 
             // Return ModulationData object
