@@ -28,8 +28,20 @@ namespace Tactility.Calibration.Interface
         [Tooltip("Index of the default selected force level button.")]
         private int defaultForceLevelIndex = 0;
 
+        [SerializeField]
+        [Tooltip("Slider to tune the current amplitude.")]
+        private Slider slider;
+
+        [SerializeField]
+        [Tooltip("Text input with the amplitude multiplier.")]
+        private InputField amplitudeMultiplier;
+
         private int _currentSelectedIndex;
         private int _currentForceLevelIndex;
+
+        private PadFigureManager _padFigureManager;
+
+        
 
         // Define a delegate for the modality changed event
         public delegate void ModalityChangedEventHandler(string modality, bool isActive, bool isOscillating, string forceLevel);
@@ -39,6 +51,10 @@ namespace Tactility.Calibration.Interface
 
         private void Start()
         {
+            _padFigureManager = GetComponent<PadFigureManager>();
+            slider.onValueChanged.AddListener(OnSliderValueChangeCheck);
+            amplitudeMultiplier.onValueChanged.AddListener(OnInputFieldValueChangeCheck);
+
             if (uiButtons.Count == 0)
             {
                 Debug.LogWarning("No UI buttons specified.");
@@ -100,6 +116,10 @@ namespace Tactility.Calibration.Interface
             _currentForceLevelIndex = index;
             UpdateButtonColor(forceLevelButtons[_currentForceLevelIndex], isModalityActivated);
 
+            ////Update pad figures
+            //var modality = GetSelectedModality();
+            //_padFigureManager.SetPadFigureDemo(index, modality);
+
             // Raise the event
             RaiseModalityChangedEvent();
         }
@@ -128,6 +148,7 @@ namespace Tactility.Calibration.Interface
                 }
                 SelectForceLevelButton(nextForceLevelIndex);
             }
+
         }
 
         public void CyclePreviousButton()
@@ -217,11 +238,29 @@ namespace Tactility.Calibration.Interface
             return forceLevelButtons[_currentForceLevelIndex].GetComponentInChildren<Text>().text;
         }
 
+        public void OnSliderValueChangeCheck(float value)
+        {
+            float roundedValue = Mathf.Round(value * 10f) / 10f;
+            slider.value = roundedValue;
+            amplitudeMultiplier.text = ValueChangeManager.FloatToText(roundedValue);
+            Debug.Log("Slider Value: " + roundedValue);
+        }
+
+        public void OnInputFieldValueChangeCheck(string value)
+        {
+            float roundedValue = ValueChangeManager.TextToFloat(value);
+            slider.value = roundedValue;
+            Debug.Log("Slider Value: " + roundedValue);
+        }
+
         private void RaiseModalityChangedEvent()
         {
             // Get the selected modality and force level
             var modality = GetSelectedModality();
             var forceLevel = GetSelectedForceLevel();
+
+            var force = int.Parse(forceLevel);
+            _padFigureManager.SetPadFigureDemo(force, modality);
 
             // Raise the event if there are any subscribers
             OnModalityChanged?.Invoke(modality, isModalityActivated, doOscillation, forceLevel);

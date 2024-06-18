@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Tactility.Modulation;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,13 +13,14 @@ namespace Tactility.Calibration.Interface
         
         private PadCalibrationManager _padCalibrationManager;
         private int _currentActiveField;
-        
+
+
         private void Start()
         {
             _padCalibrationManager = GetComponent<PadCalibrationManager>();
         }
 
-        private void Update()
+        public void SetPadFigureCalibration()
         {
             var currentPadIndex = _padCalibrationManager.currentPadIndex;
             
@@ -43,6 +46,53 @@ namespace Tactility.Calibration.Interface
             // If stimulation is on, make the active Image yellow, if it's off, make it white
             var isStimOn = _padCalibrationManager.isStimOn;
             padFields[_currentActiveField].color = isStimOn ? Color.yellow : Color.green;
+        }
+
+        public void SetPadFigureDemo(int forceLevel, string modality)
+        {
+            // Set all padFields to black
+            for (int i = 12; i < padFields.Length; i++)
+            {
+                padFields[i].color = Color.black;
+            }
+
+            var isStimOn = _padCalibrationManager.isStimOn;
+            Debug.Log("isStimOn: " + isStimOn);
+
+            if (modality == "Spatial" || modality == "Mixed")
+            {
+                int[][] greenIndices = new int[][]
+                {
+                    new int[] {1, 7}, // forceLevel 0
+                    new int[] {1, 7, 4, 10}, // forceLevel 1
+                    new int[] {1, 7, 4, 10, 3, 9}, // forceLevel 2
+                    new int[] {1, 7, 4, 10, 3, 9, 5, 11}, // forceLevel 3
+                    new int[] {1, 7, 4, 10, 3, 9, 5, 11, 0, 6}, // forceLevel 4
+                    new int[] {1, 7, 4, 10, 3, 9, 5, 11, 0, 6, 2, 8}  // forceLevel 5
+                };
+
+                // Set the specific padFields to green based on the forceLevel
+                if (forceLevel >= 0 && forceLevel <= greenIndices.Length)
+                {
+                    foreach (int index in greenIndices[forceLevel-1])
+                    {
+                        padFields[index+12].color = isStimOn ? Color.yellow : Color.green; ;
+                    }
+                }
+            }
+            else if (modality == "Frequency")
+            {
+                int[] greenIndices = new int[] { 1, 7, 4, 10 };
+
+                // Set the specific padFields to green based on the forceLevel
+                if (forceLevel >= 0)
+                {
+                    foreach (int index in greenIndices)
+                    {
+                        padFields[index+12].color = isStimOn ? Color.yellow : Color.green; ;
+                    }
+                }
+            }
         }
     }
 }
