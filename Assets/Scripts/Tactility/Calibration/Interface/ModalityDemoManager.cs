@@ -1,5 +1,8 @@
+using JetBrains.Annotations;
+using System.Linq;
 using Tactility.Modulation;
 using UnityEngine;
+
 namespace Tactility.Calibration.Interface
 {
     public class ModalityDemoManager : MonoBehaviour
@@ -9,6 +12,8 @@ namespace Tactility.Calibration.Interface
         private GameObject[] modalityDemoObjects;
         
         private ModalitySelectionManager _modalitySelectionManager;
+        [CanBeNull]
+        private GameObject _outgoingModality;
 
         private void OnDisable()
         {
@@ -24,21 +29,28 @@ namespace Tactility.Calibration.Interface
             _modalitySelectionManager.OnModalityChanged += HandleModalityChanged;
         }
 
+        private void Update()
+        {
+            // We do this to give the system one frame to activate the new modality demo object before deactivating the old one to avoid inconsistencies with stim on/off
+            if (_outgoingModality != null)
+            {
+                _outgoingModality.SetActive(false);
+                _outgoingModality = null;
+            }
+        }
+
         private void HandleModalityChanged(string modality, bool isActive, bool isOscillating, string forceLevel)
         {
             // Debug.Log($"Modality changed to {modality}, Active: {isActive}, Oscillating: {isOscillating}, Force Level: {forceLevel}");
-            
-            // Deactivate all modality demo objects
-            foreach (var modalityDemoObject in modalityDemoObjects)
-            {
-                modalityDemoObject.SetActive(false);
-            }
             
             // Go no further if the modality is not active
             if (!isActive)
             {
                 return;
             }
+            
+            // Save a reference to the currently active modality object
+            var oldModality = modalityDemoObjects.FirstOrDefault(obj => obj.activeSelf);
             
             // Activate the modality demo object corresponding to the selected modality
             var indexToActivate = modality switch
@@ -56,8 +68,12 @@ namespace Tactility.Calibration.Interface
                 indexToActivate += 4;
             }
             
-            // Enable the selected modality demo object
-            modalityDemoObjects[indexToActivate].SetActive(true);
+            var newModality = modalityDemoObjects[indexToActivate];
+            if (oldModality != newModality)
+            {
+                _outgoingModality = oldModality;
+                newModality.SetActive(true);
+            }
 
             if (!isOscillating)
             {

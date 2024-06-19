@@ -41,7 +41,7 @@ namespace Tactility.Calibration.Interface
 
             // Pattern to identify calibration files
             var deviceName = DeviceConfig.deviceName;
-            var pattern = @"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_calibration_" + Regex.Escape(deviceName) + @"_vrt\d+\.\d+\.txt$";
+            var pattern = @"^.*\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_calibration_" + Regex.Escape(deviceName) + @"_vrt\d+\.\d+\.txt$";
 
             // Filtering files according to the regex pattern
             var calibrationFiles = fileInfo.Where(file => Regex.IsMatch(file.Name, pattern))
