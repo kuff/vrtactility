@@ -115,6 +115,7 @@ public class SpatialAmpModulator : AbstractModulator
                 ampValues[remapStrip[i] - 1] = 0.9f * BaseAmps[remapStrip[i] - 1];
             }
             else ampValues[remapStrip[i] - 1] = 1f * BaseAmps[remapStrip[i] - 1];
+            //ampValues[remapStrip[i] - 1] = 1f * BaseAmps[remapStrip[i] - 1];
         }
 
         return new ModulationData
