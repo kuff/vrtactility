@@ -26,6 +26,7 @@ namespace Tactility.Modulation
             // {
             //     amps[i] = DeviceConfig.maxAmp;
             // }
+
             if (!_dataProvider.IsActive())
             {
                 return null;

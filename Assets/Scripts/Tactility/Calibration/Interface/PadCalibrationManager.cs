@@ -50,6 +50,7 @@ namespace Tactility.Calibration.Interface
         // private Button prevButton;
 
         private AbstractBoxController _boxController;
+        private PadFigureManager _padFigureManager;
         // private List<CalibrationValues> _calibrationValues;
         // private bool _canSaveData;
 
@@ -85,6 +86,7 @@ namespace Tactility.Calibration.Interface
         private void Start()
         {
             _boxController = FindObjectOfType<AbstractBoxController>();
+            _padFigureManager = GetComponent<PadFigureManager>();
             // _calibrationValues = new List<CalibrationValues>();
             currentPadIndex = 0;
             isStimOn = false;
@@ -95,6 +97,7 @@ namespace Tactility.Calibration.Interface
             //     _calibrationValues.Add(new CalibrationValues(0.5f, 100));
             // }
 
+            _padFigureManager.SetPadFigureCalibration();
             // Initialize the Input Fields to their default values
             //UpdateInputFields();
             _currentPad = _remapStrip[currentPadIndex]-1;
@@ -160,6 +163,7 @@ namespace Tactility.Calibration.Interface
                 // }
             }
             _currentPad = _remapStrip[currentPadIndex]-1;
+            _padFigureManager.SetPadFigureCalibration();
             UpdateCurrentPadString();
             UpdateInputFields();
             UpdateStimulation();
@@ -173,6 +177,7 @@ namespace Tactility.Calibration.Interface
                 currentPadIndex--;
             }
             _currentPad = _remapStrip[currentPadIndex]-1;
+            _padFigureManager.SetPadFigureCalibration();
             UpdateCurrentPadString();
             UpdateInputFields();
             UpdateStimulation();
