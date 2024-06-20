@@ -24,13 +24,6 @@ namespace Tactility.Calibration.Interface
 
         private void Start()
         {
-            // UpdateTextDisplay();
-
-            // Set the current value to the value in the input field placeholder
-            // if (inputField != null && float.TryParse(inputField.placeholder.GetComponent<Text>().text, out var placeholderValue))
-            // {
-            //     _currentValue = placeholderValue;
-            // }
             try
             {
                 _currentValue = defaultValue;
@@ -42,8 +35,6 @@ namespace Tactility.Calibration.Interface
             {
                 // Do nothing...
             }
-            // _currentValue = defaultValue - changeAmount;
-            // IncrementValue();
         }
 
         // Invoked when the increment button is clicked
@@ -56,9 +47,7 @@ namespace Tactility.Calibration.Interface
             
             var currentValue = float.Parse(inputField.text, CultureInfo.InvariantCulture);
             currentValue += changeAmount;
-            //Debug.Log($"{inputField.text}...{currentValue.ToString(CultureInfo.InvariantCulture)}");
             inputField.text = FloatToText(currentValue);
-            // UpdateTextDisplay();
         }
 
         // Invoked when the decrement button is clicked
@@ -73,7 +62,6 @@ namespace Tactility.Calibration.Interface
             currentValue -= changeAmount;
             Debug.Log($"{inputField.text}...{currentValue.ToString(CultureInfo.InvariantCulture)}");
             inputField.text = FloatToText(currentValue);
-            // UpdateTextDisplay();
         }
 
         public static float TextToFloat(string text)

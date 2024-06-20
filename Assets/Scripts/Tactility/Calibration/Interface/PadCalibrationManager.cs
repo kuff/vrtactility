@@ -2,7 +2,6 @@
 
 #region
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using Tactility.Box;
 using UnityEngine;
@@ -44,20 +43,14 @@ namespace Tactility.Calibration.Interface
         private Text activePadText;
         [SerializeField]
         private InputField participantField;
-        // [SerializeField]
-        // private Button nextButton;
-        // [SerializeField]
-        // private Button prevButton;
 
         private AbstractBoxController _boxController;
         private PadFigureManager _padFigureManager;
-        // private List<CalibrationValues> _calibrationValues;
-        // private bool _canSaveData;
 
-        // Elements from 0-5 -> index (I1 of connecting board)
-        // Elements from 6-12 -> thumb (I2 of connecting board)
         private readonly int[] _remapStrip = {31, 32, 29, 16, 15, 14, 11, 12, 13, 10, 9, 8, 5, 6, 7, 4, 3, 2, 30, 27, 28, 23, 26, 25, 24, 21, 22, 17, 20, 19, 1, 18};    
         private int _currentPad;
+
+        public static event Action CalibrationValuesChanged;
 
         private void OnEnable()
         {
@@ -87,39 +80,18 @@ namespace Tactility.Calibration.Interface
         {
             _boxController = FindObjectOfType<AbstractBoxController>();
             _padFigureManager = GetComponent<PadFigureManager>();
-            // _calibrationValues = new List<CalibrationValues>();
             currentPadIndex = 0;
             isStimOn = false;
 
-            // Initialize values array with number of pads
-            // for (var i = 0; i < DeviceConfig.numPads; i++)
-            // {
-            //     _calibrationValues.Add(new CalibrationValues(0.5f, 100));
-            // }
-
             _padFigureManager.SetPadFigureCalibration();
-            // Initialize the Input Fields to their default values
-            //UpdateInputFields();
             _currentPad = _remapStrip[currentPadIndex]-1;
             UpdateCurrentPadString();
             SetCalibrationFileName();
-        }
-
-        /*private void OnDestroy()
-        {
-            // Save the calibration values to the CalibrationManager when the object (scene) is destroyed
-            BaseAmps = new float[DeviceConfig.numPads];
-            BaseWidths = new int[DeviceConfig.numPads];
-            for (var i = 0; i < DeviceConfig.numPads; i++)
-            {
-                BaseAmps[i] = _calibrationValues[i].Amplitude;
-                BaseWidths[i] = (int)_calibrationValues[i].Width;
-            }
             
-            // var calibrationFilePath = SaveCalibrationDataToFile(DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
-            // LoadCalibrationDataFromFile(calibrationFilePath);
-            SaveCalibrationDataToFile(fileName);
-        }*/
+            // var (padAmp, padWidth) = GetFieldValuesForPad();
+            // BaseAmps[_currentPad] = padAmp;
+            // BaseWidths[_currentPad] = padWidth;
+        }
         
         private void UpdateInputFieldsOnSceneChanged(GameObject oldScene, GameObject newScene)
         {
@@ -155,12 +127,6 @@ namespace Tactility.Calibration.Interface
             if (currentPadIndex < DeviceConfig.numPads - 1)
             {
                 currentPadIndex++;
-
-                // Only save the calibration data to disk if we've cycled through all the pads
-                // if (currentPadIndex+1 == DeviceConfig.numPads)
-                // {
-                //     _canSaveData = true;
-                // }
             }
             _currentPad = _remapStrip[currentPadIndex]-1;
             _padFigureManager.SetPadFigureCalibration();
@@ -185,35 +151,19 @@ namespace Tactility.Calibration.Interface
 
         private void SaveCalibrationValues()
         {
-            // Save the text from the text field, but if it's empty, save the placeholder text instead
-            // _calibrationValues[_currentPad] = new CalibrationValues(string.IsNullOrEmpty(amplitudeField.text) ? TextToFloat(amplitudeField.placeholder.GetComponent<Text>().text) : TextToFloat(amplitudeField.text), string.IsNullOrEmpty(widthField.text) ? TextToFloat(widthField.placeholder.GetComponent<Text>().text) : TextToFloat(widthField.text));
-            // Use CalibrationManager.baseAmps and baseWidths instead of _calibrationValues
-            BaseAmps[_currentPad] = string.IsNullOrEmpty(amplitudeField.text) ? TextToFloat(amplitudeField.placeholder.GetComponent<Text>().text) : TextToFloat(amplitudeField.text);
-            BaseWidths[_currentPad] = string.IsNullOrEmpty(widthField.text) ? int.Parse(widthField.placeholder.GetComponent<Text>().text, CultureInfo.InvariantCulture) : int.Parse(widthField.text, CultureInfo.InvariantCulture);
+            var (padAmp, padWidth) = GetFieldValuesForPad();
+            BaseAmps[_currentPad] = padAmp;
+            BaseWidths[_currentPad] = padWidth;
         }
 
-        public void UpdateInputFields()
+        private void UpdateInputFields()
         {
-            // Debug.Log($"Updating for index {_currentPadIndex}");
-            // Update the text of the input fields
-            // amplitudeField.text = FloatToText(_calibrationValues[_currentPad].Amplitude);
-            // widthField.text = FloatToText(_calibrationValues[_currentPad].Width);
-            // Use CalibrationManager.baseAmps and baseWidths instead of _calibrationValues
             amplitudeField.text = FloatToText(BaseAmps[_currentPad]);
             widthField.text = BaseWidths[_currentPad].ToString();
         }
 
         private void UpdateCurrentPadString()
         {
-            // If the current pad is an anode, update the text to reflect that
-            //if (DeviceConfig.IsAnode(_currentPad))
-            //{
-            //    activePadText.text = "Pad is an anode";
-            //    activePadText.color = Color.red;
-            //    return;
-            //}
-
-            // Update the text otherwise
             activePadText.text = "Calibrating Pad: " + (currentPadIndex + 1);
         }
 
@@ -221,7 +171,17 @@ namespace Tactility.Calibration.Interface
         {
             var prevStimOn = isStimOn;
 
-            //_boxController.ResetAllPads();
+            var (padAmp, padWidth) = GetFieldValuesForPad();
+            if (!DeviceConfig.IsAnode(_currentPad))
+            {
+                var calibratedAmp = BaseAmps[_currentPad];
+                var calibratedWidth = BaseWidths[_currentPad];
+                if (padAmp != calibratedAmp || padWidth != calibratedWidth)
+                {
+                    CalibrationValuesChanged?.Invoke();
+                }
+            }
+
             if (DeviceConfig.IsAnode(_currentPad) || !stimulateToggle.isOn)
             {
                 isStimOn = false;
@@ -234,7 +194,7 @@ namespace Tactility.Calibration.Interface
                 isStimOn = true;
 
                 // Get stim string for single pad using Text Field values
-                var stimString = GetEncodedStringForSinglePad(_currentPad, TextToFloat(amplitudeField.text), int.Parse(widthField.text, CultureInfo.InvariantCulture), _boxController);
+                var stimString = GetEncodedStringForSinglePad(_currentPad, padAmp, padWidth, _boxController);
                 _boxController.Send(stimString);
 
                 // Turn the activePadText yellow
@@ -254,11 +214,12 @@ namespace Tactility.Calibration.Interface
                 }
             }
         }
-
-        private void SetStimulation(bool value)
+        
+        private (float, int) GetFieldValuesForPad()
         {
-            stimulateToggle.isOn = value;
-            UpdateStimulation();
+            var amp = string.IsNullOrEmpty(amplitudeField.text) ? TextToFloat(amplitudeField.placeholder.GetComponent<Text>().text) : TextToFloat(amplitudeField.text);
+            var width = string.IsNullOrEmpty(widthField.text) ? int.Parse(widthField.placeholder.GetComponent<Text>().text, CultureInfo.InvariantCulture) : int.Parse(widthField.text, CultureInfo.InvariantCulture);
+            return (amp, width);
         }
     }
 }

@@ -13,9 +13,6 @@ namespace Tactility.Calibration.Interface
 {
     public class CalibrationSelectionManager : DropdownManager<string>
     {
-        [HideInInspector]
-        public bool isNewCalibrationSelected;
-        
         private const string StartNewCalibrationOption = "New Calibration";
 
         protected override void Start()
@@ -64,13 +61,11 @@ namespace Tactility.Calibration.Interface
             var selectedItem = dropdown.options[dropdown.value].text;
             if (selectedItem == StartNewCalibrationOption)
             {
-                isNewCalibrationSelected = true;
                 Debug.Log("Starting new calibration process...");
                 // Placeholder for any function that you would call to start a new calibration
             }
             else
             {
-                isNewCalibrationSelected = false;
                 SetSelectedItem(selectedItem);
             }
         }
