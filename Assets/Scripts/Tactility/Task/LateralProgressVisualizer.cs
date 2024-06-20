@@ -4,7 +4,7 @@
 using UnityEngine;
 #endregion
 
-namespace Tactility.Ball
+namespace Tactility.Task
 {
     [RequireComponent(typeof(GrabAndMoveScenario))]
     public class LateralProgressVisualizer : MonoBehaviour

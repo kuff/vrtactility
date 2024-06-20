@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
-namespace Tactility.Ball
+namespace Tactility.Task
 {
     public class TrialManager : MonoBehaviour
     {

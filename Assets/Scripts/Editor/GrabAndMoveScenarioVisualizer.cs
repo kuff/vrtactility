@@ -1,7 +1,7 @@
 // Copyright (C) 2024 Peter Leth
 
 #region
-using Tactility.Ball;
+using Tactility.Task;
 using UnityEditor;
 using UnityEngine;
 #endregion

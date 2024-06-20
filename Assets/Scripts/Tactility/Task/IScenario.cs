@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Peter Leth
 
-namespace Tactility.Ball
+namespace Tactility.Task
 {
     public enum ScenarioTrigger
     {
