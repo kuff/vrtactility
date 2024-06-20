@@ -82,8 +82,8 @@ namespace Tactility.Calibration
                 BaseWidths = new int[_deviceConfigStatic.numPads];
                 for (var i = 0; i < BaseAmps.Length; i++)
                 {
-                    BaseAmps[i] = _deviceConfigStatic.minAmp;
-                    BaseWidths[i] = (int)_deviceConfigStatic.minWidth;
+                    BaseAmps[i] = 0.5f;
+                    BaseWidths[i] = 100; // TODO: This is a quick fix, and will need a more robust solution if the box controller is ever changed
                 }
             }
         }

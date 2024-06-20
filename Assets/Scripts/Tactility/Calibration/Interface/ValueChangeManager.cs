@@ -29,9 +29,7 @@ namespace Tactility.Calibration.Interface
                 _currentValue = defaultValue;
                 inputField.text = FloatToText(_currentValue);
             }
-#pragma warning disable CS0168 // Variable is declared but never used
-            catch (Exception e)
-#pragma warning restore CS0168 // Variable is declared but never used
+            catch (Exception _)
             {
                 // Do nothing...
             }
