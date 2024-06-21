@@ -83,12 +83,10 @@ namespace Tactility.Ball
                 //if (fileLineIndex % 5 == 1)
                 //{
                 targetForceLevel = targetForceLevels[fileLineIndex-1];
-                Debug.Log("FileIndex: " + fileLineIndex);
 
                 // Reset targetForceLevel when it reaches 6
-                if (fileLineIndex == 29)
+                if (fileLineIndex == 30)
                 {
-                    Debug.Log("I'm finished, fileIndex: " + fileLineIndex);
                     Invoke("LoadNextScene", 0.5f);
                 }
                 //}

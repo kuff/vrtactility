@@ -53,7 +53,7 @@ namespace Tactility.Ball
                 var currentMaterial = _trialManager.materials[targetForceLevel];
                 _renderer.material = currentMaterial;
                 
-                if (_scenario.currentForceLevel != targetForceLevel && SceneManager.GetActiveScene().buildIndex != 4)
+                if (_scenario.currentForceLevel != targetForceLevel && !(SceneManager.GetActiveScene().buildIndex == 4 || SceneManager.GetActiveScene().buildIndex == 3))
                 {
                     // Apply subtle wobble effect
                     var wobble = Mathf.Sin(Time.time * wobbleFrequency) * wobbleAmplitude;
