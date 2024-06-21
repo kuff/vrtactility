@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static Tactility.Calibration.CalibrationManager;
 
 namespace Tactility.Calibration.Interface
 {
@@ -44,6 +45,9 @@ namespace Tactility.Calibration.Interface
 
         private InterfaceManager _interfaceManager;
         private PadFigureManager _padFigureManager;
+        
+        private static float[] _calibratedAmps;
+        private static int[] _calibratedWidths;
 
         // Define a delegate for the modality changed event
         public delegate void ModalityChangedEventHandler(string modality, bool isActive, bool isOscillating, string forceLevel);
@@ -75,17 +79,17 @@ namespace Tactility.Calibration.Interface
                 }
             };
             
-            if (uiButtons.Count == 0)
-            {
-                Debug.LogWarning("No UI buttons specified.");
-                return;
-            }
-
-            if (forceLevelButtons.Count == 0)
-            {
-                Debug.LogWarning("No force level buttons specified.");
-                return;
-            }
+            // if (uiButtons.Count == 0)
+            // {
+            //     Debug.LogWarning("No UI buttons specified.");
+            //     return;
+            // }
+            //
+            // if (forceLevelButtons.Count == 0)
+            // {
+            //     Debug.LogWarning("No force level buttons specified.");
+            //     return;
+            // }
 
             // Clamp the default selected index within the valid range
             defaultSelectedIndex = Mathf.Clamp(defaultSelectedIndex, 0, uiButtons.Count - 1);
@@ -94,6 +98,21 @@ namespace Tactility.Calibration.Interface
             // Initialize the selected buttons
             SelectButton(defaultSelectedIndex);
             SelectForceLevelButton(defaultForceLevelIndex);
+
+            if (_calibratedAmps == null && _calibratedWidths == null)
+            {
+                UpdateCalibrationValues();
+            }
+            CalibrationDataLoaded += _ => UpdateCalibrationValues();
+        }
+
+        private static void UpdateCalibrationValues()
+        {
+            // Save current calibration values for if amplitude is changed with the slider (save as value not as reference)
+            _calibratedAmps = new float[BaseAmps.Length];
+            _calibratedWidths = new int[BaseWidths.Length];
+            BaseAmps.CopyTo(_calibratedAmps, 0);
+            BaseWidths.CopyTo(_calibratedWidths, 0);
         }
 
         public void SelectButton(int index)
@@ -247,31 +266,37 @@ namespace Tactility.Calibration.Interface
             // NOTE: stimulationToggle.isOn will invoke ToggleSelectedButtonActivation and handle button color change and event raising
         }
 
-        public string GetSelectedModality()
+        private string GetSelectedModality()
         {
             // Return the name of the selected modality using the button's text
             return uiButtons[_currentSelectedIndex].GetComponentInChildren<Text>().text;
         }
 
-        public string GetSelectedForceLevel()
+        private string GetSelectedForceLevel()
         {
             // Return the name of the selected force level using the button's text
             return forceLevelButtons[_currentForceLevelIndex].GetComponentInChildren<Text>().text;
         }
 
-        public void OnSliderValueChangeCheck(float value)
+        private void OnSliderValueChangeCheck(float value)
         {
-            float roundedValue = Mathf.Round(value * 10f) / 10f;
+            var roundedValue = Mathf.Round(value * 10f) / 10f;
             slider.value = roundedValue;
             amplitudeMultiplier.text = ValueChangeManager.FloatToText(roundedValue);
-            Debug.Log("Slider Value: " + roundedValue);
         }
 
-        public void OnInputFieldValueChangeCheck(string value)
+        private void OnInputFieldValueChangeCheck(string value)
         {
-            float roundedValue = ValueChangeManager.TextToFloat(value);
+            var roundedValue = ValueChangeManager.TextToFloat(value);
             slider.value = roundedValue;
-            Debug.Log("Slider Value: " + roundedValue);
+            
+            // Update the BaseAmps values with the value of _calibratedAmps * roundedValue
+            // NOTE: We only need to do this here, since the slider value change will trigger the event
+            for (var i = 0; i < BaseAmps.Length; i++)
+            {
+                BaseAmps[i] = _calibratedAmps[i] * roundedValue;
+                // Debug.Log($"New BaseAmps[{i}] = {BaseAmps[i]}");
+            }
         }
 
         private void RaiseModalityChangedEvent()

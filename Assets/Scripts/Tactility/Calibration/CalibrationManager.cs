@@ -48,6 +48,9 @@ namespace Tactility.Calibration
         // Event to notify when calibration data is saved
         public static event Action<string> CalibrationDataSaved;
 
+        // Event to notify when calibration data is loaded
+        public static event Action<string> CalibrationDataLoaded;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -251,6 +254,7 @@ namespace Tactility.Calibration
                 // for (var i = 0; i < BaseAmps.Length; i++)
                 //     Debug.Log($"Pad {i + 1}: Amp = {BaseAmps[i]}, Width = {BaseWidths[i]}");
                 Debug.Log($"Calibration data loaded from {filePath}");
+                CalibrationDataLoaded?.Invoke(filePath); // Invoke the event
             }
             catch (Exception e)
             {
