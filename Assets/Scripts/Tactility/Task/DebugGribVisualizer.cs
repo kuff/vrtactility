@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 #endregion
 
-namespace Tactility.Ball
+namespace Tactility.Task
 {
     [RequireComponent(typeof(UniformGrabbable))]
     [RequireComponent(typeof(Renderer))]

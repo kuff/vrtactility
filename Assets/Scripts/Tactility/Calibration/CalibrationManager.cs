@@ -45,6 +45,9 @@ namespace Tactility.Calibration
             }
         }
 
+        // Event to notify when calibration data is saved
+        public static event Action<string> CalibrationDataSaved;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -79,8 +82,8 @@ namespace Tactility.Calibration
                 BaseWidths = new int[_deviceConfigStatic.numPads];
                 for (var i = 0; i < BaseAmps.Length; i++)
                 {
-                    BaseAmps[i] = _deviceConfigStatic.minAmp;
-                    BaseWidths[i] = (int)_deviceConfigStatic.minWidth;
+                    BaseAmps[i] = 0.5f;
+                    BaseWidths[i] = 100; // TODO: This is a quick fix, and will need a more robust solution if the box controller is ever changed
                 }
             }
         }
@@ -114,13 +117,13 @@ namespace Tactility.Calibration
 
         public static List<TactilityDeviceConfig> GetAllDeviceConfigs()
         {
-
 #if UNITY_EDITOR
             var guids = AssetDatabase.FindAssets($"t:{nameof(TactilityDeviceConfig)}");
             var configs = guids.Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadAssetAtPath<TactilityDeviceConfig>).ToList();
 #else
             // If running outside the editor, attempt to load all configs from a Resources folder
             // NOTE: Untested
+            var configs = new List<TactilityDeviceConfig>();
             configs.AddRange(Resources.LoadAll<TactilityDeviceConfig>("Tactility"));
 #endif
             // Check for duplicate device names
@@ -175,6 +178,7 @@ namespace Tactility.Calibration
                     }
                 }
                 Debug.Log($"Calibration data saved to {filePath}");
+                CalibrationDataSaved?.Invoke(filePath); // Invoke the event
                 return filePath;
             }
             catch (Exception e)

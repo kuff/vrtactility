@@ -1,5 +1,6 @@
 using UnityEngine;
-namespace Tactility.Ball
+
+namespace Tactility.Task
 {
     public class BasicDraggingScenario : MonoBehaviour, IScenario
     {

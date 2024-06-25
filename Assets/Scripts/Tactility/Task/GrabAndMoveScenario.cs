@@ -1,8 +1,6 @@
 // Copyright (C) 2024 Peter Leth
 
 #region
-using System;
-using System.Collections.Generic;
 using Tactility.Modulation;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,7 +8,7 @@ using UnityEngine.Serialization;
 using UnityEngine.UI;
 #endregion
 
-namespace Tactility.Ball
+namespace Tactility.Task
 {
     [RequireComponent(typeof(ITactilityDataProvider))]
     [RequireComponent(typeof(TrialManager))]

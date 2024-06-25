@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 #endregion
 
-namespace Tactility.Ball
+namespace Tactility.Task
 {
     [RequireComponent(typeof(GrabAndMoveScenario))]
     public class BasicCubeVisualizer : MonoBehaviour

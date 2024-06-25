@@ -43,14 +43,15 @@ namespace Tactility.Calibration.Interface
         {
             // Debug.Log($"Modality changed to {modality}, Active: {isActive}, Oscillating: {isOscillating}, Force Level: {forceLevel}");
             
-            // Go no further if the modality is not active
-            if (!isActive)
-            {
-                return;
-            }
-            
             // Save a reference to the currently active modality object
             var oldModality = modalityDemoObjects.FirstOrDefault(obj => obj.activeSelf);
+            
+            if (!isActive)
+            {
+                // Deactivate the currently active modality demo object if it exists
+                oldModality?.SetActive(false);
+                return;
+            }
             
             // Activate the modality demo object corresponding to the selected modality
             var indexToActivate = modality switch

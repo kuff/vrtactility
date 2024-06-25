@@ -57,7 +57,7 @@ namespace Tactility.Calibration.Interface
             }
 
             var isStimOn_demo = _modulationSelectionManager.isModalityActivated;
-            Debug.Log("isStimOn: " + isStimOn_demo);
+            // Debug.Log("isStimOn: " + isStimOn_demo);
 
             if (modality == "Spatial" || modality == "Mixed")
             {

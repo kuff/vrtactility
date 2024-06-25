@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
-namespace Tactility.Ball
+namespace Tactility.Task
 {
     public class TrialManager : MonoBehaviour
     {
@@ -75,7 +75,7 @@ namespace Tactility.Ball
                 new Vector3(0.1f, 1.1f, 0.7f)
             };
             fileLineIndex++;
-            Logger.LogSceneChange(fileLineIndex, targetForceLevel);
+            
 
             if (SceneManager.GetActiveScene().buildIndex != 1)
             {
@@ -83,6 +83,7 @@ namespace Tactility.Ball
                 //if (fileLineIndex % 5 == 1)
                 //{
                 targetForceLevel = targetForceLevels[fileLineIndex-1];
+                Logger.LogSceneChange(fileLineIndex, targetForceLevel);
 
                 // Reset targetForceLevel when it reaches 6
                 if (fileLineIndex == 30)
@@ -96,6 +97,7 @@ namespace Tactility.Ball
                 if (fileLineIndex < 13)
                 {
                     targetForceLevel = targetForceLevels[fileLineIndex-1];
+                    Logger.LogSceneChange(fileLineIndex, targetForceLevel);
                 }
                 else
                 {
