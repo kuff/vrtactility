@@ -27,7 +27,7 @@ namespace Tactility.Modulation
             var activePads = new float[32];
             for (var i = 0; i < 32; i++)
             {
-                activePads[remapStrip[i] - 1] = listPads.Contains(i + 1)
+                activePads[remapStrip[i] - 1] = listPads.Contains(i)
                     ? 1f
                     : 0f;
             }

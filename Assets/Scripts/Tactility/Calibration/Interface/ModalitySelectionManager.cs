@@ -99,11 +99,11 @@ namespace Tactility.Calibration.Interface
             SelectButton(defaultSelectedIndex);
             SelectForceLevelButton(defaultForceLevelIndex);
 
-            if (_calibratedAmps == null && _calibratedWidths == null)
-            {
-                UpdateCalibrationValues();
-            }
-            CalibrationDataLoaded += _ => UpdateCalibrationValues();
+            //if (_calibratedAmps == null && _calibratedWidths == null)
+            //{
+            //    UpdateCalibrationValues();
+            //}
+            //CalibrationDataLoaded += _ => UpdateCalibrationValues();
         }
 
         private static void UpdateCalibrationValues()
@@ -280,6 +280,12 @@ namespace Tactility.Calibration.Interface
 
         private void OnSliderValueChangeCheck(float value)
         {
+            if (_calibratedAmps == null && _calibratedWidths == null)
+            {
+                UpdateCalibrationValues();
+            }
+            CalibrationDataLoaded += _ => UpdateCalibrationValues();
+
             var roundedValue = Mathf.Round(value * 10f) / 10f;
             slider.value = roundedValue;
             amplitudeMultiplier.text = ValueChangeManager.FloatToText(roundedValue);

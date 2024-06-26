@@ -75,35 +75,61 @@ namespace Tactility.Task
                 new Vector3(0.1f, 1.1f, 0.7f)
             };
             fileLineIndex++;
-            
 
-            if (SceneManager.GetActiveScene().buildIndex != 1)
+            switch (SceneManager.GetActiveScene().buildIndex)
             {
-                // Increment targetForceLevel when modulus of 6 is 0
-                //if (fileLineIndex % 5 == 1)
-                //{
-                targetForceLevel = targetForceLevels[fileLineIndex-1];
-                Logger.LogSceneChange(fileLineIndex, targetForceLevel);
+                case 1:
+                    if (fileLineIndex == 13)
+                    {
+                        Invoke("LoadNextScene", 0.5f);
+                    }
+                    break;
+                case 2:
+                    if (fileLineIndex == 13)
+                    {
+                        Invoke("LoadNextScene", 0.5f);
+                    }
+                    break;
+                case 3:
+                    if (fileLineIndex == 30)
+                    {
+                        Invoke("LoadNextScene", 0.5f);
+                    }
+                    break;
+                case 4:
+                    if (fileLineIndex == 30)
+                    {
+                        Invoke("LoadNextScene", 0.5f);
+                    }
+                    break;
+            }
 
-                // Reset targetForceLevel when it reaches 6
-                if (fileLineIndex == 30)
-                {
-                    Invoke("LoadNextScene", 0.5f);
-                }
-                //}
-            }
-            else
-            {
-                if (fileLineIndex < 13)
-                {
-                    targetForceLevel = targetForceLevels[fileLineIndex-1];
-                    Logger.LogSceneChange(fileLineIndex, targetForceLevel);
-                }
-                else
-                {
-                    Invoke("LoadNextScene", 0.5f);                    
-                }
-            }
+            targetForceLevel = targetForceLevels[fileLineIndex - 1];
+            Logger.LogSceneChange(fileLineIndex, targetForceLevel);
+
+
+            //if (SceneManager.GetActiveScene().buildIndex != 1)
+            //{
+            //    targetForceLevel = targetForceLevels[fileLineIndex-1];
+            //    Logger.LogSceneChange(fileLineIndex, targetForceLevel);
+
+            //    if (fileLineIndex == 30)
+            //    {
+            //        Invoke("LoadNextScene", 0.5f);
+            //    }
+            //}
+            //else
+            //{
+            //    if (fileLineIndex < 13)
+            //    {
+            //        targetForceLevel = targetForceLevels[fileLineIndex-1];
+            //        Logger.LogSceneChange(fileLineIndex, targetForceLevel);
+            //    }
+            //    else
+            //    {
+            //        Invoke("LoadNextScene", 0.5f);                    
+            //    }
+            //}
 
             var originIndex = int.Parse(resultString[0].ToString());
             var targetIndex = int.Parse(resultString[2].ToString());
