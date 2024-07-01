@@ -714,7 +714,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &164112523
 Transform:
   m_ObjectHideFlags: 0
@@ -964,7 +964,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deviceConfigInstance: {fileID: 11400000, guid: 0ec9462c633e8d54a8301d83ea24e0ef,
     type: 2}
-  calibrationFileName: test_2024-06-20_13-25-34_calibration_strip_vrt0.2
+  calibrationFileName: 2024-06-28_10-07-32_calibration_strip_vrt0.2
 --- !u!4 &250799597
 Transform:
   m_ObjectHideFlags: 0
@@ -1265,6 +1265,12 @@ MonoBehaviour:
   currentForceLevel: 0
   textBox: {fileID: 1680933607}
   loadingIndicator: {fileID: 0}
+  forceThresholds:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
 --- !u!114 &508686936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1625,7 +1631,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &869302045
 Transform:
   m_ObjectHideFlags: 0

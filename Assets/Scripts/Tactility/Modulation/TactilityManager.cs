@@ -61,6 +61,9 @@ namespace Tactility.Modulation
                 if (_boxController.IsStimEnabled())
                 {
                     _boxController.ResetAllPads();
+                    _prevPads = null;
+                    _prevAmps = null;
+                    _prevWidths = null;
                 }
             }
             else

@@ -1,8 +1,12 @@
 // Copyright (C) 2024 Peter Leth
 
 #region
+using System;
+using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Tactility.Calibration;
+using Tactility.Task;
 using static Tactility.Calibration.CalibrationManager;
 #endregion
 
@@ -11,13 +15,13 @@ namespace Tactility.Modulation
     public class ConstantAmpModulator : AbstractModulator
     {
         private ITactilityDataProvider _dataProvider;
-        
+
         protected override IEnumerator Start()
         {
             yield return base.Start();
             _dataProvider = GetComponent<ITactilityDataProvider>();
         }
-        
+
         public override ModulationData? GetModulationData()
         {
             // Generate array of DeviceConfig.maxAmp values with length DeviceConfig.numPads
@@ -31,7 +35,7 @@ namespace Tactility.Modulation
             {
                 return null;
             }
-
+           
             return new ModulationData
             {
                 Type = ModulationType.Amplitude,

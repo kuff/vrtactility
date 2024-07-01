@@ -33,12 +33,20 @@ namespace Tactility.Calibration.Interface
         private int defaultForceLevelIndex = 0;
 
         [SerializeField]
-        [Tooltip("Slider to tune the current amplitude.")]
-        private Slider slider;
+        [Tooltip("Slider to tune the current amplitude of Thumb pads.")]
+        private Slider sliderThumb;
 
         [SerializeField]
-        [Tooltip("Text input with the amplitude multiplier.")]
-        public InputField amplitudeMultiplier;
+        [Tooltip("Slider to tune the current amplitude of Index pads.")]
+        private Slider sliderIndex;
+
+        [SerializeField]
+        [Tooltip("Text input with the thumb amplitude multiplier.")]
+        public InputField ampMultThumb;
+
+        [SerializeField]
+        [Tooltip("Text input with the index amplitude multiplier.")]
+        public InputField ampMultIndex;
 
         private int _currentSelectedIndex;
         private int _currentForceLevelIndex;
@@ -49,8 +57,11 @@ namespace Tactility.Calibration.Interface
         private static float[] _calibratedAmps;
         private static int[] _calibratedWidths;
 
-        // Define a delegate for the modality changed event
-        public delegate void ModalityChangedEventHandler(string modality, bool isActive, bool isOscillating, string forceLevel);
+        private int[] thumbPads = new int[] { 11, 12, 13, 10, 9, 8};
+        private int[] indexPads = new int[] { 31, 32, 29, 16, 15, 14};
+
+    // Define a delegate for the modality changed event
+    public delegate void ModalityChangedEventHandler(string modality, bool isActive, bool isOscillating, string forceLevel);
 
         // Define the event based on the delegate
         public event ModalityChangedEventHandler OnModalityChanged;
@@ -58,8 +69,12 @@ namespace Tactility.Calibration.Interface
         private void Start()
         {
             _padFigureManager = GetComponent<PadFigureManager>();
-            slider.onValueChanged.AddListener(OnSliderValueChangeCheck);
-            amplitudeMultiplier.onValueChanged.AddListener(OnInputFieldValueChangeCheck);
+
+            sliderThumb.onValueChanged.AddListener(OnSliderThumbValueChangeCheck);
+            ampMultThumb.onValueChanged.AddListener(OnInputFieldThumbValueChangeCheck);
+
+            sliderIndex.onValueChanged.AddListener(OnSliderIndexValueChangeCheck);
+            ampMultIndex.onValueChanged.AddListener(OnInputFieldIndexValueChangeCheck);
 
             _interfaceManager = FindObjectOfType<InterfaceManager>();
             _interfaceManager.OnSceneChanged += (_, _) =>
@@ -278,7 +293,7 @@ namespace Tactility.Calibration.Interface
             return forceLevelButtons[_currentForceLevelIndex].GetComponentInChildren<Text>().text;
         }
 
-        private void OnSliderValueChangeCheck(float value)
+        private void OnSliderThumbValueChangeCheck(float value)
         {
             if (_calibratedAmps == null && _calibratedWidths == null)
             {
@@ -287,21 +302,57 @@ namespace Tactility.Calibration.Interface
             CalibrationDataLoaded += _ => UpdateCalibrationValues();
 
             var roundedValue = Mathf.Round(value * 10f) / 10f;
-            slider.value = roundedValue;
-            amplitudeMultiplier.text = ValueChangeManager.FloatToText(roundedValue);
+            sliderThumb.value = roundedValue;
+            ampMultThumb.text = ValueChangeManager.FloatToText(roundedValue);
         }
 
-        private void OnInputFieldValueChangeCheck(string value)
+        private void OnInputFieldThumbValueChangeCheck(string value)
         {
             var roundedValue = ValueChangeManager.TextToFloat(value);
-            slider.value = roundedValue;
+            sliderThumb.value = roundedValue;
             
             // Update the BaseAmps values with the value of _calibratedAmps * roundedValue
             // NOTE: We only need to do this here, since the slider value change will trigger the event
-            for (var i = 0; i < BaseAmps.Length; i++)
+            //for (var i = 0; i < BaseAmps.Length; i++)
+            //{
+            //    BaseAmps[i] = _calibratedAmps[i] * roundedValue;
+            //}
+
+            for (var i = 0; i < thumbPads.Length; i++)
             {
-                BaseAmps[i] = _calibratedAmps[i] * roundedValue;
-                // Debug.Log($"New BaseAmps[{i}] = {BaseAmps[i]}");
+                BaseAmps[thumbPads[i] - 1] = _calibratedAmps[thumbPads[i] - 1] * roundedValue;
+            }
+        }
+
+        private void OnSliderIndexValueChangeCheck(float value)
+        {
+            if (_calibratedAmps == null && _calibratedWidths == null)
+            {
+                UpdateCalibrationValues();
+            }
+            CalibrationDataLoaded += _ => UpdateCalibrationValues();
+
+            var roundedValue = Mathf.Round(value * 10f) / 10f;
+            sliderIndex.value = roundedValue;
+            ampMultIndex.text = ValueChangeManager.FloatToText(roundedValue);
+        }
+
+        private void OnInputFieldIndexValueChangeCheck(string value)
+        {
+            var roundedValue = ValueChangeManager.TextToFloat(value);
+            sliderIndex.value = roundedValue;
+
+            // Update the BaseAmps values with the value of _calibratedAmps * roundedValue
+            // NOTE: We only need to do this here, since the slider value change will trigger the event
+            //for (var i = 0; i < BaseAmps.Length; i++)
+            //{
+            //    BaseAmps[i] = _calibratedAmps[i] * roundedValue;
+            //    // Debug.Log($"New BaseAmps[{i}] = {BaseAmps[i]}");
+            //}
+
+            for (var i = 0; i < indexPads.Length; i++)
+            {
+                BaseAmps[indexPads[i] - 1] = _calibratedAmps[indexPads[i] - 1] * roundedValue;
             }
         }
 

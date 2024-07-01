@@ -168,7 +168,7 @@ public class Logger : MonoBehaviour
 
     public static void LogForceThresholds(float[] forceThrs)   //to call when the next cube appears
     {
-        Log(LogType.ForceThresholds, new float[] { forceThrs[0], forceThrs[1], forceThrs[2], forceThrs[3] }, true);
+        Log(LogType.ForceThresholds, new float[] { forceThrs[0], forceThrs[1], forceThrs[2], forceThrs[3], forceThrs[4] }, true);
     }
 
     public static void LogForce(float graspForce, float progress, int currentForceLevel)   //to call Continuosly
@@ -254,6 +254,7 @@ public class Logger : MonoBehaviour
                 _logQueue.Add(baseString + data![1]);
                 _logQueue.Add(baseString + data![2]);
                 _logQueue.Add(baseString + data![3]);
+                _logQueue.Add(baseString + data![4]);
                 break;
             case LogType.GraspForce:
                 _logQueue.Add(baseString + (float)data![0]);

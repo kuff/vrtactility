@@ -46,13 +46,21 @@ namespace Tactility.Task
 
         //dynamic ranges to stabilize the force level
 
+        //private float _level6Threshold = 0.75f;
+        //private float _level5Threshold = 0.6f;
+        //private float _level4Threshold = 0.45f;
+        //private float _level3Threshold = 0.3f;
+        //private float _level2Threshold = 0.15f;
+
         private float _level6Threshold = 0.75f;
-        private float _level5Threshold = 0.6f;
-        private float _level4Threshold = 0.45f;
-        private float _level3Threshold = 0.3f;
-        private float _level2Threshold = 0.15f;
+        private float _level5Threshold = 0.62f;
+        private float _level4Threshold = 0.49f;
+        private float _level3Threshold = 0.36f;
+        private float _level2Threshold = 0.23f;
+        private float _level1Threshold = 0.1f;
+
         private float _toleranceThr = 0.1f;
-        private float[] forceThresholds = new float [4];
+        public float[] forceThresholds = new float [5];
 
         private bool _outOfForceLevel = false;
 
@@ -165,7 +173,7 @@ namespace Tactility.Task
                         loadingIndicator.HideLoadingIndicator();
                     }
                 }
-                
+
 
                 ref var modulationData = ref _dataProvider.GetTactilityData();
 
@@ -189,11 +197,17 @@ namespace Tactility.Task
 
                 if (currentForceLevel != _trialManager.targetForceLevel)
                 {
+                    //_level6Threshold = 0.75f;
+                    //_level5Threshold = 0.6f;
+                    //_level4Threshold = 0.45f;
+                    //_level3Threshold = 0.3f;
+                    //_level2Threshold = 0.15f;
                     _level6Threshold = 0.75f;
-                    _level5Threshold = 0.6f;
-                    _level4Threshold = 0.45f;
-                    _level3Threshold = 0.3f;
-                    _level2Threshold = 0.15f;
+                    _level5Threshold = 0.62f;
+                    _level4Threshold = 0.49f;
+                    _level3Threshold = 0.36f;
+                    _level2Threshold = 0.23f;
+                    _level1Threshold = 0.1f;
 
                     _outOfForceLevel = true;
                 }
@@ -206,36 +220,38 @@ namespace Tactility.Task
                     switch (_trialManager.targetForceLevel)
                     {
                         case 6:
-                            _level5Threshold -= _toleranceThr * 1.5f;
+                            _level5Threshold -= _toleranceThr;
                             _level4Threshold -= _toleranceThr;
-                            _level3Threshold += _toleranceThr / 2;
+                            _level3Threshold -= _toleranceThr;
                             break;
                         case 5:
                             _level6Threshold += _toleranceThr;
                             _level5Threshold -= _toleranceThr;
-                            _level4Threshold -= _toleranceThr / 2;
+                            _level4Threshold -= _toleranceThr;
                             break;
                         case 4:
-                            _level6Threshold += _toleranceThr / 2;
+                            _level6Threshold += _toleranceThr;
                             _level5Threshold += _toleranceThr;
                             _level4Threshold -= _toleranceThr;
-                            _level3Threshold -= _toleranceThr / 2;
+                            _level3Threshold -= _toleranceThr;
                             break;
                         case 3:
-                            _level5Threshold += _toleranceThr / 2;
+                            _level5Threshold += _toleranceThr;
                             _level4Threshold += _toleranceThr;
                             _level3Threshold -= _toleranceThr;
-                            _level2Threshold -= _toleranceThr / 2;
-                            break;
-                        case 2:
-                            _level4Threshold += _toleranceThr / 2;
-                            _level3Threshold += _toleranceThr;
                             _level2Threshold -= _toleranceThr;
                             break;
-                        case 1:
-                            _level4Threshold += _toleranceThr / 2;
+                        case 2:
+                            _level4Threshold += _toleranceThr;
                             _level3Threshold += _toleranceThr;
-                            _level2Threshold += _toleranceThr * 1.5f;
+                            _level2Threshold -= _toleranceThr;
+                            _level1Threshold -= _toleranceThr;
+                            break;
+                        case 1:
+                            _level4Threshold += _toleranceThr;
+                            _level3Threshold += _toleranceThr;
+                            _level2Threshold += _toleranceThr;
+                            _level1Threshold -= _toleranceThr;
                             break;
                     }
                 }
@@ -261,23 +277,25 @@ namespace Tactility.Task
                 {
                     currentForceLevel = 2;
                 }
+                else if (maxPressure > _level1Threshold)
+                {
+                    currentForceLevel = 1;
+                }
                 else if (maxPressure == 0)
                 {
                     currentForceLevel = 0;
                 }
-                else
-                {
-                    currentForceLevel = 1;
-                }
+                
 
                 Logger.LogForce(maxPressure, progress, currentForceLevel);
 
-                _pressureString = currentForceLevel.ToString();
+                _pressureString = _trialManager.targetForceLevel.ToString();
 
-                forceThresholds[0] = _level2Threshold;
-                forceThresholds[1] = _level3Threshold;
-                forceThresholds[2] = _level4Threshold;
-                forceThresholds[3] = _level5Threshold;
+                forceThresholds[0] = _level1Threshold;
+                forceThresholds[1] = _level2Threshold;
+                forceThresholds[2] = _level3Threshold;
+                forceThresholds[3] = _level4Threshold;
+                forceThresholds[4] = _level5Threshold;
 
                 Logger.LogForceThresholds(forceThresholds);
 
@@ -322,6 +340,8 @@ namespace Tactility.Task
             }
             else if (grabbable.allowGrabbing)
             {
+                currentForceLevel = 0;
+
                 loadingIndicator.HideLoadingIndicator();
                 if (Progress > 0.1f)
                 {
