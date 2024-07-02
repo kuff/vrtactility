@@ -14,6 +14,13 @@ namespace Tactility.Task
     [RequireComponent(typeof(TrialManager))]
     public class GrabAndMoveScenario : MonoBehaviour, IScenario
     {
+        [SerializeField] AudioClip isGrabbed;
+        [SerializeField] AudioClip isDropped;
+        [SerializeField] AudioClip isSuccessful;
+        [SerializeField] AudioClip isBroken;
+
+        AudioSource audioSource;
+
         public Vector3 targetPosition;
         public Vector3 originPosition;
         [FormerlySerializedAs("ug")]
@@ -75,6 +82,8 @@ namespace Tactility.Task
             floatable = grabbable!.gameObject.GetComponent<FreeFloatable>();
             loadingIndicator = GetComponent<LoadingIndicator>();
 
+            audioSource = GetComponent<AudioSource>();
+
             // UpdateTargetPosition();
 
             // WhenOnSuccess += () => floatable.ResetPosition();
@@ -101,8 +110,7 @@ namespace Tactility.Task
 
                 if (_currentState != 1)
                 {
-                    _currentState = 1; //object grasped
-                    Logger.LogTimeEvent(_currentState);
+                    isGrabbedSequence();
                 }
 
                 if (SceneManager.GetActiveScene().buildIndex != 4)
@@ -122,12 +130,7 @@ namespace Tactility.Task
                             loadingIndicator.UpdateProgress(dwellTimer);
                             if (dwellTimer >= dwellTime)
                             {
-                                loadingIndicator.HideLoadingIndicator();
-                                WhenOnSuccess?.Invoke(ScenarioTrigger.Success);
-                                _triggerString = "Success";
-                                _currentState = 0;
-                                Progress = 0f;
-                                Logger.LogScenarioState(0);
+                                isSuccessSequence();
                                 return;
                             }
                         }
@@ -156,12 +159,7 @@ namespace Tactility.Task
                             loadingIndicator.UpdateProgress(dwellTimer);
                             if (dwellTimer >= dwellTime)
                             {
-                                loadingIndicator.HideLoadingIndicator();
-                                WhenOnSuccess?.Invoke(ScenarioTrigger.Success);
-                                _triggerString = "Success";
-                                _currentState = 0;
-                                Progress = 0f;
-                                Logger.LogScenarioState(0);
+                                isSuccessSequence();
                                 return;
                             }
                         }
@@ -316,17 +314,11 @@ namespace Tactility.Task
                         {
                             if (currentForceLevel > _trialManager.targetForceLevel)
                             {
-                                Logger.LogScenarioState(2);
-                                WhenOnFailure?.Invoke(ScenarioTrigger.TooMuchPressure);
-                                _triggerString = "Too much pressure";
-                                _currentState = 0;
+                                isBrokenSequence();
                             }
                             else if (currentForceLevel < _trialManager.targetForceLevel)
                             {
-                                Logger.LogScenarioState(1);
-                                WhenOnFailure?.Invoke(ScenarioTrigger.TooLittlePressure);
-                                _triggerString = "Too little pressure";
-                                _currentState = 0;
+                                isDroppedSequence();
                             }
                             Progress = 0f;
                             _pressureOutsideTime = 0f; // Reset the timer
@@ -352,6 +344,53 @@ namespace Tactility.Task
                 }
                 Progress = 0f;
             }
+        }
+
+        private void isGrabbedSequence()
+        {
+            _currentState = 1; //object grasped
+            audioSource.Stop();
+            audioSource.PlayOneShot(isGrabbed);
+
+            Logger.LogTimeEvent(_currentState);
+        }
+
+        private void isSuccessSequence()
+        {
+            audioSource.Stop();
+            audioSource.PlayOneShot(isSuccessful);
+
+            loadingIndicator.HideLoadingIndicator();
+            
+            WhenOnSuccess?.Invoke(ScenarioTrigger.Success);
+            _triggerString = "Success";
+            _currentState = 0;
+            Progress = 0f;
+            Logger.LogScenarioState(0);
+        }
+
+        private void isDroppedSequence()
+        {
+            Logger.LogScenarioState(1);
+
+            audioSource.Stop();
+            audioSource.PlayOneShot(isDropped);
+
+            WhenOnFailure?.Invoke(ScenarioTrigger.TooLittlePressure);
+            _triggerString = "Too little pressure";
+            _currentState = 0;
+        }
+
+        private void isBrokenSequence()
+        {
+            Logger.LogScenarioState(2);
+
+            audioSource.Stop();
+            audioSource.PlayOneShot(isBroken);
+
+            WhenOnFailure?.Invoke(ScenarioTrigger.TooMuchPressure);
+            _triggerString = "Too much pressure";
+            _currentState = 0;
         }
 
 

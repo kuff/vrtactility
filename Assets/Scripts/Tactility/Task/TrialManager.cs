@@ -41,7 +41,7 @@ namespace Tactility.Task
             if (_fileLines == null)
             {
                 _fileLines = new string[] { };
-                var textAsset = Resources.Load<TextAsset>("Tactility/TestOrder_fixedPos");
+                var textAsset = Resources.Load<TextAsset>("Tactility/TestOrderFiles/TestOrder_fixedPos");
                 _fileLines = textAsset.text.Split("\r\n");
                 HandleTaskComplete(ScenarioTrigger.Idle);
             }
