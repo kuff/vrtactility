@@ -317,7 +317,7 @@ public class Logger : MonoBehaviour
     {
         _fileSystemOperationInProgress = true;
 #if UNITY_EDITOR
-        var path = "C:\\Users\\Eleonora Vendrame\\OneDrive - Scuola Superiore Sant'Anna\\Aalborg\\AAU Working folder\\Exp1_VirtualReality\\RecordedData" + _logFileName;  //Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + _logFileName;
+        var path = "C:\\Users\\Eleonora Vendrame\\VR_task_data_recording" + _logFileName;  //Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + _logFileName;
 #else  // NOTE: ASSUMING RELEASE BUILDS RUN ON DEVICE
         var path = Application.persistentDataPath + _logFileName;
 #endif

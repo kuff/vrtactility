@@ -499,7 +499,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &164112523
 Transform:
   m_ObjectHideFlags: 0
@@ -1093,6 +1093,7 @@ MonoBehaviour:
   isDropped: {fileID: 8300000, guid: eee01023421b72849951808c77850e23, type: 3}
   isSuccessful: {fileID: 8300000, guid: 30653de6083d90d47adaf0d3d0bff42d, type: 3}
   isBroken: {fileID: 8300000, guid: 7a0a0808ae1ecfc48af630cf81c80021, type: 3}
+  isInTarget: {fileID: 8300000, guid: 8786ad618fb71e1428e7483cfd0ea32b, type: 3}
   targetPosition: {x: -1, y: 1, z: 1}
   originPosition: {x: 0, y: 0, z: 0}
   grabbable: {fileID: 2053550752}
@@ -1593,7 +1594,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &869302045
 Transform:
   m_ObjectHideFlags: 0

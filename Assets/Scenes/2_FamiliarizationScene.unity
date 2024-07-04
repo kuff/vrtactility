@@ -714,7 +714,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &164112523
 Transform:
   m_ObjectHideFlags: 0
@@ -1259,9 +1259,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isGrabbed: {fileID: 8300000, guid: acc6a46815971c94097cf403ea69e53f, type: 3}
-  isDropped: {fileID: 8300000, guid: eee01023421b72849951808c77850e23, type: 3}
+  isDropped: {fileID: 8300000, guid: 2d0c3fc0168286b4896593c7d5917c0f, type: 3}
   isSuccessful: {fileID: 8300000, guid: 30653de6083d90d47adaf0d3d0bff42d, type: 3}
-  isBroken: {fileID: 8300000, guid: 7a0a0808ae1ecfc48af630cf81c80021, type: 3}
+  isBroken: {fileID: 8300000, guid: afb5b4f3a069c0d4f8cc8f43195a3d96, type: 3}
+  isInTarget: {fileID: 8300000, guid: 8786ad618fb71e1428e7483cfd0ea32b, type: 3}
   targetPosition: {x: -1, y: 1, z: 1}
   originPosition: {x: 0, y: 0, z: 0}
   grabbable: {fileID: 2053550752}
@@ -1732,7 +1733,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &869302045
 Transform:
   m_ObjectHideFlags: 0
@@ -2331,7 +2332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 008db7ff1c320684d8ff1d1517efc47a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  updateInterval: 200
+  updateInterval: 100
 --- !u!4 &1266751882
 Transform:
   m_ObjectHideFlags: 0

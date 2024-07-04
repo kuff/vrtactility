@@ -93,8 +93,7 @@ namespace Tactility.Modulation
                     4 => 0.4f,
                     3 => 0.26f,
                     2 => 0.15f,
-                    1 => 0.08f,
-                    _ => 0.01f
+                    _ => 0.08f
                 };
             }
 

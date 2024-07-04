@@ -127,7 +127,7 @@ namespace Tactility.Box
 #if DEBUG
             if (logMode is SerialLogMode.Outbound or SerialLogMode.All)
             {
-                Debug.Log($"{this} Outbound message queued: {message}");
+                //Debug.Log($"{this} Outbound message queued: {message}");
             }
 #endif
         }

@@ -18,6 +18,8 @@ namespace Tactility.Task
         [SerializeField] AudioClip isDropped;
         [SerializeField] AudioClip isSuccessful;
         [SerializeField] AudioClip isBroken;
+        [SerializeField] AudioClip isInTarget;
+        //[SerializeField] AudioClip isOutTarget;
 
         AudioSource audioSource;
 
@@ -113,7 +115,7 @@ namespace Tactility.Task
                     isGrabbedSequence();
                 }
 
-                if (SceneManager.GetActiveScene().buildIndex != 4)
+                if (!(SceneManager.GetActiveScene().buildIndex == 4 || SceneManager.GetActiveScene().buildIndex == 3))
                 {
                     if (Progress >= 0.9f && currentForceLevel == _trialManager.targetForceLevel)
                     {
@@ -121,12 +123,19 @@ namespace Tactility.Task
                         {
                             isDwellTimeCounting = true;
                             dwellTimer = 0f;
+                            audioSource.Stop();
                             loadingIndicator.HideLoadingIndicator();
                         }
                         else
                         {
+                            if (dwellTimer==0)
+                            {
+                                audioSource.Stop();
+                                audioSource.PlayOneShot(isInTarget);
+                            }
                             dwellTimer += Time.deltaTime;
                             loadingIndicator.ShowLoadingIndicator(targetPosition);
+                            
                             loadingIndicator.UpdateProgress(dwellTimer);
                             if (dwellTimer >= dwellTime)
                             {
@@ -137,8 +146,12 @@ namespace Tactility.Task
                     }
                     else
                     {
-                        isDwellTimeCounting = false;
-                        dwellTimer = 0f;
+                        if (dwellTimer!=0)
+                        {
+                            isDwellTimeCounting = false;
+                            dwellTimer = 0f;
+                            audioSource.Stop();
+                        }
                         loadingIndicator.HideLoadingIndicator();
                     }
                 }
@@ -150,10 +163,16 @@ namespace Tactility.Task
                         {
                             isDwellTimeCounting = true;
                             dwellTimer = 0f;
+                            audioSource.Stop();
                             loadingIndicator.HideLoadingIndicator();
                         }
                         else
                         {
+                            if (dwellTimer == 0)
+                            {
+                                audioSource.Stop();
+                                audioSource.PlayOneShot(isInTarget);
+                            }
                             dwellTimer += Time.deltaTime;
                             loadingIndicator.ShowLoadingIndicator(targetPosition);
                             loadingIndicator.UpdateProgress(dwellTimer);
@@ -166,8 +185,12 @@ namespace Tactility.Task
                     }
                     else
                     {
-                        isDwellTimeCounting = false;
-                        dwellTimer = 0f;
+                        if (dwellTimer != 0)
+                        {
+                            isDwellTimeCounting = false;
+                            dwellTimer = 0f;
+                            audioSource.Stop();
+                        }
                         loadingIndicator.HideLoadingIndicator();
                     }
                 }
@@ -333,6 +356,7 @@ namespace Tactility.Task
             else if (grabbable.allowGrabbing)
             {
                 currentForceLevel = 0;
+                _currentState = 0;
 
                 loadingIndicator.HideLoadingIndicator();
                 if (Progress > 0.1f)
@@ -365,12 +389,14 @@ namespace Tactility.Task
             WhenOnSuccess?.Invoke(ScenarioTrigger.Success);
             _triggerString = "Success";
             _currentState = 0;
+            dwellTimer = 0f;
             Progress = 0f;
             Logger.LogScenarioState(0);
         }
 
         private void isDroppedSequence()
         {
+            loadingIndicator.HideLoadingIndicator();
             Logger.LogScenarioState(1);
 
             audioSource.Stop();
@@ -383,6 +409,7 @@ namespace Tactility.Task
 
         private void isBrokenSequence()
         {
+            loadingIndicator.HideLoadingIndicator();
             Logger.LogScenarioState(2);
 
             audioSource.Stop();
