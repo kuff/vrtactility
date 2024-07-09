@@ -24,7 +24,7 @@ public class Logger : MonoBehaviour
 
     // private OVRPlugin.HandState _hsLeft = new OVRPlugin.HandState();
     // private OVRPlugin.HandState _hsRight = new OVRPlugin.HandState();
-    private Transform _mainCameraTransform;
+    //private Transform _mainCameraTransform;
 
 
     public enum LogType
@@ -54,7 +54,8 @@ public class Logger : MonoBehaviour
         Frequency,            //  17 C
         ActivePads,           //  18 C
         // LoadScene
-        SceneIndex            //  19 E
+        SceneIndex,           //  19 E
+        StimModality          //  20 S  
     }
 
     protected void Start()
@@ -193,9 +194,9 @@ public class Logger : MonoBehaviour
         Log(LogType.SceneIndex, new int[] { currentSceneIndex }, true);
     }
 
-    public static void LogPositions(Vector3 startPos, Vector3 endPos)   //to call Continuosly
+    public static void LogStimModality(string stimModality)   //to call when the next cube appears
     {
-        Log(LogType.CubePositions, new Vector3[] { startPos, endPos }, true);
+        Log(LogType.StimModality, new string[] { stimModality }, true);
     }
 
     public static void Log(LogType type, IEnumerable listData = default, bool ignorePrevious = false)
@@ -283,8 +284,11 @@ public class Logger : MonoBehaviour
             case LogType.SceneIndex:
                 _logQueue.Add(baseString + data![0]);
                 break;
-            //default:
-            //    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            case LogType.StimModality:
+                _logQueue.Add(baseString + data![0]);
+                break;
+                //default:
+                //    throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
 
         string BuildRecursively(IEnumerable input)

@@ -32,9 +32,9 @@ namespace Tactility.Task
         public FreeFloatable floatable; // The sphere's FreeFloatable component
         [Tooltip("The radius around the target position that is considered safe. Pressure will only start to be evaluated when the object is moved outside the radius.")]
         public float safeRadius = 0.1f;
-        public int currentForceLevel;
+        public int currentForceLevel = 0;
 
-        public Text textBox;
+        //public Text textBox;
 
         public LoadingIndicator loadingIndicator;
         
@@ -42,8 +42,8 @@ namespace Tactility.Task
         private ITactilityDataProvider _dataProvider;
         private TrialManager _trialManager;
 
-        private string _pressureString;
-        private string _triggerString;
+        //private string _pressureString;
+        //private string _triggerString;
         
         private float _pressureOutsideTime;
         private const float AllowedOutsideTime = 1.0f;  // 1 second
@@ -54,12 +54,6 @@ namespace Tactility.Task
         private float dwellTimer = 0f; // Timer for dwell time
 
         //dynamic ranges to stabilize the force level
-
-        //private float _level6Threshold = 0.75f;
-        //private float _level5Threshold = 0.6f;
-        //private float _level4Threshold = 0.45f;
-        //private float _level3Threshold = 0.3f;
-        //private float _level2Threshold = 0.15f;
 
         private float _level6Threshold = 0.75f;
         private float _level5Threshold = 0.62f;
@@ -101,8 +95,8 @@ namespace Tactility.Task
 
         private void Update()
         {
-            textBox.text = $"Pressure: {_pressureString}\nScenario: {_triggerString}\nTrial: {_trialManager.fileLineIndex}";
-            _triggerString = SceneManager.GetActiveScene().name;
+            //textBox.text = $"Scenario: {_triggerString}\nTrial: {_trialManager.fileLineIndex}";
+            //_triggerString = SceneManager.GetActiveScene().name;
 
             if (grabbable && grabbable.isGrabbed)
             {
@@ -218,11 +212,6 @@ namespace Tactility.Task
 
                 if (currentForceLevel != _trialManager.targetForceLevel)
                 {
-                    //_level6Threshold = 0.75f;
-                    //_level5Threshold = 0.6f;
-                    //_level4Threshold = 0.45f;
-                    //_level3Threshold = 0.3f;
-                    //_level2Threshold = 0.15f;
                     _level6Threshold = 0.75f;
                     _level5Threshold = 0.62f;
                     _level4Threshold = 0.49f;
@@ -310,7 +299,7 @@ namespace Tactility.Task
 
                 Logger.LogForce(maxPressure, progress, currentForceLevel);
 
-                _pressureString = _trialManager.targetForceLevel.ToString();
+                //_pressureString = _trialManager.targetForceLevel.ToString();
 
                 forceThresholds[0] = _level1Threshold;
                 forceThresholds[1] = _level2Threshold;
@@ -325,8 +314,8 @@ namespace Tactility.Task
                     return;
                 }
 
-                if (SceneManager.GetActiveScene().buildIndex != 1 && SceneManager.GetActiveScene().buildIndex != 4)
-                {
+                //if (SceneManager.GetActiveScene().buildIndex != 1 && SceneManager.GetActiveScene().buildIndex != 4)
+                //{
                     var isPressureOutside = currentForceLevel != _trialManager.targetForceLevel;
 
                     if (isPressureOutside)
@@ -351,7 +340,7 @@ namespace Tactility.Task
                     {
                         _pressureOutsideTime = 0f; // Reset the timer if pressure is back within range
                     }
-                }
+                //}
             }
             else if (grabbable.allowGrabbing)
             {
@@ -363,7 +352,6 @@ namespace Tactility.Task
                 {
                     Logger.LogScenarioState(3);
                     //WhenOnFailure?.Invoke(ScenarioTrigger.LossOfGrab);
-                    //_triggerString = "Loss of grab";
                     _currentState = 0;
                 }
                 Progress = 0f;
@@ -387,7 +375,6 @@ namespace Tactility.Task
             loadingIndicator.HideLoadingIndicator();
             
             WhenOnSuccess?.Invoke(ScenarioTrigger.Success);
-            _triggerString = "Success";
             _currentState = 0;
             dwellTimer = 0f;
             Progress = 0f;
@@ -399,12 +386,14 @@ namespace Tactility.Task
             loadingIndicator.HideLoadingIndicator();
             Logger.LogScenarioState(1);
 
-            audioSource.Stop();
-            audioSource.PlayOneShot(isDropped);
+            if (SceneManager.GetActiveScene().buildIndex != 1 && SceneManager.GetActiveScene().buildIndex != 4)
+            { 
+                audioSource.Stop();
+                audioSource.PlayOneShot(isDropped);
 
-            WhenOnFailure?.Invoke(ScenarioTrigger.TooLittlePressure);
-            _triggerString = "Too little pressure";
-            _currentState = 0;
+                WhenOnFailure?.Invoke(ScenarioTrigger.TooLittlePressure);
+                _currentState = 0;
+            }
         }
 
         private void isBrokenSequence()
@@ -412,12 +401,14 @@ namespace Tactility.Task
             loadingIndicator.HideLoadingIndicator();
             Logger.LogScenarioState(2);
 
-            audioSource.Stop();
-            audioSource.PlayOneShot(isBroken);
+            if (SceneManager.GetActiveScene().buildIndex != 1 && SceneManager.GetActiveScene().buildIndex != 4)
+            {
+                audioSource.Stop();
+                audioSource.PlayOneShot(isBroken);
 
-            WhenOnFailure?.Invoke(ScenarioTrigger.TooMuchPressure);
-            _triggerString = "Too much pressure";
-            _currentState = 0;
+                WhenOnFailure?.Invoke(ScenarioTrigger.TooMuchPressure);
+                _currentState = 0;
+            }
         }
 
 

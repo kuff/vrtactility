@@ -67,25 +67,18 @@ namespace Tactility.Modulation
 
                 pressureValue = valueBatch.Max() switch
                 {
-                    > 0.75f => 1f,
-                    > 0.62f => 0.7f,
-                    > 0.49f => 0.4f,
-                    > 0.36f => 0.26f,
-                    > 0.23f => 0.15f,
-                    > 0.1f => 0.08f,
-                    _ => 0.0f
-                    //> 0.85f => 1.0f,
-                    //> 0.6f => 0.7f,
-                    //> 0.45f => 0.4f,
-                    //> 0.3f => 0.26f,
-                    //> 0.15f => 0.15f,
-                    //> 0f => 0.08f,
-                    //_ => 0f
+                    > 0.85f => 1.0f,
+                    > 0.6f => 0.7f,
+                    > 0.45f => 0.4f,
+                    > 0.3f => 0.26f,
+                    > 0.15f => 0.15f,
+                    _ => 0.08f
                 };
             }
             else
             {
                 var grabScenario = _grabScenario.currentForceLevel;
+                //Debug.Log("currentForceLevel: " + grabScenario);
                 pressureValue = grabScenario switch
                 {
                     6 => 1.0f,

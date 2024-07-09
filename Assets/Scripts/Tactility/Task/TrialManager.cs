@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Tactility.Box;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace Tactility.Task
 {
@@ -13,7 +15,10 @@ namespace Tactility.Task
         public int targetForceLevel;
         public int fileLineIndex;
         public List<Material> materials;
-        
+        public List<Material> targetForceHighlight_materials;
+        public List<GameObject> targetForceHighlight_planes;
+        private List<Renderer> _renderersTargetForce;
+
         private GrabAndMoveScenario _currentScenario;
         [FormerlySerializedAs("_fileLineIndex")]
         private string[] _fileLines;
@@ -23,17 +28,55 @@ namespace Tactility.Task
         private Renderer _renderer;
 
         private Material _defaultMaterial;
-        
+
+        public Text textBox;
+        private string _triggerString;
+        private int _maxRep;
+
+        public Text textBox_modality;
+        public GameObject tactilityManager;
+
+        private AbstractBoxController _boxController;
+
+        private bool isPaused;
 
         private void Start()
         {
+            
             _currentScenario = FindObjectOfType<GrabAndMoveScenario>();
+            _boxController = FindObjectOfType<AbstractBoxController>();
 
             _currentScenario.WhenOnSuccess += HandleTaskComplete;
             _currentScenario.WhenOnFailure += HandleTaskComplete;
             // HandleTaskComplete();
             _renderer = _currentScenario.floatable.GetComponent<Renderer>();
             _defaultMaterial = _renderer.material;
+
+            _renderersTargetForce = new List<Renderer>(targetForceHighlight_planes.Count);
+            for (int i = 0; i < targetForceHighlight_planes.Count; i++)
+            {
+                _renderersTargetForce.Add(targetForceHighlight_planes[i].GetComponent<Renderer>());
+            }
+
+            Transform[] children = tactilityManager.GetComponentsInChildren<Transform>(true);
+
+            // Iterate through each child and check their active status
+            foreach (Transform child in children)
+            {
+                // Skip the parent object itself
+                if (child == tactilityManager.transform)
+                    continue;
+
+                // Check if the child is active
+                bool isActive = child.gameObject.activeSelf;
+                if (isActive)
+                {
+                    textBox_modality.text = child.gameObject.name;
+                }
+            }
+
+            ResumeGame();
+
         }
 
         private void Update()
@@ -44,6 +87,8 @@ namespace Tactility.Task
                 var textAsset = Resources.Load<TextAsset>("Tactility/TestOrderFiles/TestOrder_fixedPos");
                 _fileLines = textAsset.text.Split("\r\n");
                 HandleTaskComplete(ScenarioTrigger.Idle);
+
+                SetNextPosition();
             }
             else
             {
@@ -80,33 +125,48 @@ namespace Tactility.Task
             switch (SceneManager.GetActiveScene().buildIndex)
             {
                 case 1:
+                    _maxRep = 10;
+                    _triggerString = "Familiarization";
                     if (fileLineIndex == 11)
                     {
-                        Invoke("LoadNextScene", 0.5f);
+                        TogglePause();
                     }
                     break;
                 case 2:
+                    _maxRep = 10;
+                    _triggerString = "Training #1";
                     if (fileLineIndex == 11)
                     {
-                        Invoke("LoadNextScene", 0.5f);
+                        TogglePause();
                     }
                     break;
                 case 3:
-                    if (fileLineIndex == 25)
+                    _maxRep = 25;
+                    _triggerString = "Training #2";
+                    if (fileLineIndex == 26)
                     {
-                        Invoke("LoadNextScene", 0.5f);
+                        TogglePause();
                     }
                     break;
                 case 4:
-                    if (fileLineIndex == 25)
+                    _maxRep = 25;
+                    _triggerString = "Validation";
+                    if (fileLineIndex == 26)
                     {
-                        Invoke("LoadNextScene", 0.5f);
+                        TogglePause();
                     }
                     break;
             }
 
             targetForceLevel = targetForceLevels[fileLineIndex - 1];
             Logger.LogSceneChange(fileLineIndex, targetForceLevel);
+
+            //Reset to baseline the color of all planes but the one of the target force level
+            for (int i = 0; i < targetForceHighlight_planes.Count; i++)
+            {
+                _renderersTargetForce[i].material = targetForceHighlight_materials[0];
+            }
+            _renderersTargetForce[targetForceLevel-1].material = targetForceHighlight_materials[1];
 
             var originIndex = int.Parse(resultString[0].ToString());
             var targetIndex = int.Parse(resultString[2].ToString());
@@ -163,13 +223,11 @@ namespace Tactility.Task
         
         private void SetNextPosition()
         {
+            textBox.text = $"Scenario: {_triggerString}\nTrial: {fileLineIndex}/{_maxRep}";
+
             var nextPositions = GetNextPositions();
             _currentScenario.originPosition = nextPositions.Item1;
             _currentScenario.targetPosition = nextPositions.Item2;
-            
-            // Print item1 and 2
-            // Debug.Log(nextPositions.Item1);
-            // Debug.Log(nextPositions.Item2);
             
             _currentScenario.floatable.OriginPoint = _currentScenario.originPosition;
             _currentScenario.grabbable.allowGrabbing = true;
@@ -177,13 +235,36 @@ namespace Tactility.Task
             // Set currentMaterial in accordance with targetForceLevel
             _currentScenario.floatable.GetComponent<Renderer>()!.enabled = true;
 
+
+
             // Logger.LogPositions(_currentScenario.originPosition, _currentScenario.targetPosition);
             // _currentScenario.floatable.GetComponent<Renderer>()!.material = materials[targetForceLevel - 1];
         }
 
-        private void LoadNextScene()
+        public void TogglePause()
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            isPaused = !isPaused;
+            Logger.LogStimModality(textBox_modality.text);
+
+            if (isPaused)
+            {
+                // Pause the game
+                Time.timeScale = 0;
+            }
+            else
+            {
+                // Resume the game
+                Time.timeScale = 1;
+            }
         }
+
+        // This method can be called by UI elements to resume the game
+        public void ResumeGame()
+        {
+            isPaused = false;
+            Time.timeScale = 1;
+            _boxController.ResetAllPads();
+        }
+
     }
 }
