@@ -44,6 +44,7 @@ namespace Tactility.Task
         // private Renderer _renderer;
 
         private bool isForce = false;
+
         private void Start()
         {
             _collider = GetComponent<SphereCollider>();

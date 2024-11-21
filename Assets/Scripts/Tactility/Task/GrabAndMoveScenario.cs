@@ -62,13 +62,15 @@ namespace Tactility.Task
         private float _level2Threshold = 0.23f;
         private float _level1Threshold = 0.1f;
 
-        private float _toleranceThr = 0.1f;
+        private float _toleranceThr = 0.05f;
         public float[] forceThresholds = new float [5];
 
         private bool _outOfForceLevel = false;
 
         private int _currentState = 0;  //to log time events
-        
+
+        private Rigidbody grabbableRB;
+
 
         private void Start()
         {            
@@ -79,6 +81,8 @@ namespace Tactility.Task
             loadingIndicator = GetComponent<LoadingIndicator>();
 
             audioSource = GetComponent<AudioSource>();
+
+            grabbableRB = grabbable.GetComponent<Rigidbody>();
 
             // UpdateTargetPosition();
 
@@ -95,9 +99,6 @@ namespace Tactility.Task
 
         private void Update()
         {
-            //textBox.text = $"Scenario: {_triggerString}\nTrial: {_trialManager.fileLineIndex}";
-            //_triggerString = SceneManager.GetActiveScene().name;
-
             if (grabbable && grabbable.isGrabbed)
             {
                 var origin = originPosition;
@@ -109,7 +110,47 @@ namespace Tactility.Task
                     isGrabbedSequence();
                 }
 
-                if (!(SceneManager.GetActiveScene().buildIndex == 4 || SceneManager.GetActiveScene().buildIndex == 3))
+                if (SceneManager.GetActiveScene().buildIndex == 1)
+                {
+                    if (currentForceLevel == _trialManager.targetForceLevel)
+                    {
+                        if (!isDwellTimeCounting)
+                        {
+                            isDwellTimeCounting = true;
+                            dwellTimer = 0f;
+                            audioSource.Stop();
+                            loadingIndicator.HideLoadingIndicator();
+                        }
+                        else
+                        {
+                            if (dwellTimer == 0)
+                            {
+                                audioSource.Stop();
+                                audioSource.PlayOneShot(isInTarget);
+                            }
+                            dwellTimer += Time.deltaTime;
+                            loadingIndicator.ShowLoadingIndicator(origin);
+
+                            loadingIndicator.UpdateProgress(dwellTimer);
+                            if (dwellTimer >= dwellTime)
+                            {
+                                isSuccessSequence();
+                                return;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (dwellTimer != 0)
+                        {
+                            isDwellTimeCounting = false;
+                            dwellTimer = 0f;
+                            audioSource.Stop();
+                        }
+                        loadingIndicator.HideLoadingIndicator();
+                    }
+                }
+                else if (!(SceneManager.GetActiveScene().buildIndex == 4 || SceneManager.GetActiveScene().buildIndex == 3))
                 {
                     if (Progress >= 0.9f && currentForceLevel == _trialManager.targetForceLevel)
                     {
@@ -129,7 +170,7 @@ namespace Tactility.Task
                             }
                             dwellTimer += Time.deltaTime;
                             loadingIndicator.ShowLoadingIndicator(targetPosition);
-                            
+
                             loadingIndicator.UpdateProgress(dwellTimer);
                             if (dwellTimer >= dwellTime)
                             {

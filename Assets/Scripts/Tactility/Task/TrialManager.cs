@@ -30,10 +30,11 @@ namespace Tactility.Task
         private Material _defaultMaterial;
 
         public Text textBox;
+        public Text textBox_modality;
+
         private string _triggerString;
         private int _maxRep;
-
-        public Text textBox_modality;
+        
         public GameObject tactilityManager;
 
         private AbstractBoxController _boxController;
@@ -42,7 +43,6 @@ namespace Tactility.Task
 
         private void Start()
         {
-            
             _currentScenario = FindObjectOfType<GrabAndMoveScenario>();
             _boxController = FindObjectOfType<AbstractBoxController>();
 
@@ -84,15 +84,13 @@ namespace Tactility.Task
             if (_fileLines == null)
             {
                 _fileLines = new string[] { };
-                var textAsset = Resources.Load<TextAsset>("Tactility/TestOrderFiles/TestOrder_fixedPos");
+                var textAsset = Resources.Load<TextAsset>("Tactility/TestOrderFiles/TestOrder_fixedPos_2");
                 _fileLines = textAsset.text.Split("\r\n");
                 HandleTaskComplete(ScenarioTrigger.Idle);
-
-                SetNextPosition();
             }
             else
             {
-                if (_currentScenario.grabbable.isGrabbed && !(SceneManager.GetActiveScene().buildIndex==3 || SceneManager.GetActiveScene().buildIndex == 4))
+                if (_currentScenario.grabbable.isGrabbed && !(SceneManager.GetActiveScene().buildIndex==3 || SceneManager.GetActiveScene().buildIndex == 4) && fileLineIndex<5)
                 {
                     _renderer.material = materials[_currentScenario.currentForceLevel];
                 }
@@ -106,71 +104,59 @@ namespace Tactility.Task
         private (Vector3, Vector3) GetNextPositions()
         {
             var resultString = _fileLines[fileLineIndex];
-            //var targetForceLevels = new int[] { 1, 3, 6, 5, 2, 4, 2, 1, 5, 6, 4, 3, 3, 1, 5, 6, 4, 2, 5, 1, 4, 2, 3, 6, 2, 4, 3, 5, 6, 1 };
-            var targetForceLevels = new int[] { 1, 3, 5, 2, 4, 2, 1, 5, 4, 3, 3, 1, 5, 4, 2, 5, 1, 4, 2, 3, 2, 4, 3, 5, 1 };
+            var targetForceLevels = new int[] { 1, 3, 5, 2, 4, 2, 1, 5, 4, 3, 3, 1, 5, 4, 2, 5, 1, 4, 2, 3, 2, 4, 3, 5, 1, 3, 5, 2, 4, 1 };
 
             var targetPositions = new List<Vector3>
             {
-                new Vector3(-0.2f, 0.9f, 0.5f),
-                new Vector3(-0.1f, 1.1f, 0.5f),
-                new Vector3(0.1f, 0.9f, 0.5f),
-                new Vector3(0.1f, 1.1f, 0.5f),
-                new Vector3(-0.1f, 0.9f, 0.7f),
-                new Vector3(-0.1f, 1.1f, 0.7f),
-                new Vector3(0.1f, 0.9f, 0.7f),
-                new Vector3(0.1f, 1.1f, 0.7f)
+                new Vector3(-0.15f, 0.9f, 0.5f),
+                new Vector3(0.15f, 0.9f, 0.5f),
             };
-            fileLineIndex++;
+
 
             switch (SceneManager.GetActiveScene().buildIndex)
             {
                 case 1:
-                    _maxRep = 10;
+                    _maxRep = 15;
+                    //targetPositions[0] = new Vector3(randomX, 0.9f, 0.5f);
+                    //targetPositions[1] = targetPositions[0];
                     _triggerString = "Familiarization";
-                    if (fileLineIndex == 11)
-                    {
-                        TogglePause();
-                    }
                     break;
                 case 2:
                     _maxRep = 10;
                     _triggerString = "Training #1";
-                    if (fileLineIndex == 11)
-                    {
-                        TogglePause();
-                    }
                     break;
                 case 3:
-                    _maxRep = 25;
+                    _maxRep = 20;
                     _triggerString = "Training #2";
-                    if (fileLineIndex == 26)
-                    {
-                        TogglePause();
-                    }
                     break;
                 case 4:
-                    _maxRep = 25;
+                    _maxRep = 30;
                     _triggerString = "Validation";
-                    if (fileLineIndex == 26)
-                    {
-                        TogglePause();
-                    }
                     break;
             }
 
-            targetForceLevel = targetForceLevels[fileLineIndex - 1];
-            Logger.LogSceneChange(fileLineIndex, targetForceLevel);
-
-            //Reset to baseline the color of all planes but the one of the target force level
-            for (int i = 0; i < targetForceHighlight_planes.Count; i++)
+            if (fileLineIndex == _maxRep)
             {
-                _renderersTargetForce[i].material = targetForceHighlight_materials[0];
+                TogglePause();
             }
-            _renderersTargetForce[targetForceLevel-1].material = targetForceHighlight_materials[1];
+            else
+            {
+                fileLineIndex++;
+                targetForceLevel = targetForceLevels[fileLineIndex - 1];
+                Logger.LogSceneChange(fileLineIndex, targetForceLevel);
+
+                //Reset to baseline the color of all planes but the one of the target force level
+                for (int i = 0; i < targetForceHighlight_planes.Count; i++)
+                {
+                    _renderersTargetForce[i].material = targetForceHighlight_materials[0];
+                }
+                _renderersTargetForce[targetForceLevel - 1].material = targetForceHighlight_materials[1];
+            }
 
             var originIndex = int.Parse(resultString[0].ToString());
             var targetIndex = int.Parse(resultString[2].ToString());
-            return (targetPositions[originIndex - 1],targetPositions[targetIndex - 1]);
+
+            return (targetPositions[originIndex - 1], targetPositions[targetIndex - 1]);
         }
 
         private void HandleTaskComplete(ScenarioTrigger cause)
@@ -223,9 +209,10 @@ namespace Tactility.Task
         
         private void SetNextPosition()
         {
+            var nextPositions = GetNextPositions();
+
             textBox.text = $"Scenario: {_triggerString}\nTrial: {fileLineIndex}/{_maxRep}";
 
-            var nextPositions = GetNextPositions();
             _currentScenario.originPosition = nextPositions.Item1;
             _currentScenario.targetPosition = nextPositions.Item2;
             

@@ -30,9 +30,17 @@ namespace Tactility.Task
         {
             if (_scenario.grabbable.isGrabbed && _targetProgressInstance == null)
             {
-                _targetProgressInstance = CreateCube(_scenario.grabbable.gameObject.transform.localScale.x);
-                _targetProgressInstance.transform.position = _scenario.targetPosition;
+
+                if (SceneManager.GetActiveScene().buildIndex != 1)
+                {
+                    _targetProgressInstance = CreateCube(_scenario.grabbable.gameObject.transform.localScale.x);
+                    _targetProgressInstance.transform.position = _scenario.targetPosition;
+                }
+                //else
+                //    _targetProgressInstance.transform.position = _scenario.originPosition;
+
                 _renderer = _targetProgressInstance.GetComponent<Renderer>();
+
             }
             else if (!_scenario.grabbable.isGrabbed && _targetProgressInstance != null)
             {
