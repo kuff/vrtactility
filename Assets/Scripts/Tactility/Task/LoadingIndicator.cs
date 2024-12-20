@@ -30,7 +30,6 @@ namespace Tactility.Task
 
         public void ShowLoadingIndicator(Vector3 targetPos)
         {
-
             loadingCanvas.gameObject.SetActive(true);
             loadingBarBackground.transform.position = targetPos;
         }
