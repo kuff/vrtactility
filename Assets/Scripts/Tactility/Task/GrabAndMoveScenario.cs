@@ -53,6 +53,9 @@ namespace Tactility.Task
         private bool isDwellTimeCounting = false; // Flag to check if dwell time is being counted
         private float dwellTimer = 0f; // Timer for dwell time
 
+        private float waitingTime = 0.5f;
+        private float waitingTimer = 0f; // Timer for waiting after matching target force
+
         //dynamic ranges to stabilize the force level
 
         private float _level6Threshold = 0.75f;
@@ -62,7 +65,7 @@ namespace Tactility.Task
         private float _level2Threshold = 0.23f;
         private float _level1Threshold = 0.1f;
 
-        private float _toleranceThr = 0.05f;
+        private float _toleranceThr = 0.07f;
         public float[] forceThresholds = new float [5];
 
         private bool _outOfForceLevel = false;
@@ -108,11 +111,21 @@ namespace Tactility.Task
                 if (_currentState != 1)
                 {
                     isGrabbedSequence();
+                    waitingTimer = 0f;
+                }
+
+                if (currentForceLevel == _trialManager.targetForceLevel)
+                {
+                    waitingTimer += Time.deltaTime;
+                }
+                else 
+                {
+                    waitingTimer = 0f;
                 }
 
                 if (SceneManager.GetActiveScene().buildIndex == 1)
                 {
-                    if (currentForceLevel == _trialManager.targetForceLevel)
+                    if (currentForceLevel == _trialManager.targetForceLevel && waitingTimer>waitingTime)
                     {
                         if (!isDwellTimeCounting)
                         {

@@ -106,16 +106,16 @@ public class SpatialAmpModulator : AbstractModulator
         var ampValues = new float[32];
         for (var i = 0; i < 32; i++)
         {
-            if (spatialLevel == level3 || spatialLevel == level4)
-            {
-                ampValues[remapStrip[i] - 1] = 0.95f * BaseAmps[remapStrip[i] - 1];
-            }
-            else if (spatialLevel == level5 || spatialLevel == level6)
-            {
-                ampValues[remapStrip[i] - 1] = 0.9f * BaseAmps[remapStrip[i] - 1];
-            }
-            else ampValues[remapStrip[i] - 1] = 1f * BaseAmps[remapStrip[i] - 1];
-            //ampValues[remapStrip[i] - 1] = 1f * BaseAmps[remapStrip[i] - 1];
+            //if (spatialLevel == level3 || spatialLevel == level4)
+            //{
+            //    ampValues[remapStrip[i] - 1] = 0.95f * BaseAmps[remapStrip[i] - 1];
+            //}
+            //else if (spatialLevel == level5 || spatialLevel == level6)
+            //{
+            //    ampValues[remapStrip[i] - 1] = 0.9f * BaseAmps[remapStrip[i] - 1];
+            //}
+            //else ampValues[remapStrip[i] - 1] = 1f * BaseAmps[remapStrip[i] - 1];
+            ampValues[remapStrip[i] - 1] = 1f * BaseAmps[remapStrip[i] - 1];
         }
 
         return new ModulationData

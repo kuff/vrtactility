@@ -741,6 +741,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8463723146824022035, guid: 67a8a38927028f54aa5d715c4147ca84,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 170902747}
+    - target: {fileID: 8463723146824022035, guid: 67a8a38927028f54aa5d715c4147ca84,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ChangeSelectedModulator
+      objectReference: {fileID: 0}
+    - target: {fileID: 8463723146824022035, guid: 67a8a38927028f54aa5d715c4147ca84,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Tactility.Calibration.Interface.ModulatorSelectionManager, Scripts.Tactility
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67a8a38927028f54aa5d715c4147ca84, type: 3}
 --- !u!114 &170902744 stripped
@@ -755,6 +770,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &170902745 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4581897045662738726, guid: 67a8a38927028f54aa5d715c4147ca84,
+    type: 3}
+  m_PrefabInstance: {fileID: 170902743}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &170902746 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3002038608353910433, guid: 67a8a38927028f54aa5d715c4147ca84,
+    type: 3}
+  m_PrefabInstance: {fileID: 170902743}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d0b652f32a2cc243917e4028fa0f046, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &170902747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 170902745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3721f83030c650d48ae4c3ca105e5fd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dropdown: {fileID: 170902746}
+  defaultItem: 
+  tactilityManager: {fileID: 1266751877}
+  textBox_modality: {fileID: 170902744}
 --- !u!4 &216076046 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 459718, guid: 126d619cf4daa52469682f85c1378b4a,
@@ -1490,7 +1539,6 @@ MonoBehaviour:
   _explodingParticles: {fileID: 597386370}
   textBox: {fileID: 1990631177}
   textBox_modality: {fileID: 170902744}
-  tactilityManager: {fileID: 1266751877}
 --- !u!114 &508686938
 MonoBehaviour:
   m_ObjectHideFlags: 0

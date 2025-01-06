@@ -28,16 +28,11 @@ namespace Tactility.Task
 
         private void Update()
         {
-            if (_scenario.grabbable.isGrabbed && _targetProgressInstance == null)
+            if (_scenario.grabbable.isGrabbed && _targetProgressInstance == null && SceneManager.GetActiveScene().buildIndex != 1)
             {
 
-                if (SceneManager.GetActiveScene().buildIndex != 1)
-                {
-                    _targetProgressInstance = CreateCube(_scenario.grabbable.gameObject.transform.localScale.x);
-                    _targetProgressInstance.transform.position = _scenario.targetPosition;
-                }
-                //else
-                //    _targetProgressInstance.transform.position = _scenario.originPosition;
+                _targetProgressInstance = CreateCube(_scenario.grabbable.gameObject.transform.localScale.x);
+                _targetProgressInstance.transform.position = _scenario.targetPosition;
 
                 _renderer = _targetProgressInstance.GetComponent<Renderer>();
 

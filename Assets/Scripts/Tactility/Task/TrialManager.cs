@@ -35,7 +35,7 @@ namespace Tactility.Task
         private string _triggerString;
         private int _maxRep;
         
-        public GameObject tactilityManager;
+        //public GameObject tactilityManager;
 
         private AbstractBoxController _boxController;
 
@@ -58,22 +58,22 @@ namespace Tactility.Task
                 _renderersTargetForce.Add(targetForceHighlight_planes[i].GetComponent<Renderer>());
             }
 
-            Transform[] children = tactilityManager.GetComponentsInChildren<Transform>(true);
+            //Transform[] children = tactilityManager.GetComponentsInChildren<Transform>(true);
 
-            // Iterate through each child and check their active status
-            foreach (Transform child in children)
-            {
-                // Skip the parent object itself
-                if (child == tactilityManager.transform)
-                    continue;
+            //// Iterate through each child and check their active status
+            //foreach (Transform child in children)
+            //{
+            //    // Skip the parent object itself
+            //    if (child == tactilityManager.transform)
+            //        continue;
 
-                // Check if the child is active
-                bool isActive = child.gameObject.activeSelf;
-                if (isActive)
-                {
-                    textBox_modality.text = child.gameObject.name;
-                }
-            }
+            //    // Check if the child is active
+            //    bool isActive = child.gameObject.activeSelf;
+            //    if (isActive)
+            //    {
+            //        textBox_modality.text = child.gameObject.name;
+            //    }
+            //}
 
             ResumeGame();
 

@@ -5280,6 +5280,7 @@ GameObject:
   - component: {fileID: 633586780}
   - component: {fileID: 633586779}
   - component: {fileID: 633586782}
+  - component: {fileID: 633586783}
   m_Layer: 0
   m_Name: SpatialModulator
   m_TagString: Untagged
@@ -5321,7 +5322,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 633586776}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f9cf1ba6dd45334e928cd44a1d5f254, type: 3}
   m_Name: 
@@ -5348,6 +5349,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 298bd555f7fc1914ea3538c13b398dcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &633586783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 633586776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd8bdc8a1eeb04e4b96cfa6a4bb616d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &633639047
